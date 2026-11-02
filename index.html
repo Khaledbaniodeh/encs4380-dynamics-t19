@@ -21,6 +21,8 @@
         </select>
 
         <label for="gain">Gain K:</label>
+        <input id="gain-slider" type="range" min="-10" max="10" step="any" value="1"
+               aria-label="Gain K slider">
         <input id="gain" type="number" step="any" value="1">
 
         <span id="step-controls">
@@ -34,6 +36,8 @@
         </span>
 
         <label for="tau">Time constant τ (seconds):</label>
+        <input id="tau-slider" type="range" min="0.1" max="10" step="any" value="2"
+               aria-label="Time constant τ slider (seconds)">
         <input id="tau" type="number" step="any" value="2">
 
         <label for="time">Time t (seconds):</label>
@@ -369,6 +373,36 @@
                         chart.hidden = true;
                         status.textContent = "Calculation error: " + error.message;
                     }
+                }
+
+                // These controls only pass values to the Python calculations.
+                const parameterPairs = [
+                    ["gain", "gain-slider", false],
+                    ["tau", "tau-slider", true]
+                ];
+
+                function syncSlider(numberInput, slider, mustBePositive) {
+                    const value = numberInput.valueAsNumber;
+                    const valid = Number.isFinite(value) && (!mustBePositive || value > 0);
+                    slider.disabled = !valid;
+                    if (!valid) return;
+
+                    // Typed values may extend the initial slider range.
+                    // step="any" preserves decimal values without rounding them.
+                    slider.min = Math.min(Number(slider.min), value);
+                    slider.max = Math.max(Number(slider.max), value);
+                    slider.value = numberInput.value;
+                }
+
+                for (const [numberId, sliderId, mustBePositive] of parameterPairs) {
+                    const numberInput = document.getElementById(numberId);
+                    const slider = document.getElementById(sliderId);
+                    syncSlider(numberInput, slider, mustBePositive);
+                    numberInput.addEventListener("input", () =>
+                        syncSlider(numberInput, slider, mustBePositive));
+                    slider.addEventListener("input", () => {
+                        numberInput.value = slider.value;
+                    });
                 }
 
                 controls.addEventListener("input", updateResult);
