@@ -1,6 +1,7 @@
 """Closed-form first-order sensor responses for ENCS4380, Team T19."""
 
 from math import exp, expm1, isfinite
+import json
 
 
 def step_response(t, k, tau, amplitude=1.0):
@@ -88,3 +89,37 @@ def ramp_tracking_metrics(t, k, tau, slope=1.0):
     current_error = -steady_error * expm1(-t / tau)
     time_lag = tau if k != 0 and slope != 0 else None
     return time_lag, current_error, steady_error
+
+
+def step_validation_json(k, tau, amplitude=1.0):
+    """Check the lecture's rounded 63.2% and 95% step benchmarks.
+
+    Compare fractions with tolerance 0.0005 (0.05 percentage points),
+    allowing for the lecture's rounding. Zero final output has no defined
+    percentage. JSON keeps numbers, booleans and None explicit in the UI.
+    """
+    if not all(isfinite(value) for value in (k, tau, amplitude)):
+        raise ValueError("All inputs must be finite numbers.")
+    if tau <= 0:
+        raise ValueError("tau must be greater than zero.")
+    final_output = k * amplitude
+    if not isfinite(final_output):
+        raise ValueError("Final output is outside the supported numeric range.")
+
+    rows = []
+    for multiple, expected_fraction in ((1, 0.632), (3, 0.95)):
+        time = multiple * tau
+        actual_output = step_response(time, k, tau, amplitude)
+        actual_fraction = actual_output / final_output if final_output != 0 else None
+        passed = (abs(actual_fraction - expected_fraction) <= 0.0005
+                  if actual_fraction is not None else None)
+        rows.append({
+            "multiple": multiple,
+            "time": time,
+            "expected_output": expected_fraction * final_output,
+            "actual_output": actual_output,
+            "expected_percent": 100 * expected_fraction,
+            "actual_percent": 100 * actual_fraction if actual_fraction is not None else None,
+            "passed": passed,
+        })
+    return json.dumps(rows, allow_nan=False)

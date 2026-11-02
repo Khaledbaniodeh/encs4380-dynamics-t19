@@ -43,6 +43,27 @@
     <p id="status" role="status">Loading Python...</p>
     <p id="step-markers"></p>
 
+    <section id="step-validation" hidden>
+        <h2>Step validation</h2>
+        <p>Lecture benchmarks: y(τ) ≈ 0.632KA and y(3τ) ≈ 0.95KA.</p>
+        <table style="border-spacing: 12px 6px; text-align: left;">
+            <caption>Expected and computed values for the current K, A and τ</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Time</th>
+                    <th scope="col">Expected y</th>
+                    <th scope="col">Computed y</th>
+                    <th scope="col">Expected % of KA</th>
+                    <th scope="col">Computed % of KA</th>
+                    <th scope="col">Result</th>
+                </tr>
+            </thead>
+            <tbody id="step-validation-rows"></tbody>
+        </table>
+        <p>Pass tolerance: 0.05 percentage points, because the lecture values are rounded.
+           Percentages and this check are not applicable when KA = 0.</p>
+    </section>
+
     <section id="ramp-metrics" hidden>
         <h2>Ramp tracking</h2>
         <p>Errors compare the sensor output with the ideal output Kx(t).</p>
@@ -75,6 +96,8 @@
         const errorSection = document.getElementById("error-section");
         const errorDetails = document.getElementById("error-details");
         const errorChart = document.getElementById("error-chart");
+        const stepValidation = document.getElementById("step-validation");
+        const validationRows = document.getElementById("step-validation-rows");
         const rampMetrics = document.getElementById("ramp-metrics");
 
         async function main() {
@@ -91,6 +114,7 @@
 
                 await pyodide.runPythonAsync(await response.text());
 
+                const calculateStepValidation = pyodide.globals.get("step_validation_json");
                 const calculateStep = pyodide.globals.get("step_response");
                 const calculateRamp = pyodide.globals.get("ramp_response");
                 const calculateRampReference = pyodide.globals.get("ramp_ideal_response");
@@ -104,6 +128,8 @@
                     markerDetails.textContent = "";
                     errorSection.hidden = true;
                     rampMetrics.hidden = true;
+                    stepValidation.hidden = true;
+                    validationRows.replaceChildren();
                     const isStep = document.getElementById("input-type").value === "step";
                     document.getElementById("step-controls").hidden = !isStep;
                     document.getElementById("ramp-controls").hidden = isStep;
@@ -288,7 +314,28 @@
                         }
 
                         if (version !== updateVersion) return;
-                        if (!isStep) {
+                        if (isStep) {
+                            const rows = JSON.parse(calculateStepValidation(K, tau, A));
+                            for (const row of rows) {
+                                const tr = document.createElement("tr");
+                                const cells = [
+                                    (row.multiple === 1 ? "τ" : "3τ") + " = " + row.time + " s",
+                                    row.expected_output.toFixed(4),
+                                    row.actual_output.toFixed(4),
+                                    row.expected_percent.toFixed(1) + "%",
+                                    row.actual_percent == null ? "Not applicable" :
+                                        row.actual_percent.toFixed(4) + "%",
+                                    row.passed == null ? "Not applicable" : row.passed ? "Pass" : "Fail"
+                                ];
+                                for (const value of cells) {
+                                    const td = document.createElement("td");
+                                    td.textContent = value;
+                                    tr.appendChild(td);
+                                }
+                                validationRows.appendChild(tr);
+                            }
+                            stepValidation.hidden = false;
+                        } else {
                             const metrics = calculateRampMetrics(t, K, tau, r);
                             let lag, currentError, steadyError;
                             try {
@@ -318,6 +365,7 @@
                         if (version !== updateVersion) return;
                         errorSection.hidden = true;
                         rampMetrics.hidden = true;
+                        stepValidation.hidden = true;
                         chart.hidden = true;
                         status.textContent = "Calculation error: " + error.message;
                     }
