@@ -20,3 +20,25 @@ def step_response(t, k, tau, amplitude=1.0):
     output = k * amplitude * (1 - exp(-t / tau))
     return output
 
+
+
+def step_error_fraction(t, tau):
+    """Return E(t) = exp(-t/tau) for a nonzero, zero-initial step.
+
+    This normalized error is meaningful when k * amplitude is nonzero.
+    Use the exponential directly to avoid subtracting nearly equal values.
+    """
+    if not all(isfinite(value) for value in (t, tau)):
+        raise ValueError("t and tau must be finite numbers.")
+    if tau <= 0:
+        raise ValueError("tau must be greater than zero.")
+    if t < 0:
+        raise ValueError("t must be zero or positive.")
+    return exp(-t / tau)
+
+
+def step_log_error_slope(tau):
+    """Return the slope of ln(E(t)) against time, in inverse seconds."""
+    if not isfinite(tau) or tau <= 0:
+        raise ValueError("tau must be finite and greater than zero.")
+    return -1.0 / tau

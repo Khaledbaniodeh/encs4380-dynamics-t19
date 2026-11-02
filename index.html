@@ -32,11 +32,21 @@
     <div id="response-chart" aria-label="First-order step response over time"
          style="width: 100%; max-width: 960px; height: 400px;" hidden></div>
 
+    <section id="error-section" hidden>
+        <h2>Remaining step error</h2>
+        <p id="error-details"></p>
+        <div id="error-chart" aria-label="Remaining step-error fraction on a logarithmic vertical axis"
+             style="width: 100%; max-width: 960px; height: 360px;"></div>
+    </section>
+
     <script>
         const status = document.getElementById("status");
         const controls = document.getElementById("controls");
         const chart = document.getElementById("response-chart");
         const markerDetails = document.getElementById("step-markers");
+        const errorSection = document.getElementById("error-section");
+        const errorDetails = document.getElementById("error-details");
+        const errorChart = document.getElementById("error-chart");
 
         async function main() {
             try {
@@ -45,7 +55,7 @@
                 }
                 const pyodide = await loadPyodide();
 
-                const response = await fetch("./python/first_order.py");
+                const response = await fetch("./python/first_order.py", {cache: "no-store"});
                 if (!response.ok) {
                     throw new Error("Could not load first_order.py");
                 }
@@ -53,9 +63,14 @@
                 await pyodide.runPythonAsync(await response.text());
 
                 const calculateStep = pyodide.globals.get("step_response");
+                const calculateError = pyodide.globals.get("step_error_fraction");
+                const calculateLogSlope = pyodide.globals.get("step_log_error_slope");
+                let updateVersion = 0;
 
                 async function updateResult() {
+                    const version = ++updateVersion;
                     markerDetails.textContent = "";
+                    errorSection.hidden = true;
                     const K = document.getElementById("gain").valueAsNumber;
                     const A = document.getElementById("amplitude").valueAsNumber;
                     const tau = document.getElementById("tau").valueAsNumber;
@@ -155,10 +170,57 @@
                             displaylogo: false
                         });
 
+                        if (version !== updateVersion) return;
+
+                        if (K !== 0 && A !== 0) {
+                            const errors = times.map(sampleTime => calculateError(sampleTime, tau));
+                            const slope = calculateLogSlope(tau);
+                            if (!errors.every(value => Number.isFinite(value) && value > 0) ||
+                                !Number.isFinite(slope)) {
+                                throw new Error("The error plot is outside the supported numeric range.");
+                            }
+
+                            errorDetails.textContent =
+                                "E(t) = (KA - y(t)) / KA = exp(-t/τ). " +
+                                "ln(E) = -t/τ, so the slope of ln(E) versus time is " +
+                                slope.toPrecision(5) + " s⁻¹. " +
+                                "The plot uses a logarithmic vertical axis (base 10).";
+
+                            errorSection.hidden = false;
+                            await Plotly.react(errorChart, [{
+                                x: times,
+                                y: errors,
+                                type: "scatter",
+                                mode: "lines",
+                                name: "Remaining error E(t)",
+                                line: {color: "#b45309", width: 3},
+                                hovertemplate: "t: %{x:.4g} s<br>E(t): %{y:.6g}<extra></extra>"
+                            }], {
+                                title: {text: "Error fraction E(t) (logarithmic vertical axis)"},
+                                showlegend: false,
+                                xaxis: {
+                                    title: {text: "Time (s)"},
+                                    range: [0, endTime]
+                                },
+                                yaxis: {
+                                    title: {text: "Error fraction E(t)"},
+                                    type: "log",
+                                    autorange: true
+                                },
+                                margin: {t: 55, r: 25, b: 60, l: 65}
+                            }, {
+                                responsive: true,
+                                displaylogo: false
+                            });
+                        }
+
+                        if (version !== updateVersion) return;
                         markerDetails.textContent = markerText;
                         status.textContent =
                             "Output at " + t + " seconds: " + result.toFixed(4);
                     } catch (error) {
+                        if (version !== updateVersion) return;
+                        errorSection.hidden = true;
                         chart.hidden = true;
                         status.textContent = "Calculation error: " + error.message;
                     }
