@@ -12,13 +12,26 @@
     <h1>First-order response</h1>
 
     <fieldset id="controls" disabled>
-        <legend>Step parameters</legend>
+        <legend>First-order parameters</legend>
+
+        <label for="input-type">Input type:</label>
+        <select id="input-type">
+            <option value="step">Step</option>
+            <option value="ramp">Ramp</option>
+        </select>
 
         <label for="gain">Gain K:</label>
         <input id="gain" type="number" step="any" value="1">
 
-        <label for="amplitude">Step amplitude A:</label>
-        <input id="amplitude" type="number" step="any" value="10">
+        <span id="step-controls">
+            <label for="amplitude">Step amplitude A:</label>
+            <input id="amplitude" type="number" step="any" value="10">
+        </span>
+
+        <span id="ramp-controls" hidden>
+            <label for="ramp-slope">Ramp slope r (input units/s):</label>
+            <input id="ramp-slope" type="number" step="any" value="2">
+        </span>
 
         <label for="tau">Time constant τ (seconds):</label>
         <input id="tau" type="number" step="any" value="2">
@@ -29,7 +42,7 @@
 
     <p id="status" role="status">Loading Python...</p>
     <p id="step-markers"></p>
-    <div id="response-chart" aria-label="First-order step response over time"
+    <div id="response-chart" aria-label="First-order input and response over time"
          style="width: 100%; max-width: 960px; height: 400px;" hidden></div>
 
     <section id="error-section" hidden>
@@ -63,6 +76,8 @@
                 await pyodide.runPythonAsync(await response.text());
 
                 const calculateStep = pyodide.globals.get("step_response");
+                const calculateRamp = pyodide.globals.get("ramp_response");
+                const calculateRampReference = pyodide.globals.get("ramp_ideal_response");
                 const calculateError = pyodide.globals.get("step_error_fraction");
                 const calculateLogSlope = pyodide.globals.get("step_log_error_slope");
                 let updateVersion = 0;
@@ -71,12 +86,19 @@
                     const version = ++updateVersion;
                     markerDetails.textContent = "";
                     errorSection.hidden = true;
+                    const isStep = document.getElementById("input-type").value === "step";
+                    document.getElementById("step-controls").hidden = !isStep;
+                    document.getElementById("ramp-controls").hidden = isStep;
                     const K = document.getElementById("gain").valueAsNumber;
                     const A = document.getElementById("amplitude").valueAsNumber;
+                    const r = document.getElementById("ramp-slope").valueAsNumber;
                     const tau = document.getElementById("tau").valueAsNumber;
                     const t = document.getElementById("time").valueAsNumber;
 
-                    if (![K, A, tau, t].every(Number.isFinite)) {
+                    const signalLevel = isStep ? A : r;
+                    const calculateOutput = isStep ? calculateStep : calculateRamp;
+
+                    if (![K, signalLevel, tau, t].every(Number.isFinite)) {
                         chart.hidden = true;
                         status.textContent = "Please enter valid numbers.";
                         return;
@@ -89,11 +111,11 @@
                     }
 
                     try {
-                        const result = calculateStep(t, K, tau, A);
+                        const result = calculateOutput(t, K, tau, signalLevel);
                         if (!Number.isFinite(result)) {
                             throw new Error("Result is outside the supported numeric range.");
                         }
-                        // Sample the exact Python formula from 0 to 5*tau.
+                        // Sample the selected exact Python formula from 0 to 5*tau.
                         // This is plotting data, not the Euler bonus.
                         const endTime = 5 * tau;
                         if (!Number.isFinite(endTime)) {
@@ -106,7 +128,7 @@
 
                         for (let i = 0; i < numberOfPoints; i++) {
                             const sampleTime = (i / (numberOfPoints - 1)) * endTime;
-                            const sampleOutput = calculateStep(sampleTime, K, tau, A);
+                            const sampleOutput = calculateOutput(sampleTime, K, tau, signalLevel);
                             if (!Number.isFinite(sampleOutput)) {
                                 throw new Error("The curve is outside the supported numeric range.");
                             }
@@ -119,52 +141,85 @@
                             y: outputs,
                             type: "scatter",
                             mode: "lines",
-                            name: "Step response y(t)",
+                            name: isStep ? "Step response y(t)" : "Sensor output y(t)",
                             line: {color: "#2563eb", width: 3}
                         }];
 
-                        let markerText;
-                        if (K === 0 || A === 0) {
-                            markerText = "The response is zero. Percentage-of-change markers are not applicable.";
+                        let markerText = "";
+                        if (isStep) {
+                            if (K === 0 || A === 0) {
+                                markerText = "The response is zero. Percentage-of-change markers are not applicable.";
+                            } else {
+                                // Both marker outputs come from the Python equation.
+                                const atTau = calculateStep(tau, K, tau, A);
+                                const atThreeTau = calculateStep(3 * tau, K, tau, A);
+    
+                                traces.push({
+                                    x: [tau, 3 * tau],
+                                    y: [atTau, atThreeTau],
+                                    type: "scatter",
+                                    mode: "markers+text",
+                                    name: "Response markers",
+                                    text: ["63.2% at τ", "≈95% at 3τ"],
+                                    textposition: K * A < 0 ? "bottom center" : "top center",
+                                    marker: {size: 10, color: ["#d97706", "#059669"]},
+                                    cliponaxis: false,
+                                    showlegend: false,
+                                    hovertemplate: "t: %{x:.4g} s<br>y: %{y:.6g}<extra></extra>"
+                                });
+    
+                                markerText =
+                                    "At τ = " + tau + " s: y = " + atTau.toFixed(4) +
+                                    " (63.2% of the final change). At 3τ = " + (3 * tau) +
+                                    " s: y = " + atThreeTau.toFixed(4) +
+                                    " (approximately 95%).";
+                            }
                         } else {
-                            // Both marker outputs come from the Python equation.
-                            const atTau = calculateStep(tau, K, tau, A);
-                            const atThreeTau = calculateStep(3 * tau, K, tau, A);
+                            const rampInput = times.map(sampleTime =>
+                                calculateRampReference(sampleTime, 1, r));
+                            const idealOutput = times.map(sampleTime =>
+                                calculateRampReference(sampleTime, K, r));
+                            if (![...rampInput, ...idealOutput].every(Number.isFinite)) {
+                                throw new Error("The ramp reference is outside the supported numeric range.");
+                            }
 
-                            traces.push({
-                                x: [tau, 3 * tau],
-                                y: [atTau, atThreeTau],
+                            traces.unshift({
+                                x: times,
+                                y: rampInput,
                                 type: "scatter",
-                                mode: "markers+text",
-                                name: "Response markers",
-                                text: ["63.2% at τ", "≈95% at 3τ"],
-                                textposition: K * A < 0 ? "bottom center" : "top center",
-                                marker: {size: 10, color: ["#d97706", "#059669"]},
-                                cliponaxis: false,
-                                showlegend: false,
-                                hovertemplate: "t: %{x:.4g} s<br>y: %{y:.6g}<extra></extra>"
+                                mode: "lines",
+                                name: K === 1 ? "Input x(t) = ideal Kx(t)" : "Input x(t)",
+                                line: {color: "#64748b", width: 2, dash: "dot"}
                             });
-
+                            if (K !== 1) {
+                                traces.push({
+                                    x: times,
+                                    y: idealOutput,
+                                    type: "scatter",
+                                    mode: "lines",
+                                    name: "Ideal output Kx(t)",
+                                    line: {color: "#059669", width: 2, dash: "dash"}
+                                });
+                            }
                             markerText =
-                                "At τ = " + tau + " s: y = " + atTau.toFixed(4) +
-                                " (63.2% of the final change). At 3τ = " + (3 * tau) +
-                                " s: y = " + atThreeTau.toFixed(4) +
-                                " (approximately 95%).";
+                                "Ramp input: x(t) = r·t. The ideal instantaneous output is Kx(t). " +
+                                "All input, ideal-output, and sensor-output values are calculated in Python.";
                         }
 
                         chart.hidden = false;
                         await Plotly.react(chart, traces, {
-                            title: {text: "Step response (0 to 5τ)"},
-                            showlegend: false,
+                            title: {text: isStep ? "Step response (0 to 5τ)" : "Ramp response (0 to 5τ)"},
+                            showlegend: !isStep,
+                            legend: {orientation: "h", y: 1.02, yanchor: "bottom"},
                             xaxis: {
                                 title: {text: "Time (s)"},
                                 range: [0, endTime]
                             },
                             yaxis: {
-                                title: {text: "Output y(t)"},
+                                title: {text: isStep ? "Output y(t)" : "Signal value"},
                                 rangemode: "tozero"
                             },
-                            margin: {t: 55, r: 25, b: 60, l: 65}
+                            margin: {t: isStep ? 55 : 90, r: 25, b: 60, l: 65}
                         }, {
                             responsive: true,
                             displaylogo: false
@@ -172,7 +227,7 @@
 
                         if (version !== updateVersion) return;
 
-                        if (K !== 0 && A !== 0) {
+                        if (isStep && K !== 0 && A !== 0) {
                             const errors = times.map(sampleTime => calculateError(sampleTime, tau));
                             const slope = calculateLogSlope(tau);
                             if (!errors.every(value => Number.isFinite(value) && value > 0) ||
