@@ -6,7 +6,7 @@ An interactive browser toolkit for understanding sensor dynamics through live co
 
 ## Current status
 
-Repository setup and module planning are complete. Module 1 has started with a Python function in `python/first_order.py` that computes the zero-initial-condition step response at one time point. Its reference values at t = 0, tau, and 3*tau and its input validation have been checked in a Python interpreter. Browser integration, plots, and the rest of Module 1 are not implemented yet. GitHub Pages has not yet been configured or verified; there is no confirmed live website link.
+Repository setup and module planning are complete. Module 1 has started in `python/first_order.py`: `step_response` computes the zero-initial-condition step response at one time point, and `step_curve` returns time/output lists for plotting. The default curve has 101 samples from 0 to 5*tau; a custom observation window is supported. Reference values at t = 0, tau, and 3*tau, signed/zero gains and amplitudes, and input validation have been checked in a Python interpreter. These functions evaluate the closed-form solution; they do not implement the optional Euler bonus. Browser integration, plots, and the rest of Module 1 are not implemented yet. GitHub Pages has not yet been configured or verified; there is no confirmed live website link.
 
 ## Technology decision
 
@@ -74,4 +74,4 @@ Each module also needs a “Predict, then check” interaction. All controls mus
 
 ## AI assistance
 
-ChatGPT assisted with interpreting the homework, comparing browser implementation options, preparing repository documentation and module issue checklists, and writing and checking the initial Python step-response function. Update this disclosure as development proceeds. Team members remain responsible for checking the mathematics, verifying behavior, and explaining the submitted work.
+ChatGPT assisted with interpreting the homework, comparing browser implementation options, preparing repository documentation and module issue checklists, and writing and checking the Python step-response and curve-sampling functions. Update this disclosure as development proceeds. Team members remain responsible for checking the mathematics, verifying behavior, and explaining the submitted work.
