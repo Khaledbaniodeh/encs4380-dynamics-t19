@@ -69,3 +69,22 @@ def ramp_ideal_response(t, k, slope=1.0):
     if t < 0:
         raise ValueError("t must be zero or positive.")
     return k * slope * t
+
+
+def ramp_tracking_metrics(t, k, tau, slope=1.0):
+    """Return (asymptotic time lag, current signed error, steady-state error).
+
+    Error is measured against the ideal output k*x(t), not the raw input.
+    The lag is not meaningful when the ideal output has zero slope.
+    """
+    if not all(isfinite(value) for value in (t, k, tau, slope)):
+        raise ValueError("All inputs must be finite numbers.")
+    if tau <= 0:
+        raise ValueError("tau must be greater than zero.")
+    if t < 0:
+        raise ValueError("t must be zero or positive.")
+
+    steady_error = k * slope * tau
+    current_error = -steady_error * expm1(-t / tau)
+    time_lag = tau if k != 0 and slope != 0 else None
+    return time_lag, current_error, steady_error

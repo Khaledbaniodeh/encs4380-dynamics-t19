@@ -42,6 +42,21 @@
 
     <p id="status" role="status">Loading Python...</p>
     <p id="step-markers"></p>
+
+    <section id="ramp-metrics" hidden>
+        <h2>Ramp tracking</h2>
+        <p>Errors compare the sensor output with the ideal output Kx(t).</p>
+        <dl>
+            <dt>Asymptotic time lag relative to Kx(t)</dt>
+            <dd id="ramp-lag"></dd>
+            <dt>Current signed error Kx(t) − y(t), at the selected time t</dt>
+            <dd id="ramp-current-error"></dd>
+            <dt>Steady-state signed error Krτ</dt>
+            <dd id="ramp-steady-error"></dd>
+        </dl>
+        <p>The current error approaches the steady-state value as time increases.
+           The time lag τ describes long-time tracking, after the transient.</p>
+    </section>
     <div id="response-chart" aria-label="First-order input and response over time"
          style="width: 100%; max-width: 960px; height: 400px;" hidden></div>
 
@@ -60,6 +75,7 @@
         const errorSection = document.getElementById("error-section");
         const errorDetails = document.getElementById("error-details");
         const errorChart = document.getElementById("error-chart");
+        const rampMetrics = document.getElementById("ramp-metrics");
 
         async function main() {
             try {
@@ -78,6 +94,7 @@
                 const calculateStep = pyodide.globals.get("step_response");
                 const calculateRamp = pyodide.globals.get("ramp_response");
                 const calculateRampReference = pyodide.globals.get("ramp_ideal_response");
+                const calculateRampMetrics = pyodide.globals.get("ramp_tracking_metrics");
                 const calculateError = pyodide.globals.get("step_error_fraction");
                 const calculateLogSlope = pyodide.globals.get("step_log_error_slope");
                 let updateVersion = 0;
@@ -86,6 +103,7 @@
                     const version = ++updateVersion;
                     markerDetails.textContent = "";
                     errorSection.hidden = true;
+                    rampMetrics.hidden = true;
                     const isStep = document.getElementById("input-type").value === "step";
                     document.getElementById("step-controls").hidden = !isStep;
                     document.getElementById("ramp-controls").hidden = isStep;
@@ -270,12 +288,36 @@
                         }
 
                         if (version !== updateVersion) return;
+                        if (!isStep) {
+                            const metrics = calculateRampMetrics(t, K, tau, r);
+                            let lag, currentError, steadyError;
+                            try {
+                                [lag, currentError, steadyError] = metrics.toJs();
+                            } finally {
+                                metrics.destroy();
+                            }
+
+                            if (![currentError, steadyError].every(Number.isFinite)) {
+                                throw new Error("Ramp metrics are outside the supported numeric range.");
+                            }
+
+                            document.getElementById("ramp-lag").textContent =
+                                lag === null ? "Not applicable: the ideal output is constant." :
+                                lag + " s";
+                            document.getElementById("ramp-current-error").textContent =
+                                currentError.toFixed(4) + " output units";
+                            document.getElementById("ramp-steady-error").textContent =
+                                steadyError.toFixed(4) + " output units";
+                            rampMetrics.hidden = false;
+                        }
+
                         markerDetails.textContent = markerText;
                         status.textContent =
                             "Output at " + t + " seconds: " + result.toFixed(4);
                     } catch (error) {
                         if (version !== updateVersion) return;
                         errorSection.hidden = true;
+                        rampMetrics.hidden = true;
                         chart.hidden = true;
                         status.textContent = "Calculation error: " + error.message;
                     }
