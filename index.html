@@ -3,51 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 1 — Python test</title>
+    <title>Module 1 — First-order response</title>
+    <style>
+        * { box-sizing: border-box; }
+        [hidden] { display: none !important; }
+        body { margin: 0; background: #f4f6fa; color: #17243a;
+               font-family: system-ui, sans-serif; line-height: 1.5; }
+        main { max-width: 1120px; margin: 0 auto; padding: 24px; }
+        h1 { font-size: 1.9rem; margin: 0 0 24px; }
+        h2 { font-size: 1.2rem; margin: 0 0 12px; }
+        p { overflow-wrap: anywhere; }
+        fieldset, section { min-width: 0; margin: 0 0 20px; padding: 20px;
+                           border: 1px solid #cdd6e4; border-radius: 10px; background: #fff; }
+        legend { padding: 0 6px; font-weight: 650; }
+        .parameter-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+        .parameter { display: grid; align-content: start; gap: 8px; min-width: 0; }
+        .parameter label, .prediction-choice label { font-weight: 600; }
+        .value-control { display: grid; grid-template-columns: minmax(0, 1fr) 6.5rem;
+                         align-items: center; gap: 10px; }
+        input, select, button { font: inherit; min-height: 44px; max-width: 100%; }
+        input[type="number"], select { width: 100%; min-width: 0; padding: 8px;
+                                     color: inherit; background: #fff;
+                                     border: 1px solid #98a6bb; border-radius: 6px; }
+        input[type="range"] { width: 100%; margin: 0; accent-color: #2563eb; }
+        button { padding: 8px 14px; border: 1px solid #1d4ed8; border-radius: 6px;
+                 background: #1d4ed8; color: #fff; cursor: pointer; }
+        #reset-prediction { background: #fff; color: #1d4ed8; }
+        :disabled { opacity: 0.55; cursor: default; }
+        :focus-visible { outline: 3px solid #b45309; outline-offset: 3px; }
+        .prediction-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
+        .prediction-choice { display: grid; gap: 8px; min-width: 200px; max-width: 100%; }
+        #prediction-feedback { margin-bottom: 0; }
+        #status { padding: 12px 16px; border-left: 4px solid #2563eb; background: #eaf1ff; }
+        .table-scroll { max-width: 100%; overflow-x: auto; }
+        table { width: 100%; min-width: 650px; border-collapse: collapse; text-align: left; }
+        caption { text-align: left; padding-bottom: 12px; color: #42516a; }
+        th, td { padding: 10px 12px; border-bottom: 1px solid #dce2ec; }
+        thead { background: #eef3fa; }
+        dd { margin: 4px 0 14px; font-weight: 600; }
+        #response-chart, #error-chart { background: #fff; max-width: 100%; }
+        #response-chart { margin: 0 auto 20px; }
+        @media (max-width: 800px) {
+            .parameter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (max-width: 560px) {
+            main { padding: 16px 12px; }
+            fieldset, section { padding: 14px; }
+            h1 { font-size: 1.55rem; }
+            .parameter-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+            .prediction-actions { align-items: stretch; flex-direction: column; }
+            .prediction-choice { min-width: 0; }
+        }
+    </style>
+
 
     <script src="https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.js"></script>
     <script src="https://cdn.plot.ly/plotly-4.1.1.min.js" charset="utf-8"></script>
 </head>
 <body>
+    <main>
     <h1>First-order response</h1>
 
     <fieldset id="controls" disabled>
         <legend>First-order parameters</legend>
-
-        <label for="input-type">Input type:</label>
-        <select id="input-type">
-            <option value="step">Step</option>
-            <option value="ramp">Ramp</option>
-        </select>
-
-        <label for="gain">Gain K:</label>
-        <input id="gain-slider" type="range" min="-10" max="10" step="any" value="1"
-               aria-label="Gain K slider">
-        <input id="gain" type="number" step="any" value="1">
-
-        <span id="step-controls">
-            <label for="amplitude">Step amplitude A:</label>
-            <input id="amplitude" type="number" step="any" value="10">
-        </span>
-
-        <span id="ramp-controls" hidden>
-            <label for="ramp-slope">Ramp slope r (input units/s):</label>
-            <input id="ramp-slope" type="number" step="any" value="2">
-        </span>
-
-        <label for="tau">Time constant τ (seconds):</label>
-        <input id="tau-slider" type="range" min="0.1" max="10" step="any" value="2"
-               aria-label="Time constant τ slider (seconds)">
-        <input id="tau" type="number" step="any" value="2">
-
-        <label for="time">Time t (seconds):</label>
-        <input id="time" type="number" min="0" step="any" value="2">
+        <div class="parameter-grid">
+            <div class="parameter">
+                <label for="input-type">Input type</label>
+                <select id="input-type">
+                    <option value="step">Step</option>
+                    <option value="ramp">Ramp</option>
+                </select>
+            </div>
+            <div class="parameter">
+                <label for="gain">Gain K</label>
+                <div class="value-control">
+                    <input id="gain-slider" type="range" min="-10" max="10" step="any" value="1"
+                           aria-label="Gain K slider">
+                    <input id="gain" type="number" step="any" value="1">
+                </div>
+            </div>
+            <div id="step-controls" class="parameter">
+                <label for="amplitude">Step amplitude A</label>
+                <input id="amplitude" type="number" step="any" value="10">
+            </div>
+            <div id="ramp-controls" class="parameter" hidden>
+                <label for="ramp-slope">Ramp slope r (input units/s)</label>
+                <input id="ramp-slope" type="number" step="any" value="2">
+            </div>
+            <div class="parameter">
+                <label for="tau">Time constant τ (seconds)</label>
+                <div class="value-control">
+                    <input id="tau-slider" type="range" min="0.1" max="10" step="any" value="2"
+                           aria-label="Time constant τ slider (seconds)">
+                    <input id="tau" type="number" step="any" value="2">
+                </div>
+            </div>
+            <div class="parameter">
+                <label for="time">Time t (seconds)</label>
+                <input id="time" type="number" min="0" step="any" value="2">
+            </div>
+        </div>
     </fieldset>
 
     <fieldset id="prediction-controls" disabled>
         <legend>Predict, then check — Step</legend>
         <p>Before increasing τ, predict: will the output take longer, less time,
            or the same time to reach the 63.2% marker? Keep K and A unchanged.</p>
+        <div class="prediction-actions">
+        <div class="prediction-choice">
         <label for="tau-prediction">My prediction:</label>
         <select id="tau-prediction">
             <option value="">Choose a prediction</option>
@@ -55,9 +118,11 @@
             <option value="shorter">Less time</option>
             <option value="same">The same time</option>
         </select>
+        </div>
         <button id="save-prediction" type="button">Save prediction</button>
         <button id="check-prediction" type="button" disabled>Check after increasing τ</button>
         <button id="reset-prediction" type="button" disabled>New prediction</button>
+        </div>
         <p id="prediction-feedback" role="status">Choose Step, save a prediction, then increase τ.</p>
     </fieldset>
 
@@ -67,7 +132,8 @@
     <section id="step-validation" hidden>
         <h2>Step validation</h2>
         <p>Lecture benchmarks: y(τ) ≈ 0.632KA and y(3τ) ≈ 0.95KA.</p>
-        <table style="border-spacing: 12px 6px; text-align: left;">
+        <div class="table-scroll" role="region" aria-label="Step validation results" tabindex="0">
+        <table>
             <caption>Expected and computed values for the current K, A and τ</caption>
             <thead>
                 <tr>
@@ -81,6 +147,7 @@
             </thead>
             <tbody id="step-validation-rows"></tbody>
         </table>
+        </div>
         <p>Pass tolerance: 0.05 percentage points, because the lecture values are rounded.
            Percentages and this check are not applicable when KA = 0.</p>
     </section>
@@ -108,6 +175,8 @@
         <div id="error-chart" aria-label="Remaining step-error fraction on a logarithmic vertical axis"
              style="width: 100%; max-width: 960px; height: 360px;"></div>
     </section>
+
+    </main>
 
     <script>
         const status = document.getElementById("status");
