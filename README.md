@@ -6,7 +6,7 @@ An interactive browser toolkit for understanding sensor dynamics through live co
 
 ## Current status
 
-Repository setup and module planning are complete. Application implementation has not started. GitHub Pages has not yet been configured or verified; there is no confirmed live website link.
+Repository setup and module planning are complete. Module 1 has started with a Python function in `python/first_order.py` that computes the zero-initial-condition step response at one time point. Its reference values at t = 0, tau, and 3*tau and its input validation have been checked in a Python interpreter. Browser integration, plots, and the rest of Module 1 are not implemented yet. GitHub Pages has not yet been configured or verified; there is no confirmed live website link.
 
 ## Technology decision
 
@@ -74,4 +74,4 @@ Each module also needs a “Predict, then check” interaction. All controls mus
 
 ## AI assistance
 
-ChatGPT assisted with interpreting the homework, comparing browser implementation options, preparing this README, and drafting module issue checklists. No application code has been implemented at this stage. Update this disclosure as development proceeds. Team members remain responsible for checking the mathematics, verifying behavior, and explaining the submitted work.
+ChatGPT assisted with interpreting the homework, comparing browser implementation options, preparing repository documentation and module issue checklists, and writing and checking the initial Python step-response function. Update this disclosure as development proceeds. Team members remain responsible for checking the mathematics, verifying behavior, and explaining the submitted work.
