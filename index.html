@@ -9,29 +9,73 @@
 </head>
 <body>
     <h1>First-order response</h1>
+
+    <fieldset id="controls" disabled>
+        <legend>Step parameters</legend>
+
+        <label for="gain">Gain K:</label>
+        <input id="gain" type="number" step="any" value="1">
+
+        <label for="amplitude">Step amplitude A:</label>
+        <input id="amplitude" type="number" step="any" value="10">
+
+        <label for="tau">Time constant τ (seconds):</label>
+        <input id="tau" type="number" step="any" value="2">
+
+        <label for="time">Time t (seconds):</label>
+        <input id="time" type="number" min="0" step="any" value="2">
+    </fieldset>
+
     <p id="status" role="status">Loading Python...</p>
 
     <script>
         const status = document.getElementById("status");
+        const controls = document.getElementById("controls");
 
         async function main() {
             try {
                 const pyodide = await loadPyodide();
 
                 const response = await fetch("./python/first_order.py");
-
                 if (!response.ok) {
                     throw new Error("Could not load first_order.py");
                 }
 
-                const pythonCode = await response.text();
-                await pyodide.runPythonAsync(pythonCode);
+                await pyodide.runPythonAsync(await response.text());
 
-                const result = pyodide.runPython(
-                    "step_response(2.0, 1.0, 2.0, 10.0)"
-                );
+                const calculateStep = pyodide.globals.get("step_response");
 
-                status.textContent = "Output at 2 seconds: " + result.toFixed(4);
+                function updateResult() {
+                    const K = document.getElementById("gain").valueAsNumber;
+                    const A = document.getElementById("amplitude").valueAsNumber;
+                    const tau = document.getElementById("tau").valueAsNumber;
+                    const t = document.getElementById("time").valueAsNumber;
+
+                    if (![K, A, tau, t].every(Number.isFinite)) {
+                        status.textContent = "Please enter valid numbers.";
+                        return;
+                    }
+
+                    if (tau <= 0 || t < 0) {
+                        status.textContent = "τ must be positive; t must be zero or positive.";
+                        return;
+                    }
+
+                    try {
+                        const result = calculateStep(t, K, tau, A);
+                        if (!Number.isFinite(result)) {
+                            throw new Error("Result is outside the supported numeric range.");
+                        }
+                        status.textContent =
+                            "Output at " + t + " seconds: " + result.toFixed(4);
+                    } catch (error) {
+                        status.textContent = "Calculation error: " + error.message;
+                    }
+                }
+
+                controls.addEventListener("input", updateResult);
+                controls.disabled = false;
+                updateResult();
             } catch (error) {
                 status.textContent = "Error: " + error.message;
             }
