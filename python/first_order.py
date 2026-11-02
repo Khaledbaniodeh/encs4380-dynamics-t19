@@ -123,3 +123,25 @@ def step_validation_json(k, tau, amplitude=1.0):
             "passed": passed,
         })
     return json.dumps(rows, allow_nan=False)
+
+
+def check_tau_prediction_json(before_tau, after_tau, guess):
+    """Check a prediction about increasing tau for a nonzero step.
+
+    The lecture's 63.2% marker is at t=tau, for either output sign.
+    """
+    if not all(isfinite(value) and value > 0 for value in (before_tau, after_tau)):
+        raise ValueError("Time constants must be finite and positive.")
+    if after_tau <= before_tau:
+        raise ValueError("Increase tau above its saved value before checking.")
+    if guess not in ("longer", "shorter", "same"):
+        raise ValueError("Choose a prediction first.")
+    before_time = before_tau
+    after_time = after_tau
+    actual = "longer" if after_time > before_time else "shorter" if after_time < before_time else "same"
+    return json.dumps({
+        "correct": guess == actual,
+        "before_time": before_time,
+        "after_time": after_time,
+        "actual": actual,
+    }, allow_nan=False)

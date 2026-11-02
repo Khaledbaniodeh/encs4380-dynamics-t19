@@ -44,6 +44,23 @@
         <input id="time" type="number" min="0" step="any" value="2">
     </fieldset>
 
+    <fieldset id="prediction-controls" disabled>
+        <legend>Predict, then check — Step</legend>
+        <p>Before increasing τ, predict: will the output take longer, less time,
+           or the same time to reach the 63.2% marker? Keep K and A unchanged.</p>
+        <label for="tau-prediction">My prediction:</label>
+        <select id="tau-prediction">
+            <option value="">Choose a prediction</option>
+            <option value="longer">Longer</option>
+            <option value="shorter">Less time</option>
+            <option value="same">The same time</option>
+        </select>
+        <button id="save-prediction" type="button">Save prediction</button>
+        <button id="check-prediction" type="button" disabled>Check after increasing τ</button>
+        <button id="reset-prediction" type="button" disabled>New prediction</button>
+        <p id="prediction-feedback" role="status">Choose Step, save a prediction, then increase τ.</p>
+    </fieldset>
+
     <p id="status" role="status">Loading Python...</p>
     <p id="step-markers"></p>
 
@@ -125,10 +142,100 @@
                 const calculateRampMetrics = pyodide.globals.get("ramp_tracking_metrics");
                 const calculateError = pyodide.globals.get("step_error_fraction");
                 const calculateLogSlope = pyodide.globals.get("step_log_error_slope");
+                const checkTauPrediction = pyodide.globals.get("check_tau_prediction_json");
+                const predictionControls = document.getElementById("prediction-controls");
+                const guessInput = document.getElementById("tau-prediction");
+                const savePrediction = document.getElementById("save-prediction");
+                const checkPrediction = document.getElementById("check-prediction");
+                const resetPrediction = document.getElementById("reset-prediction");
+                const predictionFeedback = document.getElementById("prediction-feedback");
+                let prediction = null;
+                let predictionMessage = "";
                 let updateVersion = 0;
+
+                function predictionSetup() {
+                    return {
+                        step: document.getElementById("input-type").value === "step",
+                        k: document.getElementById("gain").valueAsNumber,
+                        a: document.getElementById("amplitude").valueAsNumber,
+                        tau: document.getElementById("tau").valueAsNumber,
+                        t: document.getElementById("time").valueAsNumber
+                    };
+                }
+
+                function syncPrediction() {
+                    const setup = predictionSetup();
+                    const valid = setup.step && [setup.k, setup.a, setup.tau, setup.t].every(Number.isFinite)
+                        && setup.tau > 0 && setup.t >= 0
+                        && Number.isFinite(setup.k * setup.a) && setup.k * setup.a !== 0;
+                    if (prediction && (!valid || setup.k !== prediction.k || setup.a !== prediction.a)) {
+                        prediction = null;
+                        predictionMessage = "Setup changed. Choose and save a new prediction.";
+                    }
+                    guessInput.disabled = !valid || prediction !== null;
+                    savePrediction.disabled = !valid || prediction !== null;
+                    resetPrediction.disabled = prediction === null;
+                    checkPrediction.disabled = !valid || !prediction || prediction.checked ||
+                        setup.tau <= prediction.tau;
+                    if (!valid) {
+                        predictionFeedback.textContent =
+                            "This exercise needs Step, valid inputs and a nonzero KA.";
+                    } else if (prediction && !prediction.checked) {
+                        predictionFeedback.textContent =
+                            "Prediction saved: " + prediction.label + ". Starting τ = " +
+                            prediction.tau + " s. " +
+                            (setup.tau > prediction.tau ? "Now click Check." :
+                                "Increase τ above the starting value, then click Check.");
+                    } else {
+                        predictionFeedback.textContent = predictionMessage ||
+                            "Choose a prediction and save it before increasing τ.";
+                    }
+                }
+
+                savePrediction.addEventListener("click", () => {
+                    if (savePrediction.disabled) return;
+                    if (!guessInput.value) {
+                        predictionMessage = "Choose a prediction first.";
+                    } else {
+                        prediction = {
+                            ...predictionSetup(),
+                            guess: guessInput.value,
+                            label: guessInput.selectedOptions[0].textContent,
+                            checked: false
+                        };
+                        predictionMessage = "";
+                    }
+                    syncPrediction();
+                });
+
+                checkPrediction.addEventListener("click", () => {
+                    if (checkPrediction.disabled || !prediction) return;
+                    try {
+                        const outcome = JSON.parse(checkTauPrediction(
+                            prediction.tau, predictionSetup().tau, prediction.guess));
+                        prediction.checked = true;
+                        predictionMessage = (outcome.correct ? "Correct. " : "Not quite. ") +
+                            "The 63.2% marker moved from " + outcome.before_time +
+                            " s to " + outcome.after_time +
+                            " s. It takes longer: increasing τ makes the response slower. " +
+                            "The marker stays at t = τ, including for a negative step.";
+                    } catch (error) {
+                        predictionMessage = error.message;
+                        prediction = null;
+                    }
+                    syncPrediction();
+                });
+
+                resetPrediction.addEventListener("click", () => {
+                    prediction = null;
+                    predictionMessage = "";
+                    guessInput.value = "";
+                    syncPrediction();
+                });
 
                 async function updateResult() {
                     const version = ++updateVersion;
+                    syncPrediction();
                     markerDetails.textContent = "";
                     errorSection.hidden = true;
                     rampMetrics.hidden = true;
@@ -405,7 +512,12 @@
                     });
                 }
 
-                controls.addEventListener("input", updateResult);
+                controls.addEventListener("input", () => {
+                    if (prediction && prediction.checked) prediction = null;
+                    predictionMessage = "";
+                    updateResult();
+                });
+                predictionControls.disabled = false;
                 controls.disabled = false;
                 updateResult();
             } catch (error) {
