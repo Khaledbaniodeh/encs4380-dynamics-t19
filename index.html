@@ -6,6 +6,7 @@
     <title>Module 1 — Python test</title>
 
     <script src="https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.js"></script>
+    <script src="https://cdn.plot.ly/plotly-4.1.1.min.js" charset="utf-8"></script>
 </head>
 <body>
     <h1>First-order response</h1>
@@ -27,13 +28,19 @@
     </fieldset>
 
     <p id="status" role="status">Loading Python...</p>
+    <div id="response-chart" aria-label="First-order step response over time"
+         style="width: 100%; max-width: 960px; height: 400px;" hidden></div>
 
     <script>
         const status = document.getElementById("status");
         const controls = document.getElementById("controls");
+        const chart = document.getElementById("response-chart");
 
         async function main() {
             try {
+                if (typeof Plotly === "undefined") {
+                    throw new Error("Could not load the plotting library. Please reload the page.");
+                }
                 const pyodide = await loadPyodide();
 
                 const response = await fetch("./python/first_order.py");
@@ -45,18 +52,20 @@
 
                 const calculateStep = pyodide.globals.get("step_response");
 
-                function updateResult() {
+                async function updateResult() {
                     const K = document.getElementById("gain").valueAsNumber;
                     const A = document.getElementById("amplitude").valueAsNumber;
                     const tau = document.getElementById("tau").valueAsNumber;
                     const t = document.getElementById("time").valueAsNumber;
 
                     if (![K, A, tau, t].every(Number.isFinite)) {
+                        chart.hidden = true;
                         status.textContent = "Please enter valid numbers.";
                         return;
                     }
 
                     if (tau <= 0 || t < 0) {
+                        chart.hidden = true;
                         status.textContent = "τ must be positive; t must be zero or positive.";
                         return;
                     }
@@ -66,9 +75,55 @@
                         if (!Number.isFinite(result)) {
                             throw new Error("Result is outside the supported numeric range.");
                         }
+                        // Sample the exact Python formula from 0 to 5*tau.
+                        // This is plotting data, not the Euler bonus.
+                        const endTime = 5 * tau;
+                        if (!Number.isFinite(endTime)) {
+                            throw new Error("The plotting time window is outside the supported numeric range.");
+                        }
+
+                        const times = [];
+                        const outputs = [];
+                        const numberOfPoints = 201;
+
+                        for (let i = 0; i < numberOfPoints; i++) {
+                            const sampleTime = (i / (numberOfPoints - 1)) * endTime;
+                            const sampleOutput = calculateStep(sampleTime, K, tau, A);
+                            if (!Number.isFinite(sampleOutput)) {
+                                throw new Error("The curve is outside the supported numeric range.");
+                            }
+                            times.push(sampleTime);
+                            outputs.push(sampleOutput);
+                        }
+
+                        chart.hidden = false;
+                        await Plotly.react(chart, [{
+                            x: times,
+                            y: outputs,
+                            type: "scatter",
+                            mode: "lines",
+                            name: "Step response y(t)",
+                            line: {color: "#2563eb", width: 3}
+                        }], {
+                            title: {text: "Step response (0 to 5τ)"},
+                            xaxis: {
+                                title: {text: "Time (s)"},
+                                range: [0, endTime]
+                            },
+                            yaxis: {
+                                title: {text: "Output y(t)"},
+                                rangemode: "tozero"
+                            },
+                            margin: {t: 55, r: 25, b: 60, l: 65}
+                        }, {
+                            responsive: true,
+                            displaylogo: false
+                        });
+
                         status.textContent =
                             "Output at " + t + " seconds: " + result.toFixed(4);
                     } catch (error) {
+                        chart.hidden = true;
                         status.textContent = "Calculation error: " + error.message;
                     }
                 }
