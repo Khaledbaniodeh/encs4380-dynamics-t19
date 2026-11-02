@@ -28,6 +28,7 @@
     </fieldset>
 
     <p id="status" role="status">Loading Python...</p>
+    <p id="step-markers"></p>
     <div id="response-chart" aria-label="First-order step response over time"
          style="width: 100%; max-width: 960px; height: 400px;" hidden></div>
 
@@ -35,6 +36,7 @@
         const status = document.getElementById("status");
         const controls = document.getElementById("controls");
         const chart = document.getElementById("response-chart");
+        const markerDetails = document.getElementById("step-markers");
 
         async function main() {
             try {
@@ -53,6 +55,7 @@
                 const calculateStep = pyodide.globals.get("step_response");
 
                 async function updateResult() {
+                    markerDetails.textContent = "";
                     const K = document.getElementById("gain").valueAsNumber;
                     const A = document.getElementById("amplitude").valueAsNumber;
                     const tau = document.getElementById("tau").valueAsNumber;
@@ -96,16 +99,48 @@
                             outputs.push(sampleOutput);
                         }
 
-                        chart.hidden = false;
-                        await Plotly.react(chart, [{
+                        const traces = [{
                             x: times,
                             y: outputs,
                             type: "scatter",
                             mode: "lines",
                             name: "Step response y(t)",
                             line: {color: "#2563eb", width: 3}
-                        }], {
+                        }];
+
+                        let markerText;
+                        if (K === 0 || A === 0) {
+                            markerText = "The response is zero. Percentage-of-change markers are not applicable.";
+                        } else {
+                            // Both marker outputs come from the Python equation.
+                            const atTau = calculateStep(tau, K, tau, A);
+                            const atThreeTau = calculateStep(3 * tau, K, tau, A);
+
+                            traces.push({
+                                x: [tau, 3 * tau],
+                                y: [atTau, atThreeTau],
+                                type: "scatter",
+                                mode: "markers+text",
+                                name: "Response markers",
+                                text: ["63.2% at τ", "≈95% at 3τ"],
+                                textposition: K * A < 0 ? "bottom center" : "top center",
+                                marker: {size: 10, color: ["#d97706", "#059669"]},
+                                cliponaxis: false,
+                                showlegend: false,
+                                hovertemplate: "t: %{x:.4g} s<br>y: %{y:.6g}<extra></extra>"
+                            });
+
+                            markerText =
+                                "At τ = " + tau + " s: y = " + atTau.toFixed(4) +
+                                " (63.2% of the final change). At 3τ = " + (3 * tau) +
+                                " s: y = " + atThreeTau.toFixed(4) +
+                                " (approximately 95%).";
+                        }
+
+                        chart.hidden = false;
+                        await Plotly.react(chart, traces, {
                             title: {text: "Step response (0 to 5τ)"},
+                            showlegend: false,
                             xaxis: {
                                 title: {text: "Time (s)"},
                                 range: [0, endTime]
@@ -120,6 +155,7 @@
                             displaylogo: false
                         });
 
+                        markerDetails.textContent = markerText;
                         status.textContent =
                             "Output at " + t + " seconds: " + result.toFixed(4);
                     } catch (error) {
