@@ -302,7 +302,7 @@
                             }
 
                             document.getElementById("ramp-lag").textContent =
-                                lag === null ? "Not applicable: the ideal output is constant." :
+                                lag == null ? "Not applicable: the ideal output is constant." :
                                 lag + " s";
                             document.getElementById("ramp-current-error").textContent =
                                 currentError.toFixed(4) + " output units";
