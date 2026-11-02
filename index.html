@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 1 — Python test</title>
+
+    <script src="https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.js"></script>
+</head>
+<body>
+    <h1>First-order response</h1>
+    <p id="status" role="status">Loading Python...</p>
+
+    <script>
+        const status = document.getElementById("status");
+
+        async function main() {
+            try {
+                const pyodide = await loadPyodide();
+
+                const response = await fetch("./python/first_order.py");
+
+                if (!response.ok) {
+                    throw new Error("Could not load first_order.py");
+                }
+
+                const pythonCode = await response.text();
+                await pyodide.runPythonAsync(pythonCode);
+
+                const result = pyodide.runPython(
+                    "step_response(2.0, 1.0, 2.0, 10.0)"
+                );
+
+                status.textContent = "Output at 2 seconds: " + result.toFixed(4);
+            } catch (error) {
+                status.textContent = "Error: " + error.message;
+            }
+        }
+
+        main();
+    </script>
+</body>
+</html>
