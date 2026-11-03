@@ -59,7 +59,7 @@ input[type=number]:hover,select:hover{border-color:#9bacbf}input[aria-invalid="t
 .result-tag{display:inline-flex;align-items:center;padding:3px 7px;background:#e7f5ee;color:#0c7554;border-radius:5px;font-size:9px;font-weight:700}tr[data-result=fail] .result-tag{background:#fff0ed;color:#b4442c}tr[data-result=na] .result-tag{background:#eff2f6;color:#607086}
 .validation-note{font-size:10px;line-height:1.7;color:var(--muted);margin:13px 0 0}.scroll-hint{display:none;font-size:9px;color:var(--muted);margin:8px 0}
 .error-panel{padding:22px;margin-top:22px}.error-heading{display:flex;justify-content:space-between;align-items:start;gap:16px}#error-details{font-size:11px;color:var(--muted);line-height:1.8;max-width:810px}#error-chart{width:100%;height:280px;min-width:0}
-.footer{margin-top:27px;border-top:1px solid var(--line);padding-top:17px;display:flex;gap:20px;justify-content:space-between;color:#8190a2;font-size:10px}.footer b{font-weight:600;color:#5c6f84}
+.footer{margin-top:27px;border-top:1px solid var(--line);padding-top:17px;display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;color:#8190a2;font-size:10px}.footer-authors{flex-basis:100%;font-size:12px;line-height:1.9;color:#66758a}.footer-authors b{display:inline-block;color:var(--ink);font-weight:600}.footer b{font-weight:600;color:#5c6f84}
 .phone-dialog{border:0;border-radius:20px;padding:28px;width:min(92vw,390px);color:var(--ink);box-shadow:0 20px 90px #0f203c30}.phone-dialog::backdrop{background:#10233d70;backdrop-filter:blur(3px)}.dialog-head{display:flex;align-items:center;justify-content:space-between}.close-dialog{border:0;background:#f1f4f7;border-radius:7px;width:34px;height:34px;font-size:20px;color:var(--muted);cursor:pointer}
 .phone-dialog h2{font-size:20px}.phone-dialog p{font-size:12px;color:var(--muted);line-height:1.8}.qr-code{display:flex;justify-content:center;background:#fff;margin:14px auto;width:230px;max-width:100%;aspect-ratio:1}.qr-code svg{width:100%;height:100%}.phone-url{display:block;font-size:11px;word-break:break-word;margin:14px 0}.phone-dialog .btn{width:100%}.phone-feedback{min-height:18px;margin-bottom:0}
 .mobile-nav{display:none}
@@ -163,7 +163,7 @@ input[type=number]:hover,select:hover{border-color:#9bacbf}input[aria-invalid="t
   </div>
  </section>
  <section id="error-section" class="panel error-panel" hidden aria-labelledby="error-title"><div class="error-heading"><div><p class="card-kicker">A closer look</p><h2 id="error-title">How much error remains?</h2></div><span class="pill">Logarithmic vertical axis</span></div><p id="error-details"></p><div id="error-chart" aria-label="Remaining step-error fraction on a logarithmic vertical axis"></div></section>
- <footer class="footer"><span><b>Dynamics Lab</b> · Team T19 · Birzeit University</span><span>Module 01 · ENCS4380 Interfacing Techniques</span></footer>
+ <footer class="footer"><span><b>Dynamics Lab</b> · Team T19 · Birzeit University</span><span>Module 01 · ENCS4380 Interfacing Techniques</span><span class="footer-authors">Created by <b>Khaled Bani Oudeh</b> · <b>Jibreel Haddar</b> · <b>Mohammad Khaleel</b> · <b>Waad Melhem</b></span></footer>
 </main>
 <nav class="mobile-nav" aria-label="Quick navigation"><a id="edit-parameters" class="btn" href="#parameters">Edit parameters</a><a class="btn primary" href="#experiment">View response</a></nav>
 <dialog id="phone-dialog" class="phone-dialog" aria-labelledby="phone-title">
