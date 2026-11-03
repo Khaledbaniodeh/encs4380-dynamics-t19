@@ -10,18 +10,25 @@ A static browser toolkit for understanding sensor dynamics through live controls
 
 Module 1's first-order time-response features are implemented and published on GitHub Pages: Step and Ramp, K and τ sliders, response markers, ramp tracking metrics, logarithmic error plot, validation table, and a Predict, then check exercise.
 
-The live interface has been checked in a desktop browser. Responsive CSS is implemented, but a physical-phone check is still pending. Modules 2–4 are planned and are not available on the page yet. Team membership, collaborator invitations and module ownership still need confirmation.
+The interface has been checked in a desktop browser and at 320 px and 390 px browser viewports. A physical-phone check is still pending. Modules 2–4 are planned and are not available on the page yet. Team membership, collaborator invitations and module ownership still need confirmation.
 
 ## Use the toolkit
 
 1. Open the live link and wait for Python to load. Internet access is required for the CDN libraries.
-2. Choose **Step** or **Ramp**.
+2. Choose **Step** or **Ramp** using the input buttons in the Parameters panel.
 3. Move the **K** and **τ** sliders, or type values in their number fields. Typed valid values can extend the initial slider ranges.
 4. Set the Step amplitude A or Ramp slope r, then choose a time t to read the output at that instant.
 5. Read the response plot and the mode-specific results. The plot covers 0 to 5τ; the selected-time output can also be evaluated outside that window.
-6. For **Predict, then check**, choose a nonzero Step, save a prediction, increase τ without changing K or A, then press **Check**. **New prediction** starts another attempt.
+6. Use **Reset example** to restore the default values. On narrow screens, **Edit parameters** and **View response** provide quick navigation; the Parameters panel can be collapsed.
+7. For **Predict, then check**, choose a nonzero Step, save a prediction, increase τ without changing K or A, then press **Check**. **New prediction** starts another attempt.
 
 K, A and r may be positive, negative or zero. τ must be finite and strictly positive; t must be finite and nonnegative. Nonfinite inputs and results outside the supported numeric range produce an error message. For KA = 0, the normalized Step percentages, log-error plot and prediction exercise are not applicable.
+
+### Try it on your phone
+
+Open the live link in Chrome or Safari, or press **Open on phone** in the page header and scan its QR code with your phone camera. The dialog also includes the website link and a copy button; if clipboard access is unavailable, copy the visible link manually.
+
+Wait for **Python ready**, then test both input modes, the sliders and number fields, the prediction exercise and horizontal scrolling in the validation table. Browser viewport checks do not replace testing on a real phone.
 
 ## Module 1 model and outputs
 
@@ -65,7 +72,7 @@ Checks performed during development include signed and zero K/A/r values, invali
 
 ### Screenshot
 
-Current Module 1 controls, prediction exercise and validation table:
+Module 1 experiment dashboard with its parameter panel, live summary and response plot:
 
 ![Module 1 controls and validation](docs/screenshots/module1-interface.png)
 

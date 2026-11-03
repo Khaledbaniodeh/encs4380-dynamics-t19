@@ -1,184 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 1 — First-order response</title>
-    <style>
-        * { box-sizing: border-box; }
-        [hidden] { display: none !important; }
-        body { margin: 0; background: #f4f6fa; color: #17243a;
-               font-family: system-ui, sans-serif; line-height: 1.5; }
-        main { max-width: 1120px; margin: 0 auto; padding: 24px; }
-        h1 { font-size: 1.9rem; margin: 0 0 24px; }
-        h2 { font-size: 1.2rem; margin: 0 0 12px; }
-        p { overflow-wrap: anywhere; }
-        fieldset, section { min-width: 0; margin: 0 0 20px; padding: 20px;
-                           border: 1px solid #cdd6e4; border-radius: 10px; background: #fff; }
-        legend { padding: 0 6px; font-weight: 650; }
-        .parameter-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
-        .parameter { display: grid; align-content: start; gap: 8px; min-width: 0; }
-        .parameter label, .prediction-choice label { font-weight: 600; }
-        .value-control { display: grid; grid-template-columns: minmax(0, 1fr) 6.5rem;
-                         align-items: center; gap: 10px; }
-        input, select, button { font: inherit; min-height: 44px; max-width: 100%; }
-        input[type="number"], select { width: 100%; min-width: 0; padding: 8px;
-                                     color: inherit; background: #fff;
-                                     border: 1px solid #98a6bb; border-radius: 6px; }
-        input[type="range"] { width: 100%; margin: 0; accent-color: #2563eb; }
-        button { padding: 8px 14px; border: 1px solid #1d4ed8; border-radius: 6px;
-                 background: #1d4ed8; color: #fff; cursor: pointer; }
-        #reset-prediction { background: #fff; color: #1d4ed8; }
-        :disabled { opacity: 0.55; cursor: default; }
-        :focus-visible { outline: 3px solid #b45309; outline-offset: 3px; }
-        .prediction-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
-        .prediction-choice { display: grid; gap: 8px; min-width: 200px; max-width: 100%; }
-        #prediction-feedback { margin-bottom: 0; }
-        #status { padding: 12px 16px; border-left: 4px solid #2563eb; background: #eaf1ff; }
-        .table-scroll { max-width: 100%; overflow-x: auto; }
-        table { width: 100%; min-width: 650px; border-collapse: collapse; text-align: left; }
-        caption { text-align: left; padding-bottom: 12px; color: #42516a; }
-        th, td { padding: 10px 12px; border-bottom: 1px solid #dce2ec; }
-        thead { background: #eef3fa; }
-        dd { margin: 4px 0 14px; font-weight: 600; }
-        #response-chart, #error-chart { background: #fff; max-width: 100%; }
-        #response-chart { margin: 0 auto 20px; }
-        @media (max-width: 800px) {
-            .parameter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        }
-        @media (max-width: 560px) {
-            main { padding: 16px 12px; }
-            fieldset, section { padding: 14px; }
-            h1 { font-size: 1.55rem; }
-            .parameter-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
-            .prediction-actions { align-items: stretch; flex-direction: column; }
-            .prediction-choice { min-width: 0; }
-        }
-    </style>
-
-
-    <script src="https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.js"></script>
-    <script src="https://cdn.plot.ly/plotly-4.1.1.min.js" charset="utf-8"></script>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+ <meta name="theme-color" content="#14243a">
+ <meta name="description" content="An interactive first-order sensor lab: explore Step and Ramp responses, time constants, tracking error and live lecture validation. ENCS4380, Team T19.">
+ <title>First-order response · Dynamics Lab</title>
+ <style>
+:root{--ink:#17263b;--muted:#66758a;--line:#e0e6ed;--paper:#fff;--bg:#f4f6f8;--teal:#087f72;--teal-soft:#e7f5f1;--blue:#315dda;--orange:#b56425;--radius:16px}
+*{box-sizing:border-box} [hidden]{display:none!important}
+html{scroll-behavior:smooth;scroll-padding-top:24px}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select{font:inherit}button,a,input,select,summary{-webkit-tap-highlight-color:transparent}
+button,a,summary{touch-action:manipulation}button{cursor:pointer}button:disabled,input:disabled,select:disabled{opacity:.46;cursor:default}
+:focus-visible{outline:3px solid #e9a848;outline-offset:4px}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+button svg,a svg{width:17px;height:17px;flex:none}.icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.topbar{background:#14243a;color:#fff}.topbar-inner{max-width:1440px;margin:auto;padding:17px 40px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{display:flex;align-items:center;gap:12px;font-size:17px;font-weight:700;letter-spacing:-.4px}.brand-mark{width:33px;height:33px;display:grid;place-items:center;border:1px solid #496271;border-radius:9px;color:#81d5bc}
+.brand small{font-size:12px;font-weight:500;color:#b7c2d1;letter-spacing:.8px;margin-left:10px}
+.topbar-meta{font-size:11px;color:#c0cada;letter-spacing:1.5px;display:flex;align-items:center;gap:12px}.topbar-meta b{color:#b5ead9;background:#244b4b;padding:5px 9px;border-radius:5px;font-weight:600;letter-spacing:.6px}
+.page{max-width:1440px;margin:0 auto;padding:30px 40px 40px}
+.page-heading{display:flex;justify-content:space-between;align-items:center;gap:24px;margin-bottom:24px}
+.eyebrow{font-size:10px;letter-spacing:1.8px;font-weight:750;color:var(--teal);text-transform:uppercase;margin:0 0 7px}
+h1{font-size:clamp(28px,3vw,38px);letter-spacing:-1.3px;font-weight:680;line-height:1.2;margin:0 0 9px}h2{font-size:19px;line-height:1.35;letter-spacing:-.45px;margin:0}h3{font-size:14px;margin:0}
+.subtitle{color:var(--muted);margin:0;font-size:14px;max-width:650px}
+.heading-actions{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;border:1px solid var(--line);border-radius:9px;padding:9px 13px;background:#fff;color:var(--ink);font-size:12px;font-weight:650;transition:background .15s,border-color .15s}
+.btn:hover:enabled{background:#f6f8fa;border-color:#aebbc8}.btn.primary{background:var(--teal);color:#fff;border-color:var(--teal)}.btn.primary:hover:enabled{background:#066a60}
+.section-links{display:flex;gap:19px;font-size:12px;margin:0 0 18px;border-bottom:1px solid var(--line);padding-bottom:12px}.section-links a{color:var(--muted)}.section-links a:first-child{font-weight:700;color:var(--ink)}
+.workspace{display:grid;grid-template-columns:300px minmax(0,1fr);gap:22px;align-items:start}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 2px 3px #14243a02;min-width:0}
+.parameters{position:sticky;top:20px}.parameters>summary{padding:20px 20px 14px;list-style:none;display:flex;align-items:center;justify-content:space-between;font-size:15px;font-weight:700;cursor:pointer}.parameters>summary::-webkit-details-marker{display:none}.summary-meta{font:11px ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--muted);font-weight:400}
+fieldset{border:0;padding:0;min-width:0;margin:0}#controls{padding:0 20px 20px}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.control-label{font-size:10px;letter-spacing:1.5px;color:var(--muted);font-weight:700;margin:0 0 9px}.signal-switch{display:grid;grid-template-columns:1fr 1fr;padding:4px;background:#f1f4f7;border-radius:10px;gap:4px}
+.mode-btn{display:flex;flex-direction:column;align-items:flex-start;gap:2px;background:transparent;border:1px solid transparent;border-radius:7px;padding:10px 11px;color:var(--muted);min-height:63px}
+.mode-btn strong{font-size:13px;font-weight:700;display:flex;align-items:center;gap:7px}.mode-btn span{font-size:10px}.mode-btn[aria-pressed="true"]{background:#fff;color:var(--teal);border-color:#d8e5e1;box-shadow:0 2px 4px #17263b07}
+.parameter{padding:17px 0;border-bottom:1px solid #edf0f4}.field-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}.field-head label{font-size:12px;font-weight:650}.field-symbol{display:inline-grid;place-items:center;min-width:24px;min-height:24px;background:#f0f4f7;border-radius:5px;font:13px ui-monospace,SFMono-Regular,Consolas,monospace;color:#557087;margin-right:7px}
+.unit{color:var(--muted);font-size:10px;font-weight:400}.field-row{display:grid;grid-template-columns:minmax(0,1fr) 78px;gap:13px;align-items:center}
+input[type=number],select{border:1px solid #d6dee8;border-radius:7px;background:#fff;color:var(--ink);min-width:0;width:100%;min-height:42px;padding:8px 10px;transition:border-color .15s}
+input[type=number]{font:13px ui-monospace,SFMono-Regular,Consolas,monospace;font-variant-numeric:tabular-nums}
+input[type=number]:hover,select:hover{border-color:#9bacbf}input[aria-invalid="true"]{border-color:#bd492e;background:#fff7f4;box-shadow:0 0 0 2px #bd492e15}input[type=range]{width:100%;min-width:0;height:36px;margin:0;accent-color:var(--teal);cursor:ew-resize}
+.field-note{font-size:11px;color:var(--muted);margin:6px 0 0}.range-endpoints{display:flex;justify-content:space-between;color:#8390a1;font-size:9px;font-family:ui-monospace,monospace;margin-top:2px}
+.reset-btn{width:100%;margin-top:17px;background:#f8fafb;font-weight:550}.model-note{margin-top:16px;padding:12px 13px;border-radius:8px;background:#f7f9fb}.model-note p{font-size:10px;color:var(--muted);margin:5px 0 0}.equation{font:14px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:-.3px}
+.mobile-view{display:none}.results{min-width:0}.metric-grid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:12px;margin-bottom:16px}
+.metric{padding:18px 19px}.metric.primary-metric{background:#eef8f5;border-color:#d7eae3}.metric-label{font-size:11px;color:var(--muted);margin-bottom:8px;display:block}.metric-number{font-size:27px;font-weight:650;letter-spacing:-.9px;line-height:1.2;font-variant-numeric:tabular-nums}.metric-number small{font-size:10px;font-weight:500;letter-spacing:0;color:var(--muted);margin-left:5px}
+.metric-foot{font-size:10px;color:var(--muted);margin:7px 0 0}.primary-metric .metric-number{color:#09695f}
+.chart-panel{padding:21px 23px 18px}.panel-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:15px}.panel-heading p{font-size:11px;color:var(--muted);margin:6px 0 0}.pill{display:inline-flex;align-items:center;gap:6px;border-radius:99px;background:#f1f4f7;color:#52647b;padding:5px 9px;font-size:10px;font-weight:600;white-space:nowrap}.pill.ready{background:var(--teal-soft);color:#076c5e}.pill.error{background:#fff0ec;color:#b4442c}.status-dot{width:6px;height:6px;border-radius:50%;background:currentColor}.legend{display:flex;gap:17px;flex-wrap:wrap;margin:18px 0 0;color:var(--muted);font-size:10px}.legend span{display:inline-flex;align-items:center;gap:6px}.legend i{width:17px;height:3px;border-radius:3px;background:var(--blue)}
+#response-chart{width:100%;height:330px;min-width:0}.chart-loading{height:330px;display:grid;place-items:center;color:var(--muted);font-size:12px;background:repeating-linear-gradient(0deg,transparent,transparent 65px,#f1f4f8 66px);margin:12px 0}
+#status{font-size:11px;color:var(--muted);margin:3px 0 0;min-height:18px}#status[data-state=error]{color:#b4442c}
+.chart-caption{padding-top:11px;border-top:1px solid #edf0f4;margin-top:8px;color:var(--muted);font-size:10px;line-height:1.7}.chart-caption p{margin:0}
+.ramp-summary{margin-top:15px;padding-top:14px;border-top:1px solid var(--line)}.ramp-summary h3{font-size:12px}.ramp-summary>p{color:var(--muted);font-size:10px}.ramp-summary dl{display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:14px;margin:12px 0}.ramp-summary dt{font-size:10px;color:var(--muted)}.ramp-summary dd{margin:6px 0 0;font-size:14px;font-weight:650;font-variant-numeric:tabular-nums}
+.learning{margin-top:30px}.section-heading{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:16px}.section-heading p{margin:0;font-size:11px;color:var(--muted)}.learning-grid{display:grid;grid-template-columns:360px minmax(0,1fr);gap:22px;align-items:start}
+.prediction-panel{padding:22px}.card-kicker{font-size:9px;letter-spacing:1.5px;color:var(--teal);text-transform:uppercase;font-weight:750;margin:0 0 8px}.prediction-panel h2{font-size:18px}.prediction-description{font-size:12px;color:var(--muted);line-height:1.8;margin:12px 0 17px}.prediction-choice label{display:block;font-size:11px;font-weight:600;margin-bottom:7px}.prediction-choice select{font-size:12px;min-height:43px}
+.prediction-buttons{display:grid;grid-template-columns:1fr;gap:8px;margin-top:12px}.prediction-buttons .btn{font-size:11px}#reset-prediction{background:transparent;color:var(--muted);border-color:transparent;min-height:35px}
+#prediction-feedback{font-size:11px;line-height:1.7;margin:12px 0 0;color:var(--muted);padding:10px 12px;background:#f5f7fa;border-radius:7px}
+.validation-panel{padding:22px;overflow:hidden}.validation-intro{font-size:11px;color:var(--muted);margin:7px 0 16px}.table-scroll{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin}table{border-collapse:collapse;width:100%;min-width:540px;text-align:left;font-size:11px}caption{font-size:10px;text-align:left;color:var(--muted);padding-bottom:10px}thead{background:#f5f7fa}th{font-size:9px;font-weight:650;color:#617189;letter-spacing:.2px}th,td{padding:12px 9px;border-bottom:1px solid #e8edf2}td{font-variant-numeric:tabular-nums}td:first-child{white-space:nowrap}
+.result-tag{display:inline-flex;align-items:center;padding:3px 7px;background:#e7f5ee;color:#0c7554;border-radius:5px;font-size:9px;font-weight:700}tr[data-result=fail] .result-tag{background:#fff0ed;color:#b4442c}tr[data-result=na] .result-tag{background:#eff2f6;color:#607086}
+.validation-note{font-size:10px;line-height:1.7;color:var(--muted);margin:13px 0 0}.scroll-hint{display:none;font-size:9px;color:var(--muted);margin:8px 0}
+.error-panel{padding:22px;margin-top:22px}.error-heading{display:flex;justify-content:space-between;align-items:start;gap:16px}#error-details{font-size:11px;color:var(--muted);line-height:1.8;max-width:810px}#error-chart{width:100%;height:280px;min-width:0}
+.footer{margin-top:27px;border-top:1px solid var(--line);padding-top:17px;display:flex;gap:20px;justify-content:space-between;color:#8190a2;font-size:10px}.footer b{font-weight:600;color:#5c6f84}
+.phone-dialog{border:0;border-radius:20px;padding:28px;width:min(92vw,390px);color:var(--ink);box-shadow:0 20px 90px #0f203c30}.phone-dialog::backdrop{background:#10233d70;backdrop-filter:blur(3px)}.dialog-head{display:flex;align-items:center;justify-content:space-between}.close-dialog{border:0;background:#f1f4f7;border-radius:7px;width:34px;height:34px;font-size:20px;color:var(--muted);cursor:pointer}
+.phone-dialog h2{font-size:20px}.phone-dialog p{font-size:12px;color:var(--muted);line-height:1.8}.qr-code{display:flex;justify-content:center;background:#fff;margin:14px auto;width:230px;max-width:100%;aspect-ratio:1}.qr-code svg{width:100%;height:100%}.phone-url{display:block;font-size:11px;word-break:break-word;margin:14px 0}.phone-dialog .btn{width:100%}.phone-feedback{min-height:18px;margin-bottom:0}
+.mobile-nav{display:none}
+@media(min-width:1600px){.page{padding-top:42px}.chart-panel{padding:26px}#response-chart{height:380px}}
+@media(max-width:1100px){.workspace{grid-template-columns:275px minmax(0,1fr);gap:16px}.page{padding:26px 25px}.topbar-inner{padding:16px 25px}.learning-grid{grid-template-columns:315px minmax(0,1fr);gap:16px}.metric{padding:16px 13px}.metric-number{font-size:24px}.chart-panel{padding:20px 15px}.heading-actions .desktop-label{display:none}}
+@media(max-width:850px){.learning-grid{grid-template-columns:1fr}.prediction-buttons{grid-template-columns:1fr 1fr}.prediction-buttons #reset-prediction{grid-column:1/-1}.prediction-panel{padding:20px}.brand small{display:none}}
+@media(max-width:760px){.page{padding:24px 16px 90px}.topbar-inner{padding:14px 16px}.topbar-meta{letter-spacing:.5px}.topbar-meta>span{display:none}.page-heading{align-items:flex-start;gap:12px;margin-bottom:21px}.page-heading h1{font-size:29px;letter-spacing:-1px}.subtitle{font-size:12px}.heading-actions .btn{padding:9px 10px;min-height:39px}.heading-actions .phone-text{display:none}.workspace{grid-template-columns:minmax(0,1fr);gap:18px}.parameters{position:static}.parameters>summary{padding:17px 18px}.parameter{padding:13px 0}#controls{padding:0 18px 18px}.field-row{grid-template-columns:minmax(0,1fr) 95px}.mode-btn{min-height:58px}.mode-btn strong{font-size:14px}.mode-btn span,.field-note{font-size:11px}.parameter label{font-size:13px}.unit{font-size:11px}input[type=number],select{min-height:44px;font-size:16px}.metric-grid{gap:8px}.metric{padding:14px 10px}.metric-number{font-size:23px}.metric-label,.metric-foot{font-size:9px}.chart-panel{padding:18px 13px}.panel-heading h2{font-size:18px}.panel-heading p{font-size:10px}.legend{gap:10px;margin-top:16px;font-size:9px}#response-chart{height:310px}.chart-loading{height:310px}.mobile-view{display:flex;justify-content:center;margin-top:12px;font-size:12px;min-height:38px}.section-heading{align-items:start}.section-heading>p{display:none}.learning{margin-top:25px}.validation-panel,.error-panel{padding:18px 14px}.error-heading .pill{display:none}.scroll-hint{display:block}#error-chart{height:260px}.ramp-summary dl{grid-template-columns:1fr}.ramp-summary dd{font-size:15px}.footer{font-size:9px;flex-wrap:wrap;gap:6px}.mobile-nav{display:grid;position:fixed;bottom:0;left:0;right:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom));grid-template-columns:1fr 1fr;gap:10px;background:#ffffffed;border-top:1px solid var(--line);backdrop-filter:blur(12px);z-index:10}.mobile-nav a{font-size:12px;min-height:40px}.metric.primary-metric{grid-column:1/-1;display:grid;grid-template-columns:1fr auto;align-items:center;padding:13px 16px}.primary-metric .metric-label{font-size:10px;margin:0}.primary-metric .metric-number{font-size:29px;grid-column:2;grid-row:1/3}.primary-metric .metric-foot{margin-top:2px}.metric-grid{grid-template-columns:1fr 1fr}.prediction-buttons{grid-template-columns:1fr}.prediction-buttons #reset-prediction{grid-column:auto}.prediction-choice select{font-size:16px}.prediction-description{font-size:13px}#prediction-feedback{font-size:12px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+</style>
+ <script src="https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.js"></script>
+ <script src="https://cdn.plot.ly/plotly-4.1.1.min.js" charset="utf-8"></script>
 </head>
 <body>
-    <main>
-    <h1>First-order response</h1>
 
-    <fieldset id="controls" disabled>
-        <legend>First-order parameters</legend>
-        <div class="parameter-grid">
-            <div class="parameter">
-                <label for="input-type">Input type</label>
-                <select id="input-type">
-                    <option value="step">Step</option>
-                    <option value="ramp">Ramp</option>
-                </select>
-            </div>
-            <div class="parameter">
-                <label for="gain">Gain K</label>
-                <div class="value-control">
-                    <input id="gain-slider" type="range" min="-10" max="10" step="any" value="1"
-                           aria-label="Gain K slider">
-                    <input id="gain" type="number" step="any" value="1">
-                </div>
-            </div>
-            <div id="step-controls" class="parameter">
-                <label for="amplitude">Step amplitude A</label>
-                <input id="amplitude" type="number" step="any" value="10">
-            </div>
-            <div id="ramp-controls" class="parameter" hidden>
-                <label for="ramp-slope">Ramp slope r (input units/s)</label>
-                <input id="ramp-slope" type="number" step="any" value="2">
-            </div>
-            <div class="parameter">
-                <label for="tau">Time constant τ (seconds)</label>
-                <div class="value-control">
-                    <input id="tau-slider" type="range" min="0.1" max="10" step="any" value="2"
-                           aria-label="Time constant τ slider (seconds)">
-                    <input id="tau" type="number" step="any" value="2">
-                </div>
-            </div>
-            <div class="parameter">
-                <label for="time">Time t (seconds)</label>
-                <input id="time" type="number" min="0" step="any" value="2">
-            </div>
-        </div>
-    </fieldset>
-
-    <fieldset id="prediction-controls" disabled>
-        <legend>Predict, then check — Step</legend>
-        <p>Before increasing τ, predict: will the output take longer, less time,
-           or the same time to reach the 63.2% marker? Keep K and A unchanged.</p>
-        <div class="prediction-actions">
-        <div class="prediction-choice">
-        <label for="tau-prediction">My prediction:</label>
-        <select id="tau-prediction">
-            <option value="">Choose a prediction</option>
-            <option value="longer">Longer</option>
-            <option value="shorter">Less time</option>
-            <option value="same">The same time</option>
-        </select>
-        </div>
-        <button id="save-prediction" type="button">Save prediction</button>
-        <button id="check-prediction" type="button" disabled>Check after increasing τ</button>
-        <button id="reset-prediction" type="button" disabled>New prediction</button>
-        </div>
-        <p id="prediction-feedback" role="status">Choose Step, save a prediction, then increase τ.</p>
-    </fieldset>
-
-    <p id="status" role="status">Loading Python...</p>
-    <p id="step-markers"></p>
-
-    <section id="step-validation" hidden>
-        <h2>Step validation</h2>
-        <p>Lecture benchmarks: y(τ) ≈ 0.632KA and y(3τ) ≈ 0.95KA.</p>
-        <div class="table-scroll" role="region" aria-label="Step validation results" tabindex="0">
-        <table>
-            <caption>Expected and computed values for the current K, A and τ</caption>
-            <thead>
-                <tr>
-                    <th scope="col">Time</th>
-                    <th scope="col">Expected y</th>
-                    <th scope="col">Computed y</th>
-                    <th scope="col">Expected % of KA</th>
-                    <th scope="col">Computed % of KA</th>
-                    <th scope="col">Result</th>
-                </tr>
-            </thead>
-            <tbody id="step-validation-rows"></tbody>
-        </table>
-        </div>
-        <p>Pass tolerance: 0.05 percentage points, because the lecture values are rounded.
-           Percentages and this check are not applicable when KA = 0.</p>
+<header class="topbar"><div class="topbar-inner">
+ <div class="brand"><span class="brand-mark"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 19h18M3 19V5M5 17c2-1 2-8 5-8s5 1 10 0"/></svg></span>Dynamics Lab <small>ENCS4380</small></div>
+ <div class="topbar-meta"><span>TEAM T19</span><b>MODULE 01</b></div>
+</div></header>
+<main class="page">
+ <div class="page-heading">
+  <div><p class="eyebrow">Sensor dynamics / Time domain</p><h1>First-order response</h1><p class="subtitle">See how a sensor catches up with a changing input.</p></div>
+  <div class="heading-actions"><button class="btn" id="open-phone" type="button"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 5h4M11 19h2"/></svg><span class="phone-text">Open on phone</span></button></div>
+ </div>
+ <nav class="section-links" aria-label="On this page"><a href="#experiment">Experiment</a><a id="learn-link" href="#learning">Learn &amp; verify</a><a id="model-link" href="#model">The model</a></nav>
+ <div class="workspace">
+  <details class="panel parameters" id="parameters" open>
+   <summary>Parameters <span class="summary-meta" id="parameter-summary">K 1 · τ 2 s</span></summary>
+   <fieldset id="controls" disabled><legend class="sr-only">First-order parameters</legend>
+    <p class="control-label">01 / Choose your input</p>
+    <select id="input-type" hidden aria-label="Input type"><option value="step">Step</option><option value="ramp">Ramp</option></select>
+    <div class="signal-switch" aria-label="Input type">
+     <button class="mode-btn" type="button" data-mode="step" aria-pressed="true"><strong><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 18h8V6h10"/></svg>Step</strong><span>Sudden change</span></button>
+     <button class="mode-btn" type="button" data-mode="ramp" aria-pressed="false"><strong><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m3 18 18-12"/></svg>Ramp</strong><span>Constant rate</span></button>
+    </div>
+    <div class="parameter">
+     <div class="field-head"><label for="gain"><span class="field-symbol">K</span>Gain</label><span class="unit">output / input</span></div>
+     <div class="field-row"><div><input id="gain-slider" type="range" min="-10" max="10" step="any" value="1" aria-label="Gain K slider"><div class="range-endpoints"><span id="gain-min">−10</span><span id="gain-max">10</span></div></div><input id="gain" type="number" step="any" value="1" aria-describedby="gain-help"></div>
+     <p class="field-note" id="gain-help">Scales the output. Negative and zero values are valid.</p>
+    </div>
+    <div class="parameter">
+     <div class="field-head"><label for="tau"><span class="field-symbol">τ</span>Time constant</label><span class="unit">seconds</span></div>
+     <div class="field-row"><div><input id="tau-slider" type="range" min="0.1" max="10" step="any" value="2" aria-label="Time constant τ slider (seconds)"><div class="range-endpoints"><span id="tau-min">0.1</span><span id="tau-max">10</span></div></div><input id="tau" type="number" step="any" value="2" aria-describedby="tau-help"></div>
+     <p class="field-note" id="tau-help">Smaller τ → faster response. Must be positive.</p>
+    </div>
+    <div class="parameter" id="step-controls">
+     <div class="field-head"><label for="amplitude"><span class="field-symbol">A</span>Step amplitude</label><span class="unit">input units</span></div>
+     <input id="amplitude" type="number" step="any" value="10"><p class="field-note">Input jumps from zero to A at t = 0.</p>
+    </div>
+    <div class="parameter" id="ramp-controls" hidden>
+     <div class="field-head"><label for="ramp-slope"><span class="field-symbol">r</span>Ramp slope</label><span class="unit">input units / s</span></div>
+     <input id="ramp-slope" type="number" step="any" value="2"><p class="field-note">Input changes at a constant rate: x(t) = rt.</p>
+    </div>
+    <div class="parameter">
+     <div class="field-head"><label for="time"><span class="field-symbol">t</span>Read output at</label><span class="unit">seconds</span></div>
+     <input id="time" type="number" min="0" step="any" value="2"><p class="field-note">Choose the instant you want to inspect.</p>
+    </div>
+    <button id="reset-example" type="button" class="btn reset-btn"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 11a9 9 0 1 1 2 7M3 4v7h7"/></svg>Reset example</button>
+    <div class="model-note" id="model"><div class="equation">τ dy/dt + y = Kx</div><p>Linear first-order model · y(0) = 0<br>All numerical calculations run in Python.</p></div>
+    <a class="btn mobile-view" href="#experiment">View response ↓</a>
+   </fieldset>
+  </details>
+  <div class="results" id="experiment">
+   <div class="metric-grid" aria-label="Response summary">
+    <div class="panel metric primary-metric"><span class="metric-label">Selected output · y(t)</span><div class="metric-number" id="output-value">—</div><p class="metric-foot" id="selected-time">At t = 2 s · output units</p></div>
+    <div class="panel metric"><span class="metric-label" id="metric-one-label">At τ · 63.2%</span><div class="metric-number" id="metric-one-value">—</div><p class="metric-foot" id="metric-one-foot">Output units</p></div>
+    <div class="panel metric"><span class="metric-label" id="metric-two-label">At 3τ · ≈95%</span><div class="metric-number" id="metric-two-value">—</div><p class="metric-foot" id="metric-two-foot">Output units</p></div>
+   </div>
+   <section class="panel chart-panel" aria-labelledby="response-title">
+    <div class="panel-heading"><div><h2 id="response-title">Step response</h2><p id="response-equation">y(t) = KA[1 − exp(−t/τ)]</p></div><span class="pill" id="runtime-status"><i class="status-dot"></i><span id="runtime-label">Loading Python</span></span></div>
+    <div class="legend" aria-hidden="true"><span><i style="background:#315dda"></i>Sensor output</span><span id="legend-input" hidden><i style="background:#8392a6"></i>Input</span><span id="legend-ideal" hidden><i style="background:#087f72"></i>Ideal Kx</span><span id="legend-markers"><i style="background:#b56425"></i>Response markers</span></div>
+    <div id="chart-loading" class="chart-loading">Preparing your experiment…</div>
+    <div id="response-chart" aria-label="First-order input and response over time" hidden></div>
+    <p id="status" role="status">Loading Python…</p>
+    <div class="chart-caption"><p id="step-markers"></p><p>The plot spans 0–5τ in seconds. Its time window follows τ.</p></div>
+    <section id="ramp-metrics" class="ramp-summary" hidden aria-labelledby="ramp-heading">
+     <h3 id="ramp-heading">Ramp tracking</h3><p>Signed errors are measured relative to the ideal output Kx(t).</p>
+     <dl><div><dt>Asymptotic time lag</dt><dd id="ramp-lag"></dd></div><div><dt>Current error · Kx(t) − y(t)</dt><dd id="ramp-current-error"></dd></div><div><dt>Steady-state error · Krτ</dt><dd id="ramp-steady-error"></dd></div></dl>
+     <p>The current error approaches Krτ over time. The lag τ describes long-time tracking after the transient.</p>
     </section>
+   </section>
+  </div>
+ </div>
+ <section class="learning" id="learning" aria-labelledby="learn-title">
+  <div class="section-heading"><div><p class="eyebrow">Practice / Build your intuition</p><h2 id="learn-title">Learn, then verify.</h2></div><p>Connect what you predict with what the model does.</p></div>
+  <div class="learning-grid">
+   <fieldset class="panel prediction-panel" id="prediction-controls" disabled>
+    <legend class="sr-only">Predict, then check — Step</legend><p class="card-kicker">Predict, then check</p><h2>What if τ increases?</h2>
+    <p class="prediction-description">Before increasing τ, predict the time needed to reach the 63.2% marker. Keep K and A unchanged.</p>
+    <div class="prediction-choice"><label for="tau-prediction">I think it will take…</label><select id="tau-prediction"><option value="">Choose your prediction</option><option value="longer">Longer</option><option value="shorter">Less time</option><option value="same">The same time</option></select></div>
+    <div class="prediction-buttons"><button id="save-prediction" class="btn primary" type="button">1. Save prediction</button><button id="check-prediction" class="btn" type="button" disabled>2. Increase τ, then check</button><button id="reset-prediction" class="btn" type="button" disabled>Start a new prediction</button></div>
+    <p id="prediction-feedback" role="status">Choose Step, save a prediction, then increase τ.</p>
+   </fieldset>
+   <section class="panel validation-panel" id="step-validation" hidden aria-labelledby="validation-title">
+    <p class="card-kicker">Check against the lecture</p><h2 id="validation-title">Step validation</h2><p class="validation-intro">Reference points: y(τ) ≈ 0.632KA · y(3τ) ≈ 0.95KA</p>
+    <div class="table-scroll" role="region" aria-label="Step validation results" tabindex="0">
+     <table><caption>Expected and computed results for your current settings</caption><thead><tr><th scope="col">Time</th><th scope="col">Expected y</th><th scope="col">Computed y</th><th scope="col">Expected %</th><th scope="col">Computed %</th><th scope="col">Result</th></tr></thead><tbody id="step-validation-rows"></tbody></table>
+    </div>
+    <p class="scroll-hint">Swipe the table horizontally to see all results →</p>
+    <p class="validation-note">Pass tolerance: 0.05 percentage points, allowing for rounded lecture values. Percentages are not applicable when KA = 0.</p>
+   </section>
+  </div>
+ </section>
+ <section id="error-section" class="panel error-panel" hidden aria-labelledby="error-title"><div class="error-heading"><div><p class="card-kicker">A closer look</p><h2 id="error-title">How much error remains?</h2></div><span class="pill">Logarithmic vertical axis</span></div><p id="error-details"></p><div id="error-chart" aria-label="Remaining step-error fraction on a logarithmic vertical axis"></div></section>
+ <footer class="footer"><span><b>Dynamics Lab</b> · Team T19 · Birzeit University</span><span>Module 01 · ENCS4380 Interfacing Techniques</span></footer>
+</main>
+<nav class="mobile-nav" aria-label="Quick navigation"><a id="edit-parameters" class="btn" href="#parameters">Edit parameters</a><a class="btn primary" href="#experiment">View response</a></nav>
+<dialog id="phone-dialog" class="phone-dialog" aria-labelledby="phone-title">
+ <div class="dialog-head"><h2 id="phone-title">Try it on your phone</h2><button type="button" id="close-phone" class="close-dialog" aria-label="Close phone instructions">×</button></div>
+ <p>Open your camera, scan this code, then tap the link. No app installation needed.</p>
+ <div class="qr-code"><svg width="32.8mm" height="32.8mm" version="1.1" viewBox="0 0 32.8 32.8" xmlns="http://www.w3.org/2000/svg"><path d="M3.2,3.2H4V4H3.2zM4,3.2H4.8V4H4zM4.8,3.2H5.6V4H4.8zM5.6,3.2H6.4V4H5.6zM6.4,3.2H7.2V4H6.4zM7.2,3.2H8V4H7.2zM8,3.2H8.8V4H8zM10.4,3.2H11.2V4H10.4zM17.6,3.2H18.4V4H17.6zM18.4,3.2H19.2V4H18.4zM19.2,3.2H20V4H19.2zM21.6,3.2H22.4V4H21.6zM24,3.2H24.8V4H24zM24.8,3.2H25.6V4H24.8zM25.6,3.2H26.4V4H25.6zM26.4,3.2H27.2V4H26.4zM27.2,3.2H28V4H27.2zM28,3.2H28.8V4H28zM28.8,3.2H29.6V4H28.8zM3.2,4H4V4.8H3.2zM8,4H8.8V4.8H8zM11.2,4H12V4.8H11.2zM15.2,4H16V4.8H15.2zM17.6,4H18.4V4.8H17.6zM19.2,4H20V4.8H19.2zM20.8,4H21.6V4.8H20.8zM24,4H24.8V4.8H24zM28.8,4H29.6V4.8H28.8zM3.2,4.8H4V5.6H3.2zM4.8,4.8H5.6V5.6H4.8zM5.6,4.8H6.4V5.6H5.6zM6.4,4.8H7.2V5.6H6.4zM8,4.8H8.8V5.6H8zM9.6,4.8H10.4V5.6H9.6zM10.4,4.8H11.2V5.6H10.4zM11.2,4.8H12V5.6H11.2zM12,4.8H12.8V5.6H12zM14.4,4.8H15.2V5.6H14.4zM19.2,4.8H20V5.6H19.2zM20,4.8H20.8V5.6H20zM24,4.8H24.8V5.6H24zM25.6,4.8H26.4V5.6H25.6zM26.4,4.8H27.2V5.6H26.4zM27.2,4.8H28V5.6H27.2zM28.8,4.8H29.6V5.6H28.8zM3.2,5.6H4V6.4H3.2zM4.8,5.6H5.6V6.4H4.8zM5.6,5.6H6.4V6.4H5.6zM6.4,5.6H7.2V6.4H6.4zM8,5.6H8.8V6.4H8zM9.6,5.6H10.4V6.4H9.6zM11.2,5.6H12V6.4H11.2zM12.8,5.6H13.6V6.4H12.8zM15.2,5.6H16V6.4H15.2zM16.8,5.6H17.6V6.4H16.8zM17.6,5.6H18.4V6.4H17.6zM19.2,5.6H20V6.4H19.2zM20.8,5.6H21.6V6.4H20.8zM22.4,5.6H23.2V6.4H22.4zM24,5.6H24.8V6.4H24zM25.6,5.6H26.4V6.4H25.6zM26.4,5.6H27.2V6.4H26.4zM27.2,5.6H28V6.4H27.2zM28.8,5.6H29.6V6.4H28.8zM3.2,6.4H4V7.2H3.2zM4.8,6.4H5.6V7.2H4.8zM5.6,6.4H6.4V7.2H5.6zM6.4,6.4H7.2V7.2H6.4zM8,6.4H8.8V7.2H8zM9.6,6.4H10.4V7.2H9.6zM10.4,6.4H11.2V7.2H10.4zM11.2,6.4H12V7.2H11.2zM12,6.4H12.8V7.2H12zM12.8,6.4H13.6V7.2H12.8zM13.6,6.4H14.4V7.2H13.6zM14.4,6.4H15.2V7.2H14.4zM15.2,6.4H16V7.2H15.2zM16,6.4H16.8V7.2H16zM16.8,6.4H17.6V7.2H16.8zM18.4,6.4H19.2V7.2H18.4zM20,6.4H20.8V7.2H20zM21.6,6.4H22.4V7.2H21.6zM24,6.4H24.8V7.2H24zM25.6,6.4H26.4V7.2H25.6zM26.4,6.4H27.2V7.2H26.4zM27.2,6.4H28V7.2H27.2zM28.8,6.4H29.6V7.2H28.8zM3.2,7.2H4V8H3.2zM8,7.2H8.8V8H8zM9.6,7.2H10.4V8H9.6zM10.4,7.2H11.2V8H10.4zM11.2,7.2H12V8H11.2zM12.8,7.2H13.6V8H12.8zM13.6,7.2H14.4V8H13.6zM14.4,7.2H15.2V8H14.4zM17.6,7.2H18.4V8H17.6zM20,7.2H20.8V8H20zM20.8,7.2H21.6V8H20.8zM24,7.2H24.8V8H24zM28.8,7.2H29.6V8H28.8zM3.2,8H4V8.8H3.2zM4,8H4.8V8.8H4zM4.8,8H5.6V8.8H4.8zM5.6,8H6.4V8.8H5.6zM6.4,8H7.2V8.8H6.4zM7.2,8H8V8.8H7.2zM8,8H8.8V8.8H8zM9.6,8H10.4V8.8H9.6zM11.2,8H12V8.8H11.2zM12.8,8H13.6V8.8H12.8zM14.4,8H15.2V8.8H14.4zM16,8H16.8V8.8H16zM17.6,8H18.4V8.8H17.6zM19.2,8H20V8.8H19.2zM20.8,8H21.6V8.8H20.8zM22.4,8H23.2V8.8H22.4zM24,8H24.8V8.8H24zM24.8,8H25.6V8.8H24.8zM25.6,8H26.4V8.8H25.6zM26.4,8H27.2V8.8H26.4zM27.2,8H28V8.8H27.2zM28,8H28.8V8.8H28zM28.8,8H29.6V8.8H28.8zM9.6,8.8H10.4V9.6H9.6zM10.4,8.8H11.2V9.6H10.4zM12,8.8H12.8V9.6H12zM16,8.8H16.8V9.6H16zM17.6,8.8H18.4V9.6H17.6zM19.2,8.8H20V9.6H19.2zM20,8.8H20.8V9.6H20zM22.4,8.8H23.2V9.6H22.4zM3.2,9.6H4V10.4H3.2zM4.8,9.6H5.6V10.4H4.8zM5.6,9.6H6.4V10.4H5.6zM6.4,9.6H7.2V10.4H6.4zM7.2,9.6H8V10.4H7.2zM8,9.6H8.8V10.4H8zM12,9.6H12.8V10.4H12zM12.8,9.6H13.6V10.4H12.8zM13.6,9.6H14.4V10.4H13.6zM14.4,9.6H15.2V10.4H14.4zM16.8,9.6H17.6V10.4H16.8zM17.6,9.6H18.4V10.4H17.6zM20.8,9.6H21.6V10.4H20.8zM21.6,9.6H22.4V10.4H21.6zM22.4,9.6H23.2V10.4H22.4zM24,9.6H24.8V10.4H24zM24.8,9.6H25.6V10.4H24.8zM25.6,9.6H26.4V10.4H25.6zM26.4,9.6H27.2V10.4H26.4zM27.2,9.6H28V10.4H27.2zM4.8,10.4H5.6V11.2H4.8zM11.2,10.4H12V11.2H11.2zM12,10.4H12.8V11.2H12zM12.8,10.4H13.6V11.2H12.8zM13.6,10.4H14.4V11.2H13.6zM16,10.4H16.8V11.2H16zM16.8,10.4H17.6V11.2H16.8zM17.6,10.4H18.4V11.2H17.6zM18.4,10.4H19.2V11.2H18.4zM19.2,10.4H20V11.2H19.2zM20,10.4H20.8V11.2H20zM21.6,10.4H22.4V11.2H21.6zM24,10.4H24.8V11.2H24zM24.8,10.4H25.6V11.2H24.8zM26.4,10.4H27.2V11.2H26.4zM27.2,10.4H28V11.2H27.2zM28.8,10.4H29.6V11.2H28.8zM3.2,11.2H4V12H3.2zM4,11.2H4.8V12H4zM4.8,11.2H5.6V12H4.8zM7.2,11.2H8V12H7.2zM8,11.2H8.8V12H8zM8.8,11.2H9.6V12H8.8zM11.2,11.2H12V12H11.2zM12,11.2H12.8V12H12zM13.6,11.2H14.4V12H13.6zM14.4,11.2H15.2V12H14.4zM15.2,11.2H16V12H15.2zM16,11.2H16.8V12H16zM17.6,11.2H18.4V12H17.6zM20,11.2H20.8V12H20zM22.4,11.2H23.2V12H22.4zM25.6,11.2H26.4V12H25.6zM27.2,11.2H28V12H27.2zM28,11.2H28.8V12H28zM4.8,12H5.6V12.8H4.8zM6.4,12H7.2V12.8H6.4zM7.2,12H8V12.8H7.2zM8.8,12H9.6V12.8H8.8zM9.6,12H10.4V12.8H9.6zM10.4,12H11.2V12.8H10.4zM11.2,12H12V12.8H11.2zM12,12H12.8V12.8H12zM13.6,12H14.4V12.8H13.6zM15.2,12H16V12.8H15.2zM16,12H16.8V12.8H16zM19.2,12H20V12.8H19.2zM20,12H20.8V12.8H20zM20.8,12H21.6V12.8H20.8zM23.2,12H24V12.8H23.2zM24,12H24.8V12.8H24zM25.6,12H26.4V12.8H25.6zM26.4,12H27.2V12.8H26.4zM27.2,12H28V12.8H27.2zM28,12H28.8V12.8H28zM28.8,12H29.6V12.8H28.8zM3.2,12.8H4V13.6H3.2zM4,12.8H4.8V13.6H4zM4.8,12.8H5.6V13.6H4.8zM7.2,12.8H8V13.6H7.2zM8,12.8H8.8V13.6H8zM8.8,12.8H9.6V13.6H8.8zM9.6,12.8H10.4V13.6H9.6zM12.8,12.8H13.6V13.6H12.8zM14.4,12.8H15.2V13.6H14.4zM15.2,12.8H16V13.6H15.2zM16,12.8H16.8V13.6H16zM16.8,12.8H17.6V13.6H16.8zM17.6,12.8H18.4V13.6H17.6zM19.2,12.8H20V13.6H19.2zM20.8,12.8H21.6V13.6H20.8zM21.6,12.8H22.4V13.6H21.6zM25.6,12.8H26.4V13.6H25.6zM26.4,12.8H27.2V13.6H26.4zM28,12.8H28.8V13.6H28zM28.8,12.8H29.6V13.6H28.8zM4.8,13.6H5.6V14.4H4.8zM5.6,13.6H6.4V14.4H5.6zM7.2,13.6H8V14.4H7.2zM8.8,13.6H9.6V14.4H8.8zM10.4,13.6H11.2V14.4H10.4zM12.8,13.6H13.6V14.4H12.8zM13.6,13.6H14.4V14.4H13.6zM15.2,13.6H16V14.4H15.2zM16.8,13.6H17.6V14.4H16.8zM17.6,13.6H18.4V14.4H17.6zM18.4,13.6H19.2V14.4H18.4zM19.2,13.6H20V14.4H19.2zM20,13.6H20.8V14.4H20zM21.6,13.6H22.4V14.4H21.6zM23.2,13.6H24V14.4H23.2zM24,13.6H24.8V14.4H24zM24.8,13.6H25.6V14.4H24.8zM26.4,13.6H27.2V14.4H26.4zM27.2,13.6H28V14.4H27.2zM28,13.6H28.8V14.4H28zM28.8,13.6H29.6V14.4H28.8zM3.2,14.4H4V15.2H3.2zM4.8,14.4H5.6V15.2H4.8zM5.6,14.4H6.4V15.2H5.6zM6.4,14.4H7.2V15.2H6.4zM8,14.4H8.8V15.2H8zM15.2,14.4H16V15.2H15.2zM16,14.4H16.8V15.2H16zM16.8,14.4H17.6V15.2H16.8zM19.2,14.4H20V15.2H19.2zM22.4,14.4H23.2V15.2H22.4zM23.2,14.4H24V15.2H23.2zM24,14.4H24.8V15.2H24zM24.8,14.4H25.6V15.2H24.8zM26.4,14.4H27.2V15.2H26.4zM27.2,14.4H28V15.2H27.2zM28,14.4H28.8V15.2H28zM6.4,15.2H7.2V16H6.4zM9.6,15.2H10.4V16H9.6zM12,15.2H12.8V16H12zM13.6,15.2H14.4V16H13.6zM15.2,15.2H16V16H15.2zM17.6,15.2H18.4V16H17.6zM19.2,15.2H20V16H19.2zM20,15.2H20.8V16H20zM23.2,15.2H24V16H23.2zM24,15.2H24.8V16H24zM26.4,15.2H27.2V16H26.4zM27.2,15.2H28V16H27.2zM4,16H4.8V16.8H4zM4.8,16H5.6V16.8H4.8zM7.2,16H8V16.8H7.2zM8,16H8.8V16.8H8zM10.4,16H11.2V16.8H10.4zM13.6,16H14.4V16.8H13.6zM15.2,16H16V16.8H15.2zM16,16H16.8V16.8H16zM16.8,16H17.6V16.8H16.8zM18.4,16H19.2V16.8H18.4zM20.8,16H21.6V16.8H20.8zM22.4,16H23.2V16.8H22.4zM23.2,16H24V16.8H23.2zM24.8,16H25.6V16.8H24.8zM25.6,16H26.4V16.8H25.6zM28.8,16H29.6V16.8H28.8zM3.2,16.8H4V17.6H3.2zM7.2,16.8H8V17.6H7.2zM9.6,16.8H10.4V17.6H9.6zM11.2,16.8H12V17.6H11.2zM12,16.8H12.8V17.6H12zM16,16.8H16.8V17.6H16zM16.8,16.8H17.6V17.6H16.8zM17.6,16.8H18.4V17.6H17.6zM18.4,16.8H19.2V17.6H18.4zM19.2,16.8H20V17.6H19.2zM21.6,16.8H22.4V17.6H21.6zM24,16.8H24.8V17.6H24zM24.8,16.8H25.6V17.6H24.8zM26.4,16.8H27.2V17.6H26.4zM27.2,16.8H28V17.6H27.2zM28.8,16.8H29.6V17.6H28.8zM8,17.6H8.8V18.4H8zM9.6,17.6H10.4V18.4H9.6zM10.4,17.6H11.2V18.4H10.4zM12,17.6H12.8V18.4H12zM12.8,17.6H13.6V18.4H12.8zM13.6,17.6H14.4V18.4H13.6zM14.4,17.6H15.2V18.4H14.4zM15.2,17.6H16V18.4H15.2zM16.8,17.6H17.6V18.4H16.8zM19.2,17.6H20V18.4H19.2zM20,17.6H20.8V18.4H20zM20.8,17.6H21.6V18.4H20.8zM24,17.6H24.8V18.4H24zM24.8,17.6H25.6V18.4H24.8zM25.6,17.6H26.4V18.4H25.6zM27.2,17.6H28V18.4H27.2zM3.2,18.4H4V19.2H3.2zM6.4,18.4H7.2V19.2H6.4zM7.2,18.4H8V19.2H7.2zM8.8,18.4H9.6V19.2H8.8zM9.6,18.4H10.4V19.2H9.6zM11.2,18.4H12V19.2H11.2zM15.2,18.4H16V19.2H15.2zM18.4,18.4H19.2V19.2H18.4zM19.2,18.4H20V19.2H19.2zM20,18.4H20.8V19.2H20zM20.8,18.4H21.6V19.2H20.8zM22.4,18.4H23.2V19.2H22.4zM24.8,18.4H25.6V19.2H24.8zM25.6,18.4H26.4V19.2H25.6zM26.4,18.4H27.2V19.2H26.4zM27.2,18.4H28V19.2H27.2zM28,18.4H28.8V19.2H28zM28.8,18.4H29.6V19.2H28.8zM3.2,19.2H4V20H3.2zM4.8,19.2H5.6V20H4.8zM6.4,19.2H7.2V20H6.4zM8,19.2H8.8V20H8zM12,19.2H12.8V20H12zM12.8,19.2H13.6V20H12.8zM13.6,19.2H14.4V20H13.6zM14.4,19.2H15.2V20H14.4zM17.6,19.2H18.4V20H17.6zM18.4,19.2H19.2V20H18.4zM20.8,19.2H21.6V20H20.8zM22.4,19.2H23.2V20H22.4zM25.6,19.2H26.4V20H25.6zM26.4,19.2H27.2V20H26.4zM28,19.2H28.8V20H28zM28.8,19.2H29.6V20H28.8zM3.2,20H4V20.8H3.2zM5.6,20H6.4V20.8H5.6zM6.4,20H7.2V20.8H6.4zM8.8,20H9.6V20.8H8.8zM9.6,20H10.4V20.8H9.6zM13.6,20H14.4V20.8H13.6zM14.4,20H15.2V20.8H14.4zM15.2,20H16V20.8H15.2zM16,20H16.8V20.8H16zM17.6,20H18.4V20.8H17.6zM18.4,20H19.2V20.8H18.4zM20,20H20.8V20.8H20zM21.6,20H22.4V20.8H21.6zM23.2,20H24V20.8H23.2zM24,20H24.8V20.8H24zM24.8,20H25.6V20.8H24.8zM26.4,20H27.2V20.8H26.4zM28.8,20H29.6V20.8H28.8zM3.2,20.8H4V21.6H3.2zM4.8,20.8H5.6V21.6H4.8zM5.6,20.8H6.4V21.6H5.6zM6.4,20.8H7.2V21.6H6.4zM7.2,20.8H8V21.6H7.2zM8,20.8H8.8V21.6H8zM8.8,20.8H9.6V21.6H8.8zM9.6,20.8H10.4V21.6H9.6zM12,20.8H12.8V21.6H12zM12.8,20.8H13.6V21.6H12.8zM13.6,20.8H14.4V21.6H13.6zM14.4,20.8H15.2V21.6H14.4zM16.8,20.8H17.6V21.6H16.8zM19.2,20.8H20V21.6H19.2zM20,20.8H20.8V21.6H20zM24,20.8H24.8V21.6H24zM25.6,20.8H26.4V21.6H25.6zM28,20.8H28.8V21.6H28zM3.2,21.6H4V22.4H3.2zM6.4,21.6H7.2V22.4H6.4zM9.6,21.6H10.4V22.4H9.6zM10.4,21.6H11.2V22.4H10.4zM16,21.6H16.8V22.4H16zM18.4,21.6H19.2V22.4H18.4zM20,21.6H20.8V22.4H20zM20.8,21.6H21.6V22.4H20.8zM23.2,21.6H24V22.4H23.2zM24,21.6H24.8V22.4H24zM24.8,21.6H25.6V22.4H24.8zM26.4,21.6H27.2V22.4H26.4zM27.2,21.6H28V22.4H27.2zM28,21.6H28.8V22.4H28zM28.8,21.6H29.6V22.4H28.8zM3.2,22.4H4V23.2H3.2zM4.8,22.4H5.6V23.2H4.8zM5.6,22.4H6.4V23.2H5.6zM6.4,22.4H7.2V23.2H6.4zM7.2,22.4H8V23.2H7.2zM8,22.4H8.8V23.2H8zM8.8,22.4H9.6V23.2H8.8zM9.6,22.4H10.4V23.2H9.6zM10.4,22.4H11.2V23.2H10.4zM12,22.4H12.8V23.2H12zM14.4,22.4H15.2V23.2H14.4zM16.8,22.4H17.6V23.2H16.8zM20.8,22.4H21.6V23.2H20.8zM21.6,22.4H22.4V23.2H21.6zM22.4,22.4H23.2V23.2H22.4zM23.2,22.4H24V23.2H23.2zM24,22.4H24.8V23.2H24zM24.8,22.4H25.6V23.2H24.8zM25.6,22.4H26.4V23.2H25.6zM28,22.4H28.8V23.2H28zM9.6,23.2H10.4V24H9.6zM11.2,23.2H12V24H11.2zM12,23.2H12.8V24H12zM12.8,23.2H13.6V24H12.8zM13.6,23.2H14.4V24H13.6zM14.4,23.2H15.2V24H14.4zM16,23.2H16.8V24H16zM16.8,23.2H17.6V24H16.8zM17.6,23.2H18.4V24H17.6zM18.4,23.2H19.2V24H18.4zM19.2,23.2H20V24H19.2zM22.4,23.2H23.2V24H22.4zM25.6,23.2H26.4V24H25.6zM27.2,23.2H28V24H27.2zM28.8,23.2H29.6V24H28.8zM3.2,24H4V24.8H3.2zM4,24H4.8V24.8H4zM4.8,24H5.6V24.8H4.8zM5.6,24H6.4V24.8H5.6zM6.4,24H7.2V24.8H6.4zM7.2,24H8V24.8H7.2zM8,24H8.8V24.8H8zM12.8,24H13.6V24.8H12.8zM13.6,24H14.4V24.8H13.6zM14.4,24H15.2V24.8H14.4zM15.2,24H16V24.8H15.2zM16.8,24H17.6V24.8H16.8zM19.2,24H20V24.8H19.2zM20,24H20.8V24.8H20zM21.6,24H22.4V24.8H21.6zM22.4,24H23.2V24.8H22.4zM24,24H24.8V24.8H24zM25.6,24H26.4V24.8H25.6zM27.2,24H28V24.8H27.2zM28,24H28.8V24.8H28zM3.2,24.8H4V25.6H3.2zM8,24.8H8.8V25.6H8zM9.6,24.8H10.4V25.6H9.6zM10.4,24.8H11.2V25.6H10.4zM12.8,24.8H13.6V25.6H12.8zM15.2,24.8H16V25.6H15.2zM16,24.8H16.8V25.6H16zM16.8,24.8H17.6V25.6H16.8zM17.6,24.8H18.4V25.6H17.6zM20,24.8H20.8V25.6H20zM20.8,24.8H21.6V25.6H20.8zM21.6,24.8H22.4V25.6H21.6zM22.4,24.8H23.2V25.6H22.4zM25.6,24.8H26.4V25.6H25.6zM26.4,24.8H27.2V25.6H26.4zM27.2,24.8H28V25.6H27.2zM28,24.8H28.8V25.6H28zM3.2,25.6H4V26.4H3.2zM4.8,25.6H5.6V26.4H4.8zM5.6,25.6H6.4V26.4H5.6zM6.4,25.6H7.2V26.4H6.4zM8,25.6H8.8V26.4H8zM9.6,25.6H10.4V26.4H9.6zM10.4,25.6H11.2V26.4H10.4zM12.8,25.6H13.6V26.4H12.8zM13.6,25.6H14.4V26.4H13.6zM14.4,25.6H15.2V26.4H14.4zM15.2,25.6H16V26.4H15.2zM16,25.6H16.8V26.4H16zM18.4,25.6H19.2V26.4H18.4zM19.2,25.6H20V26.4H19.2zM20.8,25.6H21.6V26.4H20.8zM22.4,25.6H23.2V26.4H22.4zM23.2,25.6H24V26.4H23.2zM24,25.6H24.8V26.4H24zM24.8,25.6H25.6V26.4H24.8zM25.6,25.6H26.4V26.4H25.6zM26.4,25.6H27.2V26.4H26.4zM28.8,25.6H29.6V26.4H28.8zM3.2,26.4H4V27.2H3.2zM4.8,26.4H5.6V27.2H4.8zM5.6,26.4H6.4V27.2H5.6zM6.4,26.4H7.2V27.2H6.4zM8,26.4H8.8V27.2H8zM9.6,26.4H10.4V27.2H9.6zM10.4,26.4H11.2V27.2H10.4zM11.2,26.4H12V27.2H11.2zM15.2,26.4H16V27.2H15.2zM16.8,26.4H17.6V27.2H16.8zM17.6,26.4H18.4V27.2H17.6zM18.4,26.4H19.2V27.2H18.4zM19.2,26.4H20V27.2H19.2zM22.4,26.4H23.2V27.2H22.4zM23.2,26.4H24V27.2H23.2zM25.6,26.4H26.4V27.2H25.6zM27.2,26.4H28V27.2H27.2zM28,26.4H28.8V27.2H28zM28.8,26.4H29.6V27.2H28.8zM3.2,27.2H4V28H3.2zM4.8,27.2H5.6V28H4.8zM5.6,27.2H6.4V28H5.6zM6.4,27.2H7.2V28H6.4zM8,27.2H8.8V28H8zM9.6,27.2H10.4V28H9.6zM11.2,27.2H12V28H11.2zM12.8,27.2H13.6V28H12.8zM14.4,27.2H15.2V28H14.4zM15.2,27.2H16V28H15.2zM16,27.2H16.8V28H16zM17.6,27.2H18.4V28H17.6zM19.2,27.2H20V28H19.2zM20.8,27.2H21.6V28H20.8zM24,27.2H24.8V28H24zM24.8,27.2H25.6V28H24.8zM26.4,27.2H27.2V28H26.4zM3.2,28H4V28.8H3.2zM8,28H8.8V28.8H8zM11.2,28H12V28.8H11.2zM15.2,28H16V28.8H15.2zM18.4,28H19.2V28.8H18.4zM20,28H20.8V28.8H20zM25.6,28H26.4V28.8H25.6zM26.4,28H27.2V28.8H26.4zM27.2,28H28V28.8H27.2zM3.2,28.8H4V29.6H3.2zM4,28.8H4.8V29.6H4zM4.8,28.8H5.6V29.6H4.8zM5.6,28.8H6.4V29.6H5.6zM6.4,28.8H7.2V29.6H6.4zM7.2,28.8H8V29.6H7.2zM8,28.8H8.8V29.6H8zM9.6,28.8H10.4V29.6H9.6zM10.4,28.8H11.2V29.6H10.4zM11.2,28.8H12V29.6H11.2zM12,28.8H12.8V29.6H12zM15.2,28.8H16V29.6H15.2zM16,28.8H16.8V29.6H16zM16.8,28.8H17.6V29.6H16.8zM20.8,28.8H21.6V29.6H20.8zM22.4,28.8H23.2V29.6H22.4zM24.8,28.8H25.6V29.6H24.8zM26.4,28.8H27.2V29.6H26.4zM28,28.8H28.8V29.6H28z" id="qr-path" fill="#000000" fill-opacity="1" fill-rule="nonzero" stroke="none"/></svg></div>
+ <a class="phone-url" href="https://khaledbaniodeh.github.io/encs4380-dynamics-t19/">khaledbaniodeh.github.io/encs4380-dynamics-t19/</a>
+ <button id="copy-phone-link" class="btn primary" type="button">Copy website link</button><p id="phone-feedback" class="phone-feedback" role="status"></p>
+</dialog>
 
-    <section id="ramp-metrics" hidden>
-        <h2>Ramp tracking</h2>
-        <p>Errors compare the sensor output with the ideal output Kx(t).</p>
-        <dl>
-            <dt>Asymptotic time lag relative to Kx(t)</dt>
-            <dd id="ramp-lag"></dd>
-            <dt>Current signed error Kx(t) − y(t), at the selected time t</dt>
-            <dd id="ramp-current-error"></dd>
-            <dt>Steady-state signed error Krτ</dt>
-            <dd id="ramp-steady-error"></dd>
-        </dl>
-        <p>The current error approaches the steady-state value as time increases.
-           The time lag τ describes long-time tracking, after the transient.</p>
-    </section>
-    <div id="response-chart" aria-label="First-order input and response over time"
-         style="width: 100%; max-width: 960px; height: 400px;" hidden></div>
-
-    <section id="error-section" hidden>
-        <h2>Remaining step error</h2>
-        <p id="error-details"></p>
-        <div id="error-chart" aria-label="Remaining step-error fraction on a logarithmic vertical axis"
-             style="width: 100%; max-width: 960px; height: 360px;"></div>
-    </section>
-
-    </main>
-
-    <script>
+<script>
         const status = document.getElementById("status");
         const controls = document.getElementById("controls");
         const chart = document.getElementById("response-chart");
@@ -190,12 +186,43 @@
         const validationRows = document.getElementById("step-validation-rows");
         const rampMetrics = document.getElementById("ramp-metrics");
 
+
+        function formatNumber(value) {
+            if (value === 0) return "0";
+            if (Math.abs(value) < 0.001 || Math.abs(value) >= 1000000) return value.toExponential(3);
+            return new Intl.NumberFormat("en", {maximumSignificantDigits: 5}).format(value);
+        }
+        function setText(id, value) { document.getElementById(id).textContent = value; }
+        const phoneDialog = document.getElementById("phone-dialog");
+        document.getElementById("open-phone").addEventListener("click", () => phoneDialog.showModal());
+        document.getElementById("close-phone").addEventListener("click", () => phoneDialog.close());
+        phoneDialog.addEventListener("click", event => { if (event.target === phoneDialog) {
+            const box = phoneDialog.getBoundingClientRect();
+            if (event.clientX < box.left || event.clientX > box.right ||
+                event.clientY < box.top || event.clientY > box.bottom) phoneDialog.close();
+        }});
+        document.getElementById("copy-phone-link").addEventListener("click", async () => {
+            try {
+                await navigator.clipboard.writeText("https://khaledbaniodeh.github.io/encs4380-dynamics-t19/");
+                setText("phone-feedback", "Link copied. Send it to your phone and open it in your browser.");
+            } catch {
+                setText("phone-feedback", "You can copy the visible link above or scan the QR code.");
+            }
+        });
+        document.getElementById("model-link").addEventListener("click", () => {
+            document.getElementById("parameters").open = true;
+        });
+        document.getElementById("edit-parameters").addEventListener("click", () => {
+            document.getElementById("parameters").open = true;
+        });
+
         async function main() {
             try {
                 if (typeof Plotly === "undefined") {
                     throw new Error("Could not load the plotting library. Please reload the page.");
                 }
                 const pyodide = await loadPyodide();
+                setText("runtime-label", "Preparing model");
 
                 const response = await fetch("./python/first_order.py", {cache: "no-store"});
                 if (!response.ok) {
@@ -305,6 +332,8 @@
                 async function updateResult() {
                     const version = ++updateVersion;
                     syncPrediction();
+                    status.dataset.state = "ready";
+                    for (const id of ["output-value", "metric-one-value", "metric-two-value"]) setText(id, "—");
                     markerDetails.textContent = "";
                     errorSection.hidden = true;
                     rampMetrics.hidden = true;
@@ -319,18 +348,44 @@
                     const tau = document.getElementById("tau").valueAsNumber;
                     const t = document.getElementById("time").valueAsNumber;
 
+                    setText("parameter-summary", "K " + (Number.isFinite(K) ? formatNumber(K) : "—") +
+                        " · τ " + (Number.isFinite(tau) ? formatNumber(tau) : "—") + " s");
+                    setText("selected-time", "At t = " + (Number.isFinite(t) ? formatNumber(t) : "—") + " s · output units");
+                    setText("response-title", isStep ? "Step response" : "Ramp response");
+                    setText("response-equation", isStep ? "y(t) = KA[1 − exp(−t/τ)]" :
+                        "y(t) = Kr[t − τ(1 − exp(−t/τ))]");
+                    for (const button of document.querySelectorAll("[data-mode]")) {
+                        button.setAttribute("aria-pressed", String(button.dataset.mode === (isStep ? "step" : "ramp")));
+                    }
+                    document.getElementById("learning").hidden = !isStep;
+                    const learnLink = document.getElementById("learn-link");
+                    learnLink.href = isStep ? "#learning" : "#ramp-metrics";
+                    learnLink.textContent = isStep ? "Learn & verify" : "Ramp tracking";
+                    document.getElementById("legend-input").hidden = isStep;
+                    document.getElementById("legend-ideal").hidden = isStep || K === 1;
+                    document.getElementById("legend-markers").hidden = !isStep || K === 0 || A === 0;
+                    document.getElementById("chart-loading").hidden = true;
+                    for (const [id, valid] of [
+                        ["gain", Number.isFinite(K)],
+                        ["tau", Number.isFinite(tau) && tau > 0],
+                        ["time", Number.isFinite(t) && t >= 0],
+                        ["amplitude", !isStep || Number.isFinite(A)],
+                        ["ramp-slope", isStep || Number.isFinite(r)]
+                    ]) document.getElementById(id).setAttribute("aria-invalid", String(!valid));
                     const signalLevel = isStep ? A : r;
                     const calculateOutput = isStep ? calculateStep : calculateRamp;
 
                     if (![K, signalLevel, tau, t].every(Number.isFinite)) {
                         chart.hidden = true;
-                        status.textContent = "Please enter valid numbers.";
+                        status.dataset.state = "error";
+                        status.textContent = "Enter a finite number in each active field.";
                         return;
                     }
 
                     if (tau <= 0 || t < 0) {
                         chart.hidden = true;
-                        status.textContent = "τ must be positive; t must be zero or positive.";
+                        status.dataset.state = "error";
+                        status.textContent = "Use a positive τ and a time t of zero or more.";
                         return;
                     }
 
@@ -430,23 +485,34 @@
                                 "All input, ideal-output, and sensor-output values are calculated in Python.";
                         }
 
+                        if (t <= endTime) {
+                            traces.push({
+                                x: [t], y: [result], type: "scatter", mode: "markers",
+                                name: "Selected output", showlegend: false,
+                                marker: {size: 7, color: "#14243a", line: {color: "#fff", width: 1.5}},
+                                hovertemplate: "Selected t: %{x:.5g} s<br>y: %{y:.6g}<extra></extra>"
+                            });
+                        }
                         chart.hidden = false;
                         await Plotly.react(chart, traces, {
-                            title: {text: isStep ? "Step response (0 to 5τ)" : "Ramp response (0 to 5τ)"},
-                            showlegend: !isStep,
+                            font: {family: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', size: 11, color: "#66758a"},
+                            paper_bgcolor: "#fff", plot_bgcolor: "#fff",
+                            showlegend: false,
                             legend: {orientation: "h", y: 1.02, yanchor: "bottom"},
                             xaxis: {
                                 title: {text: "Time (s)"},
-                                range: [0, endTime]
+                                range: [0, endTime], gridcolor: "#edf1f5", zerolinecolor: "#cdd6e0", fixedrange: false
                             },
                             yaxis: {
                                 title: {text: isStep ? "Output y(t)" : "Signal value"},
-                                rangemode: "tozero"
+                                rangemode: "tozero", gridcolor: "#edf1f5", zerolinecolor: "#cdd6e0"
                             },
-                            margin: {t: isStep ? 55 : 90, r: 25, b: 60, l: 65}
+                            margin: {t: 22, r: 24, b: 48, l: 56}
                         }, {
                             responsive: true,
-                            displaylogo: false
+                            displaylogo: false,
+                            scrollZoom: false,
+                            modeBarButtonsToRemove: ["select2d", "lasso2d", "sendDataToCloud"]
                         });
 
                         if (version !== updateVersion) return;
@@ -475,7 +541,8 @@
                                 line: {color: "#b45309", width: 3},
                                 hovertemplate: "t: %{x:.4g} s<br>E(t): %{y:.6g}<extra></extra>"
                             }], {
-                                title: {text: "Error fraction E(t) (logarithmic vertical axis)"},
+                                font: {family: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', size: 11, color: "#66758a"},
+                                paper_bgcolor: "#fff", plot_bgcolor: "#fff",
                                 showlegend: false,
                                 xaxis: {
                                     title: {text: "Time (s)"},
@@ -484,12 +551,15 @@
                                 yaxis: {
                                     title: {text: "Error fraction E(t)"},
                                     type: "log",
+                                    gridcolor: "#edf1f5", zerolinecolor: "#cdd6e0",
                                     autorange: true
                                 },
-                                margin: {t: 55, r: 25, b: 60, l: 65}
+                                margin: {t: 15, r: 22, b: 45, l: 57}
                             }, {
                                 responsive: true,
-                                displaylogo: false
+                                displaylogo: false,
+                            scrollZoom: false,
+                            modeBarButtonsToRemove: ["select2d", "lasso2d", "sendDataToCloud"]
                             });
                         }
 
@@ -498,8 +568,9 @@
                             const rows = JSON.parse(calculateStepValidation(K, tau, A));
                             for (const row of rows) {
                                 const tr = document.createElement("tr");
+                                tr.dataset.result = row.passed == null ? "na" : row.passed ? "pass" : "fail";
                                 const cells = [
-                                    (row.multiple === 1 ? "τ" : "3τ") + " = " + row.time + " s",
+                                    (row.multiple === 1 ? "τ" : "3τ") + " = " + formatNumber(row.time) + " s",
                                     row.expected_output.toFixed(4),
                                     row.actual_output.toFixed(4),
                                     row.expected_percent.toFixed(1) + "%",
@@ -507,13 +578,23 @@
                                         row.actual_percent.toFixed(4) + "%",
                                     row.passed == null ? "Not applicable" : row.passed ? "Pass" : "Fail"
                                 ];
-                                for (const value of cells) {
+                                for (const [cellIndex, value] of cells.entries()) {
                                     const td = document.createElement("td");
-                                    td.textContent = value;
+                                    if (cellIndex === cells.length - 1) {
+                                        const badge = document.createElement("span");
+                                        badge.className = "result-tag"; badge.textContent = value;
+                                        td.appendChild(badge);
+                                    } else { td.textContent = value; }
                                     tr.appendChild(td);
                                 }
                                 validationRows.appendChild(tr);
                             }
+                            setText("metric-one-label", K === 0 || A === 0 ? "At τ · zero response" : "At τ · 63.2%");
+                            setText("metric-two-label", K === 0 || A === 0 ? "At 3τ · zero response" : "At 3τ · ≈95%");
+                            setText("metric-one-value", formatNumber(calculateStep(tau, K, tau, A)));
+                            setText("metric-two-value", formatNumber(calculateStep(3 * tau, K, tau, A)));
+                            setText("metric-one-foot", K === 0 || A === 0 ? "Zero response · percentage N/A" : "t = " + formatNumber(tau) + " s · output units");
+                            setText("metric-two-foot", K === 0 || A === 0 ? "Zero response · percentage N/A" : "t = " + formatNumber(3 * tau) + " s · output units");
                             stepValidation.hidden = false;
                         } else {
                             const metrics = calculateRampMetrics(t, K, tau, r);
@@ -535,18 +616,27 @@
                                 currentError.toFixed(4) + " output units";
                             document.getElementById("ramp-steady-error").textContent =
                                 steadyError.toFixed(4) + " output units";
+                            setText("metric-one-label", "Asymptotic time lag");
+                            setText("metric-two-label", "Steady-state error");
+                            setText("metric-one-value", lag == null ? "N/A" : formatNumber(lag));
+                            setText("metric-two-value", formatNumber(steadyError));
+                            setText("metric-one-foot", lag == null ? "Ideal output is constant" : "Seconds · relative to Kx");
+                            setText("metric-two-foot", "Krτ · signed output units");
                             rampMetrics.hidden = false;
                         }
 
+                        setText("output-value", formatNumber(result));
                         markerDetails.textContent = markerText;
                         status.textContent =
-                            "Output at " + t + " seconds: " + result.toFixed(4);
+                            "Output at " + formatNumber(t) + " seconds: " + formatNumber(result) +
+                            (t > endTime ? " · Selected time is beyond the displayed 0–5τ window." : " · Dark dot marks the selected time.");
                     } catch (error) {
                         if (version !== updateVersion) return;
                         errorSection.hidden = true;
                         rampMetrics.hidden = true;
                         stepValidation.hidden = true;
                         chart.hidden = true;
+                        status.dataset.state = "error";
                         status.textContent = "Calculation error: " + error.message;
                     }
                 }
@@ -568,6 +658,9 @@
                     slider.min = Math.min(Number(slider.min), value);
                     slider.max = Math.max(Number(slider.max), value);
                     slider.value = numberInput.value;
+                    const prefix = numberInput.id;
+                    setText(prefix + "-min", formatNumber(Number(slider.min)));
+                    setText(prefix + "-max", formatNumber(Number(slider.max)));
                 }
 
                 for (const [numberId, sliderId, mustBePositive] of parameterPairs) {
@@ -581,20 +674,47 @@
                     });
                 }
 
+                for (const button of document.querySelectorAll("[data-mode]")) {
+                    button.addEventListener("click", () => {
+                        document.getElementById("input-type").value = button.dataset.mode;
+                        controls.dispatchEvent(new Event("input", {bubbles: true}));
+                    });
+                }
+                document.getElementById("reset-example").addEventListener("click", () => {
+                    const defaults = {gain: "1", tau: "2", amplitude: "10", "ramp-slope": "2", time: "2"};
+                    for (const [id, value] of Object.entries(defaults)) document.getElementById(id).value = value;
+                    document.getElementById("input-type").value = "step";
+                    document.getElementById("gain-slider").min = "-10";
+                    document.getElementById("gain-slider").max = "10";
+                    document.getElementById("tau-slider").min = "0.1";
+                    document.getElementById("tau-slider").max = "10";
+                    for (const [numberId, sliderId, positive] of parameterPairs) {
+                        syncSlider(document.getElementById(numberId), document.getElementById(sliderId), positive);
+                    }
+                    prediction = null; predictionMessage = ""; guessInput.value = "";
+                    updateResult();
+                });
                 controls.addEventListener("input", () => {
                     if (prediction && prediction.checked) prediction = null;
                     predictionMessage = "";
                     updateResult();
                 });
+                setText("runtime-label", "Python ready");
+                document.getElementById("runtime-status").className = "pill ready";
                 predictionControls.disabled = false;
                 controls.disabled = false;
                 updateResult();
             } catch (error) {
+                setText("runtime-label", "Could not load");
+                document.getElementById("runtime-status").className = "pill error";
+                document.getElementById("chart-loading").hidden = true;
+                status.dataset.state = "error";
                 status.textContent = "Error: " + error.message;
             }
         }
 
         main();
-    </script>
+    
+</script>
 </body>
 </html>
