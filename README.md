@@ -172,7 +172,7 @@ The brief's reference values will be checked against the lecture formulas when t
 - Static and Dynamic Characteristics lecture slides.
 - State-Space Modeling notes, 2026 edition: Example 3, Sections 6 and 7.1; Section 8 for the optional Micromouse simulation bonus. Obtain and confirm this exact reference before reusing its code.
 
-## AI assistance
+## AI Assistance
 
-ChatGPT assisted with interpreting the homework, selecting Python in the browser, writing the Module 1 Python functions and HTML/CSS/JavaScript integration, preparing plots and prediction/validation features, running numerical and browser checks, writing and testing the optional Forward Euler comparison, updating repository documentation, and organizing a home page, separate module navigation and beginner explanations. Team members remain responsible for checking the mathematics, verifying behavior, and explaining every submitted equation and line of code.
+ChatGPT was used to provide guidance throughout the assignment by explaining the homework requirements, clarifying mathematical concepts, and suggesting possible approaches to solving problems. It also assisted with identifying and fixing errors in the Python code and the HTML/CSS/JavaScript integration, reviewing the plots and prediction/validation features, and checking the optional Forward Euler implementation. Additionally, it helped improve the repository documentation and provided suggestions for testing and verifying the results.
 
