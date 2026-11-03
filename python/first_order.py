@@ -1,6 +1,6 @@
-"""Closed-form first-order sensor responses for ENCS4380, Team T19."""
+"""Exact first-order responses and Forward Euler comparison for ENCS4380 T19."""
 
-from math import exp, expm1, isfinite
+from math import ceil, exp, expm1, isfinite
 import json
 
 
@@ -145,3 +145,91 @@ def check_tau_prediction_json(before_tau, after_tau, guess):
         "after_time": after_time,
         "actual": actual,
     }, allow_nan=False)
+
+
+def forward_euler(rhs, y0, end_time, dt, max_steps=2000):
+    """Integrate a scalar ODE y'=rhs(t,y) using our own Forward Euler loop.
+
+    Both the derivative and increment use the old state. The final step
+    is shortened if needed to finish exactly at end_time.
+    """
+    if not all(isfinite(value) for value in (y0, end_time, dt)):
+        raise ValueError("Euler inputs must be finite numbers.")
+    if dt <= 0:
+        raise ValueError("Euler step Δt must be greater than zero.")
+    if end_time < 0:
+        raise ValueError("Euler end time must be zero or positive.")
+    count = end_time / dt
+    if not isfinite(count) or count > max_steps:
+        raise ValueError("Euler is limited to 2000 steps. Increase Δt.")
+    times, values = [0.0], [float(y0)]
+    for index in range(1, ceil(count) + 1):
+        old_time, old_y = times[-1], values[-1]
+        next_time = min(index * dt, end_time)
+        step = next_time - old_time
+        if step <= 0:
+            continue
+        slope = rhs(old_time, old_y)
+        next_y = old_y + step * slope
+        if not isfinite(slope) or not isfinite(next_y):
+            raise ValueError("Euler exceeded the numeric range. Reduce Δt or signal size.")
+        times.append(next_time)
+        values.append(next_y)
+    return times, values
+
+
+def euler_comparison(mode, k, tau, signal_level, dt):
+    """Compare Forward Euler with the exact Module 1 response at Euler nodes.
+
+    signal_level means Step amplitude A or Ramp slope r.
+    Absolute errors use output units, including for zero/negative signals.
+    Stability describes the homogeneous Euler update, not accuracy.
+    """
+    if mode not in ("step", "ramp"):
+        raise ValueError("Choose Step or Ramp for the Euler comparison.")
+    if not all(isfinite(value) for value in (k, tau, signal_level, dt)):
+        raise ValueError("Euler needs finite K, τ, signal level and Δt.")
+    if tau <= 0:
+        raise ValueError("τ must be greater than zero.")
+    end_time = 5 * tau
+    if not isfinite(end_time):
+        raise ValueError("The 0–5τ window exceeds the numeric range.")
+
+    def rhs(time, output):
+        input_value = signal_level if mode == "step" else signal_level * time
+        return (k * input_value - output) / tau
+
+    times, values = forward_euler(rhs, 0.0, end_time, dt)
+    exact_response = step_response if mode == "step" else ramp_response
+    exact = [exact_response(time, k, tau, signal_level) for time in times]
+    errors = [abs(approx - reference) for approx, reference in zip(values, exact)]
+    if not all(isfinite(value) for value in exact + errors):
+        raise ValueError("Euler comparison exceeds the numeric range.")
+    largest_step_ratio = min(dt, end_time) / tau
+    if largest_step_ratio < 2:
+        stability = "stable"
+        message = "Stable step size. A smaller Δt usually reduces the approximation error."
+        if largest_step_ratio > 1:
+            stability = "coarse"
+            message = "Stable but coarse: numerical oscillations can appear. Stability does not guarantee accuracy."
+    elif largest_step_ratio == 2:
+        stability = "boundary"
+        message = "At the Euler stability boundary: errors need not decay. Reduce Δt."
+    else:
+        stability = "unstable"
+        message = "Outside the Euler stability limit. Oscillations can come from the solver, even when the sensor is stable."
+    return {
+        "times": times, "values": values, "exact": exact, "errors": errors,
+        "max_abs_error": max(errors), "final_abs_error": errors[-1],
+        "steps": len(times) - 1, "stability": stability, "message": message,
+        "largest_step_ratio": largest_step_ratio,
+    }
+
+
+def euler_comparison_json(mode, k, tau, signal_level, dt):
+    """Return a concise result/error for the optional browser comparison."""
+    try:
+        return json.dumps({"ok": True, **euler_comparison(mode, k, tau, signal_level, dt)},
+                          allow_nan=False)
+    except (ValueError, OverflowError) as error:
+        return json.dumps({"ok": False, "message": str(error)})

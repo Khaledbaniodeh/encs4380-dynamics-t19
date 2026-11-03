@@ -68,6 +68,9 @@ input[type=number]:hover,select:hover{border-color:#9bacbf}input[aria-invalid="t
 @media(max-width:850px){.learning-grid{grid-template-columns:1fr}.prediction-buttons{grid-template-columns:1fr 1fr}.prediction-buttons #reset-prediction{grid-column:1/-1}.prediction-panel{padding:20px}.brand small{display:none}}
 @media(max-width:760px){.page{padding:24px 16px 90px}.topbar-inner{padding:14px 16px}.topbar-meta{letter-spacing:.5px}.topbar-meta>span{display:none}.page-heading{align-items:flex-start;gap:12px;margin-bottom:21px}.page-heading h1{font-size:29px;letter-spacing:-1px}.subtitle{font-size:12px}.heading-actions .btn{padding:9px 10px;min-height:39px}.heading-actions .phone-text{display:none}.workspace{grid-template-columns:minmax(0,1fr);gap:18px}.parameters{position:static}.parameters>summary{padding:17px 18px}.parameter{padding:13px 0}#controls{padding:0 18px 18px}.field-row{grid-template-columns:minmax(0,1fr) 95px}.mode-btn{min-height:58px}.mode-btn strong{font-size:14px}.mode-btn span,.field-note{font-size:11px}.parameter label{font-size:13px}.unit{font-size:11px}input[type=number],select{min-height:44px;font-size:16px}.metric-grid{gap:8px}.metric{padding:14px 10px}.metric-number{font-size:23px}.metric-label,.metric-foot{font-size:9px}.chart-panel{padding:18px 13px}.panel-heading h2{font-size:18px}.panel-heading p{font-size:10px}.legend{gap:10px;margin-top:16px;font-size:9px}#response-chart{height:310px}.chart-loading{height:310px}.mobile-view{display:flex;justify-content:center;margin-top:12px;font-size:12px;min-height:38px}.section-heading{align-items:start}.section-heading>p{display:none}.learning{margin-top:25px}.validation-panel,.error-panel{padding:18px 14px}.error-heading .pill{display:none}.scroll-hint{display:block}#error-chart{height:260px}.ramp-summary dl{grid-template-columns:1fr}.ramp-summary dd{font-size:15px}.footer{font-size:9px;flex-wrap:wrap;gap:6px}.mobile-nav{display:grid;position:fixed;bottom:0;left:0;right:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom));grid-template-columns:1fr 1fr;gap:10px;background:#ffffffed;border-top:1px solid var(--line);backdrop-filter:blur(12px);z-index:10}.mobile-nav a{font-size:12px;min-height:40px}.metric.primary-metric{grid-column:1/-1;display:grid;grid-template-columns:1fr auto;align-items:center;padding:13px 16px}.primary-metric .metric-label{font-size:10px;margin:0}.primary-metric .metric-number{font-size:29px;grid-column:2;grid-row:1/3}.primary-metric .metric-foot{margin-top:2px}.metric-grid{grid-template-columns:1fr 1fr}.prediction-buttons{grid-template-columns:1fr}.prediction-buttons #reset-prediction{grid-column:auto}.prediction-choice select{font-size:16px}.prediction-description{font-size:13px}#prediction-feedback{font-size:12px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+
+.euler-panel{padding:22px;margin-top:18px}.euler-toggle{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:600;margin:17px 0 13px;cursor:pointer}.euler-toggle input{width:17px;height:17px;accent-color:var(--teal)}.euler-settings{padding:14px;background:#f7f9fb;border-radius:9px}.euler-settings .field-head label{font-size:12px;font-weight:600}.euler-settings .field-row{grid-template-columns:minmax(0,1fr) 100px}.legend .euler-line{height:0;background:transparent;border-top:2px dashed #d07928}.euler-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:17px 0 8px}.euler-stats>div{padding:12px;background:#faf6ef;border:1px solid #f0e7d9;border-radius:8px;min-width:0}.euler-stats dt{font-size:10px;color:var(--muted)}.euler-stats dd{margin:5px 0 0;font-size:19px;font-weight:650;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.euler-small{font-size:10px;line-height:1.7;color:var(--muted)}.euler-feedback{font-size:11px;line-height:1.8;padding:10px 12px;background:#edf6f3;border-radius:7px;color:#176957}.euler-panel[data-state="coarse"] .euler-feedback,.euler-panel[data-state="boundary"] .euler-feedback{background:#fff5df;color:#885517}.euler-panel[data-state="unstable"] .euler-feedback,.euler-panel[data-state="error"] .euler-feedback{background:#fff0ec;color:#a03d27}.euler-explanation{font-size:11px;color:var(--muted);line-height:1.8;margin-top:12px}.euler-explanation summary{cursor:pointer;font-weight:650;color:var(--ink);padding:5px 0}.euler-formula{font:12px/1.8 ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--ink);overflow-wrap:anywhere}
+@media(max-width:760px){.euler-panel{padding:18px 14px}.euler-stats{grid-template-columns:1fr 1fr;gap:8px}.euler-stats>div:last-child{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between}.euler-stats dd{font-size:18px}.euler-settings .field-row{grid-template-columns:minmax(0,1fr) 85px}.euler-settings input[type=number]{font-size:16px}.euler-feedback,.euler-explanation{font-size:12px}.euler-toggle{min-height:44px;font-size:13px}}
 </style>
  <script src="https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.js"></script>
  <script src="https://cdn.plot.ly/plotly-4.1.1.min.js" charset="utf-8"></script>
@@ -129,7 +132,7 @@ input[type=number]:hover,select:hover{border-color:#9bacbf}input[aria-invalid="t
    </div>
    <section class="panel chart-panel" aria-labelledby="response-title">
     <div class="panel-heading"><div><h2 id="response-title">Step response</h2><p id="response-equation">y(t) = KA[1 − exp(−t/τ)]</p></div><span class="pill" id="runtime-status"><i class="status-dot"></i><span id="runtime-label">Loading Python</span></span></div>
-    <div class="legend" aria-hidden="true"><span><i style="background:#315dda"></i>Sensor output</span><span id="legend-input" hidden><i style="background:#8392a6"></i>Input</span><span id="legend-ideal" hidden><i style="background:#087f72"></i>Ideal Kx</span><span id="legend-markers"><i style="background:#b56425"></i>Response markers</span></div>
+    <div class="legend" aria-hidden="true"><span><i style="background:#315dda"></i>Sensor output</span><span id="legend-input" hidden><i style="background:#8392a6"></i>Input</span><span id="legend-ideal" hidden><i style="background:#087f72"></i>Ideal Kx</span><span id="legend-euler" hidden><i class="euler-line"></i>Euler approximation</span><span id="legend-markers"><i style="background:#b56425"></i>Response markers</span></div>
     <div id="chart-loading" class="chart-loading">Preparing your experiment…</div>
     <div id="response-chart" aria-label="First-order input and response over time" hidden></div>
     <p id="status" role="status">Loading Python…</p>
@@ -139,6 +142,25 @@ input[type=number]:hover,select:hover{border-color:#9bacbf}input[aria-invalid="t
      <dl><div><dt>Asymptotic time lag</dt><dd id="ramp-lag"></dd></div><div><dt>Current error · Kx(t) − y(t)</dt><dd id="ramp-current-error"></dd></div><div><dt>Steady-state error · Krτ</dt><dd id="ramp-steady-error"></dd></div></dl>
      <p>The current error approaches Krτ over time. The lag τ describes long-time tracking after the transient.</p>
     </section>
+   </section>
+
+   <section class="panel euler-panel" id="euler-comparison" aria-labelledby="euler-title">
+    <div class="panel-heading"><div><p class="card-kicker">Optional bonus · Numerical solution</p><h2 id="euler-title">Euler comparison</h2><p>The same sensor and input, solved one step at a time.</p></div><span class="pill" id="euler-state">Waiting for Python</span></div>
+    <fieldset id="euler-controls" disabled>
+     <legend class="sr-only">Euler comparison controls</legend>
+     <label class="euler-toggle" for="euler-enabled"><input id="euler-enabled" type="checkbox" checked> Show Euler on the response plot</label>
+     <div id="euler-settings" class="euler-settings">
+      <div class="field-head"><label for="euler-dt"><span class="field-symbol">Δt</span>Integration step</label><span class="unit">seconds</span></div>
+      <div class="field-row"><div><input id="euler-dt-slider" type="range" min="0.01" max="6" step="any" value="0.5" aria-label="Euler integration step Δt slider"><div class="range-endpoints"><span id="euler-dt-min">0.01</span><span id="euler-dt-max">6</span></div></div><input id="euler-dt" type="number" step="any" value="0.5" aria-describedby="euler-dt-help"></div>
+      <p class="field-note" id="euler-dt-help">Δt is the numerical step size. The t field in Parameters selects an output reading.</p>
+     </div>
+    </fieldset>
+    <div id="euler-results" hidden>
+     <dl class="euler-stats"><div><dt>Max absolute error</dt><dd id="euler-max-error">—</dd></div><div><dt>Error at 5τ</dt><dd id="euler-final-error">—</dd></div><div><dt>Euler steps</dt><dd id="euler-step-count">—</dd></div></dl>
+     <p class="euler-small">Errors compare Euler and the exact solution at the Euler nodes, in output units. Connecting lines are visual guides.</p>
+    </div>
+    <p id="euler-feedback" class="euler-feedback" role="status">Waiting for Python…</p>
+    <details class="euler-explanation"><summary>How does this work?</summary><p class="euler-formula">yₙ₊₁ = yₙ + Δt · (Kxₙ − yₙ) / τ</p><p>Euler uses the slope at the start of each step. Step uses xₙ = A; Ramp uses xₙ = r·tₙ. It starts at y(0) = 0.</p><p>Compare the orange nodes with the blue exact curve. Reduce Δt to inspect convergence. Numerical stability requires each step to be less than 2τ; stability alone does not guarantee accuracy.</p><p>The window is 0–5τ. Any final partial step is shortened to finish exactly at 5τ. Maximum 2,000 steps.</p></details>
    </section>
   </div>
  </div>
@@ -231,6 +253,11 @@ input[type=number]:hover,select:hover{border-color:#9bacbf}input[aria-invalid="t
 
                 await pyodide.runPythonAsync(await response.text());
 
+                const calculateEuler = pyodide.globals.get("euler_comparison_json");
+                const eulerPanel = document.getElementById("euler-comparison");
+                const eulerControls = document.getElementById("euler-controls");
+                const eulerResults = document.getElementById("euler-results");
+                const eulerFeedback = document.getElementById("euler-feedback");
                 const calculateStepValidation = pyodide.globals.get("step_validation_json");
                 const calculateStep = pyodide.globals.get("step_response");
                 const calculateRamp = pyodide.globals.get("ramp_response");
@@ -332,6 +359,18 @@ input[type=number]:hover,select:hover{border-color:#9bacbf}input[aria-invalid="t
                 async function updateResult() {
                     const version = ++updateVersion;
                     syncPrediction();
+                    const eulerEnabled = document.getElementById("euler-enabled").checked;
+                    const eulerDt = document.getElementById("euler-dt").valueAsNumber;
+                    document.getElementById("euler-settings").hidden = !eulerEnabled;
+                    document.getElementById("legend-euler").hidden = true;
+                    eulerResults.hidden = true;
+                    eulerPanel.dataset.state = "";
+                    setText("euler-state", eulerEnabled ? "Check settings" : "Off");
+                    eulerFeedback.textContent = eulerEnabled ?
+                        "Enter valid model parameters to compare Euler." :
+                        "Comparison is off. Enable it to overlay Euler on the exact response.";
+                    document.getElementById("euler-dt").setAttribute("aria-invalid",
+                        String(eulerEnabled && (!Number.isFinite(eulerDt) || eulerDt <= 0)));
                     status.dataset.state = "ready";
                     for (const id of ["output-value", "metric-one-value", "metric-two-value"]) setText(id, "—");
                     markerDetails.textContent = "";
@@ -423,6 +462,37 @@ input[type=number]:hover,select:hover{border-color:#9bacbf}input[aria-invalid="t
                             name: isStep ? "Step response y(t)" : "Sensor output y(t)",
                             line: {color: "#2563eb", width: 3}
                         }];
+
+                        if (eulerEnabled) {
+                            try {
+                                const comparison = JSON.parse(calculateEuler(
+                                    isStep ? "step" : "ramp", K, tau, signalLevel, eulerDt));
+                                if (!comparison.ok) throw new Error(comparison.message);
+                                traces.push({
+                                    x: comparison.times, y: comparison.values,
+                                    customdata: comparison.exact.map((value, index) => [value, comparison.errors[index]]),
+                                    type: "scatter", mode: "lines+markers",
+                                    name: "Forward Euler", showlegend: false,
+                                    line: {color: "#d07928", width: 2, dash: "dash"},
+                                    marker: {size: 4, color: "#d07928"},
+                                    hovertemplate: "t: %{x:.5g} s<br>Euler: %{y:.6g}<br>Exact: %{customdata[0]:.6g}<br>|Error|: %{customdata[1]:.6g}<extra></extra>"
+                                });
+                                document.getElementById("legend-euler").hidden = false;
+                                eulerResults.hidden = false;
+                                setText("euler-max-error", formatNumber(comparison.max_abs_error));
+                                setText("euler-final-error", formatNumber(comparison.final_abs_error));
+                                setText("euler-step-count", comparison.steps.toLocaleString("en"));
+                                eulerPanel.dataset.state = comparison.stability;
+                                const labels = {stable: "Stable step", coarse: "Coarse step",
+                                    boundary: "Stability boundary", unstable: "Outside stability limit"};
+                                setText("euler-state", labels[comparison.stability]);
+                                eulerFeedback.textContent = comparison.message;
+                            } catch (error) {
+                                eulerPanel.dataset.state = "error";
+                                setText("euler-state", "Check Δt");
+                                eulerFeedback.textContent = error.message;
+                            }
+                        }
 
                         let markerText = "";
                         if (isStep) {
@@ -644,7 +714,8 @@ input[type=number]:hover,select:hover{border-color:#9bacbf}input[aria-invalid="t
                 // These controls only pass values to the Python calculations.
                 const parameterPairs = [
                     ["gain", "gain-slider", false],
-                    ["tau", "tau-slider", true]
+                    ["tau", "tau-slider", true],
+                    ["euler-dt", "euler-dt-slider", true]
                 ];
 
                 function syncSlider(numberInput, slider, mustBePositive) {
@@ -681,13 +752,16 @@ input[type=number]:hover,select:hover{border-color:#9bacbf}input[aria-invalid="t
                     });
                 }
                 document.getElementById("reset-example").addEventListener("click", () => {
-                    const defaults = {gain: "1", tau: "2", amplitude: "10", "ramp-slope": "2", time: "2"};
+                    const defaults = {gain: "1", tau: "2", amplitude: "10", "ramp-slope": "2", time: "2", "euler-dt": "0.5"};
                     for (const [id, value] of Object.entries(defaults)) document.getElementById(id).value = value;
                     document.getElementById("input-type").value = "step";
                     document.getElementById("gain-slider").min = "-10";
                     document.getElementById("gain-slider").max = "10";
                     document.getElementById("tau-slider").min = "0.1";
                     document.getElementById("tau-slider").max = "10";
+                    document.getElementById("euler-enabled").checked = true;
+                    document.getElementById("euler-dt-slider").min = "0.01";
+                    document.getElementById("euler-dt-slider").max = "6";
                     for (const [numberId, sliderId, positive] of parameterPairs) {
                         syncSlider(document.getElementById(numberId), document.getElementById(sliderId), positive);
                     }
@@ -699,6 +773,8 @@ input[type=number]:hover,select:hover{border-color:#9bacbf}input[aria-invalid="t
                     predictionMessage = "";
                     updateResult();
                 });
+                eulerControls.addEventListener("input", updateResult);
+                eulerControls.disabled = false;
                 setText("runtime-label", "Python ready");
                 document.getElementById("runtime-status").className = "pill ready";
                 predictionControls.disabled = false;

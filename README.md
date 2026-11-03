@@ -8,7 +8,7 @@ A static browser toolkit for understanding sensor dynamics through live controls
 
 ## Current status
 
-Module 1's first-order time-response features are implemented and published on GitHub Pages: Step and Ramp, K and τ sliders, response markers, ramp tracking metrics, logarithmic error plot, validation table, and a Predict, then check exercise.
+Module 1's first-order time-response features are implemented and published on GitHub Pages: Step and Ramp, K and τ sliders, response markers, ramp tracking metrics, logarithmic error plot, validation table, a Predict, then check exercise, and the optional Forward Euler comparison.
 
 The interface has been checked in a desktop browser and at 320 px and 390 px browser viewports. A physical-phone check is still pending. Modules 2–4 are planned and are not available on the page yet. Team membership, collaborator invitations and module ownership still need confirmation.
 
@@ -20,7 +20,8 @@ The interface has been checked in a desktop browser and at 320 px and 390 px bro
 4. Set the Step amplitude A or Ramp slope r, then choose a time t to read the output at that instant.
 5. Read the response plot and the mode-specific results. The plot covers 0 to 5τ; the selected-time output can also be evaluated outside that window.
 6. Use **Reset example** to restore the default values. On narrow screens, **Edit parameters** and **View response** provide quick navigation; the Parameters panel can be collapsed.
-7. For **Predict, then check**, choose a nonzero Step, save a prediction, increase τ without changing K or A, then press **Check**. **New prediction** starts another attempt.
+7. In **Euler comparison**, change Δt to compare the numerical orange curve with the exact blue curve. Use its checkbox to hide the approximation; **How does this work?** explains the update and stability.
+8. For **Predict, then check**, choose a nonzero Step, save a prediction, increase τ without changing K or A, then press **Check**. **New prediction** starts another attempt.
 
 K, A and r may be positive, negative or zero. τ must be finite and strictly positive; t must be finite and nonnegative. Nonfinite inputs and results outside the supported numeric range produce an error message. For KA = 0, the normalized Step percentages, log-error plot and prediction exercise are not applicable.
 
@@ -80,7 +81,7 @@ Module 1 experiment dashboard with its parameter panel, live summary and respons
 
 | File | Responsibility |
 | --- | --- |
-| `python/first_order.py` | Python response formulas, error/lag metrics, Step validation and prediction evaluation |
+| `python/first_order.py` | Python exact responses, our scalar Forward Euler solver, error/lag metrics, validation and prediction evaluation |
 | `index.html` | HTML controls, responsive CSS, Pyodide bridge and Plotly rendering |
 | `README.md` | Live link, model assumptions, usage, validation and project status |
 
@@ -88,7 +89,30 @@ Python executes in the visitor's browser through **Pyodide v314.0.7**. **Plotly.
 
 GitHub Pages publishes the repository root from `main`. The deployed site needs no backend server, Binder or login. Numerical models remain in Python; Flask and Django are not used.
 
-Required plots use the lecture's closed-form formulas. The optional Euler/RK4 comparison has not been implemented.
+Required plots use the lecture's closed-form formulas. An optional **Forward Euler comparison** is implemented in Module 1. The default comparison is enabled with Δt = 0.5 s. It can be switched off without changing the exact response.
+
+The solver uses our own Python loop:
+
+```text
+y[n+1] = y[n] + h * f(t[n], y[n])
+f(t,y) = (K*x(t) - y)/τ
+```
+
+Step uses x(t) = A; Ramp uses x(t) = rt evaluated at the beginning of each step. Both start at y(0) = 0. The requested step is Δt, with a shorter last step if necessary to finish at 5τ. The solver does not evaluate the exponential formula to advance the numerical solution; the exact formula is evaluated separately for comparison.
+
+Orange dashed lines and nodes overlay the exact blue response. Hovering an Euler node shows its approximate value, exact reference and absolute error. The comparison reports the maximum absolute error **at Euler nodes**, the final error at 5τ, and the number of steps. Errors use output units, so signed and zero inputs are supported without undefined percentage errors.
+
+For the default Step (K = 1, A = 10, τ = 2 s), Δt = 0.5 s gives 20 steps, maximum node error approximately 0.51473 and final error approximately 0.035667. At Δt = 0.1 s, the maximum node error drops to approximately 0.093935.
+
+The page explains the homogeneous Euler stability condition: every applied step must be less than 2τ. A coarse or unstable step gets an explicit message; stability does not guarantee accuracy. Invalid or overly small Δt values affect only the optional comparison. A 2,000-step limit keeps the browser responsive.
+
+Development checks cover hand-calculated Step/Ramp updates, convergence when Δt is reduced, negative and zero signals, a final partial step, the stability boundary and unstable case, and invalid/excessive runs. RK4 has not been implemented.
+
+Run the numerical regression checks from the repository root with standard Python:
+
+```sh
+python -m unittest discover -s tests -v
+```
 
 ## Modules and ownership
 
@@ -149,4 +173,4 @@ The brief's reference values will be checked against the lecture formulas when t
 
 ## AI assistance
 
-ChatGPT assisted with interpreting the homework, selecting Python in the browser, writing the Module 1 Python functions and HTML/CSS/JavaScript integration, preparing plots and prediction/validation features, running numerical and browser checks, and updating repository documentation. Team members remain responsible for checking the mathematics, verifying behavior, and explaining every submitted equation and line of code.
+ChatGPT assisted with interpreting the homework, selecting Python in the browser, writing the Module 1 Python functions and HTML/CSS/JavaScript integration, preparing plots and prediction/validation features, running numerical and browser checks, writing and testing the optional Forward Euler comparison, and updating repository documentation. Team members remain responsible for checking the mathematics, verifying behavior, and explaining every submitted equation and line of code.
