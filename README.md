@@ -172,6 +172,14 @@ The brief's reference values will be checked against the lecture formulas when t
 - Static and Dynamic Characteristics lecture slides.
 - State-Space Modeling notes, 2026 edition: Example 3, Sections 6 and 7.1; Section 8 for the optional Micromouse simulation bonus. Obtain and confirm this exact reference before reusing its code.
 
+## Checkpoint and versioning
+
+Module 1's reference snapshot is saved at [`checkpoint/module-1`](https://github.com/Khaledbaniodeh/encs4380-dynamics-t19/tree/checkpoint/module-1), pinned to commit `20847b4`. This is a saved branch, not a tag/release. The `checkpoint-1` tag/release is still pending; `v1.0` is reserved for the final four-module submission.
+
+A read-only **Module 1 checkpoint guard** checks that its HTML page, Python model and Euler tests remain unchanged. Later modules should use independent pages and Python files. Any required Module 1 fix must be discussed explicitly and recorded separately. The check detects changes; it does not itself block GitHub Pages deployment.
+
+See [the versioning record](docs/versioning.md) for exact file hashes, limitations and the saved source reference.
+
 ## AI Assistance
 
 ChatGPT was used to provide guidance throughout the assignment by explaining the homework requirements, clarifying mathematical concepts, and suggesting possible approaches to solving problems. It also assisted with identifying and fixing errors in the Python code and the HTML/CSS/JavaScript integration, reviewing the plots and prediction/validation features, and checking the optional Forward Euler implementation. Additionally, it helped improve the repository documentation and provided suggestions for testing and verifying the results.

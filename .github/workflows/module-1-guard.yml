@@ -1,0 +1,63 @@
+name: Module 1 checkpoint guard
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-module-1:
+    name: Verify unchanged Module 1 files
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Compare with the saved checkpoint
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import sys
+          import urllib.error
+          import urllib.request
+          
+          expected = {
+              "module-1.html": "20ce7df8bd2a7087499af983430b7aefcfe9bd33",
+              "python/first_order.py": "e095d0d876b405dab1d122b70714a6bd29547ea3",
+              "tests/test_euler.py": "3bde45d74fbb1d6644aedc201bfbd196dba598d6"
+          }
+          repo = os.environ["GITHUB_REPOSITORY"]
+          revision = os.environ["GITHUB_SHA"]
+          failed = []
+          for path, baseline_blob in expected.items():
+              url = f"https://api.github.com/repos/{repo}/contents/{path}?ref={revision}"
+              request = urllib.request.Request(url, headers={
+                  "Authorization": "Bearer " + os.environ["GH_TOKEN"],
+                  "Accept": "application/vnd.github+json",
+                  "X-GitHub-Api-Version": "2022-11-28",
+              })
+              try:
+                  with urllib.request.urlopen(request, timeout=30) as response:
+                      actual_blob = json.load(response)["sha"]
+              except (urllib.error.URLError, KeyError, ValueError) as error:
+                  print(f"::error file={path}::Could not verify the checkpoint file.")
+                  failed.append(path)
+                  continue
+              if actual_blob != baseline_blob:
+                  print(f"::error file={path}::Module 1 differs from checkpoint 20847b4. Review this change explicitly; do not silently replace the baseline.")
+                  failed.append(path)
+              else:
+                  print(f"Unchanged: {path}")
+          
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
+              summary.write("## Module 1 checkpoint verification\n\n")
+              summary.write("Baseline: `20847b440a8155a036944168de1af0f5aacff641`\n\n")
+              summary.write("Result: " + ("FAIL — review changed/unverified files." if failed else "PASS — all three Module 1 files are unchanged.") + "\n")
+          if failed:
+              sys.exit(1)
+          
+          PY
