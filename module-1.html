@@ -202,10 +202,10 @@ input[type=number]:hover,select:hover{border-color:#9bacbf}input[aria-invalid="t
   </div>
  </section>
  <section id="error-section" class="panel error-panel" hidden aria-labelledby="error-title">
-  <div class="error-heading"><div><p class="card-kicker">Understand the response / Step</p><h2 id="error-title">How far is the reading from its final value?</h2></div><span class="pill" id="error-axis-label">Logarithmic scale</span></div>
+  <div class="error-heading"><div><p class="card-kicker">Understand the response / Step</p><h2 id="error-title">How far is the reading from its final value?</h2></div><span class="pill" id="error-axis-label">Natural logarithm</span></div>
   <p class="reading-guide error-guide">After a sudden change, the reading needs time to catch up. <strong>Remaining error</strong> is the gap between the final value and the current reading, measured as a fraction of the total change. This is the sensor’s response delay; it does not mean the program made a calculation mistake.</p>
-  <p class="error-example" id="error-reading-guide">Read it like this: E = 1 means 100% remains; E = 0.1 means 10% remains. A lower value means the reading is closer to its final value.</p>
-  <div class="error-view"><label for="error-view">What would you like to see?</label><select id="error-view"><option value="fraction">Remaining error · logarithmic scale</option><option value="natural">Natural log · understand the slope</option></select></div>
+  <p class="error-example" id="error-reading-guide">Here the vertical axis is ln(E), not E itself. It starts at 0 and becomes negative as the remaining error shrinks. Negative ln(E) values do not mean a negative error fraction.</p>
+  <div class="error-view"><label for="error-view">What would you like to see?</label><select id="error-view"><option value="fraction">Remaining error · logarithmic scale</option><option value="natural" selected>Natural log · understand the slope</option></select></div>
   <p id="error-details" role="status"></p>
   <div id="error-chart" aria-label="Remaining Step error over time"></div>
   <p id="error-takeaway" class="error-note"></p>
