@@ -119,12 +119,12 @@ python -m unittest discover -s tests -v
 
 | Module | Scope | Tracking issue | Implementation | Owner |
 | --- | --- | --- | --- | --- |
-| 1 | First-order time response | [#1](../../issues/1) | Implemented; phone check pending | To be assigned by the team |
+| 1 | First-order time response | [#1](../../issues/1) | Implemented; phone check pending | Khaled Bani Oudeh ([@Khaledbaniodeh](https://github.com/Khaledbaniodeh)) |
 | 2 | Frequency response, sines, Bode plots and dynamic error | [#2](../../issues/2) | Not started | To be assigned by the team |
 | 3 | Second-order response, poles, state space and phase plane | [#3](../../issues/3) | Not started | To be assigned by the team |
 | 4 | Guess the sensor: hidden parameters, noise, hints and scoring | [#4](../../issues/4) | Not started | To be assigned by the team |
 
-The four-member roster, GitHub usernames and agreed module owners will be recorded once confirmed. Every member must contribute from their own account and be able to explain their code and equations.
+Module 1 ownership is confirmed for Khaled Bani Oudeh (@Khaledbaniodeh). The remaining team details and owners for Modules 2–4 will be recorded later. Every member must contribute from their own account and be able to explain their code and equations.
 
 ## Delivery checklist
 
