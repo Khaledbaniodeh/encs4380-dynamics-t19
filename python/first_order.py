@@ -38,6 +38,21 @@ def step_error_fraction(t, tau):
     return exp(-t / tau)
 
 
+def step_log_error(t, tau):
+    """Return ln(E(t)) = -t/tau without taking log of a tiny exponential.
+
+    This normalized error is meaningful only for a nonzero Step.
+    Plot this value on linear axes to read the slope -1/tau directly.
+    """
+    if not all(isfinite(value) for value in (t, tau)):
+        raise ValueError("t and tau must be finite numbers.")
+    if tau <= 0:
+        raise ValueError("tau must be greater than zero.")
+    if t < 0:
+        raise ValueError("t must be zero or positive.")
+    return -t / tau
+
+
 def step_log_error_slope(tau):
     """Return the slope of ln(E(t)) against time, in inverse seconds."""
     if not isfinite(tau) or tau <= 0:
@@ -233,3 +248,4 @@ def euler_comparison_json(mode, k, tau, signal_level, dt):
                           allow_nan=False)
     except (ValueError, OverflowError) as error:
         return json.dumps({"ok": False, "message": str(error)})
+

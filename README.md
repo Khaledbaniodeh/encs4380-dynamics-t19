@@ -14,7 +14,7 @@ The interface has been checked in a desktop browser and at 320 px and 390 px bro
 
 ## Use the toolkit
 
-1. Open the live link and wait for Python to load. Internet access is required for the CDN libraries.
+1. Open the live link to see the toolkit introduction and learning path. Choose **Start with Module 1** or **Open module**. Module 1 has its own page at [module-1.html](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/module-1.html). Wait for Python to load inside the module. Internet access is required for its CDN libraries.
 2. Choose **Step** or **Ramp** using the input buttons in the Parameters panel.
 3. Move the **K** and **τ** sliders, or type values in their number fields. Typed valid values can extend the initial slider ranges.
 4. Set the Step amplitude A or Ramp slope r, then choose a time t to read the output at that instant.
@@ -50,7 +50,7 @@ The page shows:
 
 - Step markers at τ (63.2% of the final change) and 3τ (approximately 95%).
 - Step error fraction E(t) = (KA − y(t))/KA = exp(−t/τ), on a logarithmic vertical axis.
-- The explanation ln(E) = −t/τ and its slope −1/τ. The displayed logarithmic axis uses base 10; the stated slope refers to ln(E) versus time.
+- The explanation ln(E) = −t/τ and its slope −1/τ. The default remaining-error view uses a base-10 logarithmic axis. A separate **Natural log · understand the slope** view plots Python-computed ln(E) on linear axes, so the visible slope is exactly −1/τ. Beginner explanations distinguish sensor response error from numerical calculation error.
 - Ramp input x(t), sensor output y(t), and ideal instantaneous output Kx(t). When K = 1, input and ideal output share one trace.
 - Ramp current signed tracking error Kx(t) − y(t), steady-state signed error Krτ, and asymptotic time lag τ relative to Kx(t). This lag describes long-time tracking, not a pure delay. If the ideal output is constant (K = 0 or r = 0), that lag is not applicable.
 
@@ -82,10 +82,11 @@ Module 1 experiment dashboard with its parameter panel, live summary and respons
 | File | Responsibility |
 | --- | --- |
 | `python/first_order.py` | Python exact responses, our scalar Forward Euler solver, error/lag metrics, validation and prediction evaluation |
-| `index.html` | HTML controls, responsive CSS, Pyodide bridge and Plotly rendering |
+| `index.html` | Lightweight home page: introduction, learning path, module navigation and beginner help |
+| `module-1.html` | First-order experiment, guided explanations, responsive controls, Pyodide bridge and Plotly rendering |
 | `README.md` | Live link, model assumptions, usage, validation and project status |
 
-Python executes in the visitor's browser through **Pyodide v314.0.7**. **Plotly.js 4.1.1** renders the curves. Both CDN URLs are pinned in `index.html`. JavaScript connects controls to Python and passes the returned values to Plotly.
+Python executes in the visitor's browser through **Pyodide v314.0.7**. **Plotly.js 4.1.1** renders the curves. Both CDN URLs are pinned in `module-1.html`; the home page loads no Python or plotting runtime. JavaScript connects controls to Python and passes the returned values to Plotly.
 
 GitHub Pages publishes the repository root from `main`. The deployed site needs no backend server, Binder or login. Numerical models remain in Python; Flask and Django are not used.
 
@@ -173,4 +174,5 @@ The brief's reference values will be checked against the lecture formulas when t
 
 ## AI assistance
 
-ChatGPT assisted with interpreting the homework, selecting Python in the browser, writing the Module 1 Python functions and HTML/CSS/JavaScript integration, preparing plots and prediction/validation features, running numerical and browser checks, writing and testing the optional Forward Euler comparison, and updating repository documentation. Team members remain responsible for checking the mathematics, verifying behavior, and explaining every submitted equation and line of code.
+ChatGPT assisted with interpreting the homework, selecting Python in the browser, writing the Module 1 Python functions and HTML/CSS/JavaScript integration, preparing plots and prediction/validation features, running numerical and browser checks, writing and testing the optional Forward Euler comparison, updating repository documentation, and organizing a home page, separate module navigation and beginner explanations. Team members remain responsible for checking the mathematics, verifying behavior, and explaining every submitted equation and line of code.
+
