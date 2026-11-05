@@ -98,7 +98,7 @@ The page shows:
 
 - Step markers at τ (63.2% of the final change) and 3τ (approximately 95%).
 - Step error fraction E(t) = (KA − y(t))/KA = exp(−t/τ), on a logarithmic vertical axis.
-- The explanation ln(E) = −t/τ and its slope −1/τ. The default remaining-error view uses a base-10 logarithmic axis. A separate **Natural log · understand the slope** view plots Python-computed ln(E) on linear axes, so the visible slope is exactly −1/τ. Beginner explanations distinguish sensor response error from numerical calculation error.
+- The explanation ln(E) = −t/τ and its slope −1/τ. The remaining-error section offers a base-10 logarithmic axis for E(t), plus a **Natural log · understand the slope** view (selected by default) that plots Python-computed ln(E) on linear axes, so the visible slope is exactly −1/τ. Beginner explanations distinguish sensor response error from numerical calculation error.
 - Ramp input x(t), sensor output y(t), and ideal instantaneous output Kx(t). When K = 1, input and ideal output share one trace.
 - Ramp current signed tracking error Kx(t) − y(t), steady-state signed error Krτ, and asymptotic time lag τ relative to Kx(t). This lag describes long-time tracking, not a pure delay. If the ideal output is constant (K = 0 or r = 0), that lag is not applicable.
 
