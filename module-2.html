@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#14243a">
+<meta name="description" content="Interactive first-order frequency response lab: sine signals, magnitude/phase Bode plots, cutoff frequency and dynamic-error calculator. ENCS4380 Team T19.">
+<title>First-order frequency response · Dynamics Lab</title>
+<style>
+:root{--ink:#17263b;--muted:#66758a;--line:#e0e6ed;--paper:#fff;--bg:#f4f6f8;--teal:#087f72;--teal-soft:#e7f5f1;--blue:#315dda;--orange:#b56425;--radius:16px}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}button:disabled,input:disabled,select:disabled{opacity:.5;cursor:default}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+:focus-visible{outline:3px solid #dfac50;outline-offset:3px}
+.topbar{background:#14243a;color:#fff}.topbar-inner{max-width:1380px;margin:auto;padding:17px 36px;display:flex;align-items:center;justify-content:space-between;gap:15px}
+.brand{color:#fff;font-size:17px;font-weight:700}.brand:hover{color:#fff}.brand span{color:#8edac6;font-weight:400}
+.topbar nav{display:flex;gap:20px;font-size:12px}.topbar nav a{color:#c7d5e3}.topbar nav a[aria-current]{color:#a5eed9;font-weight:700}
+main{max-width:1380px;margin:auto;padding:28px 36px 40px}
+.eyebrow{margin:0 0 7px;font-size:10px;font-weight:750;letter-spacing:1.7px;color:var(--teal);text-transform:uppercase}
+h1{font-size:clamp(27px,3.2vw,38px);letter-spacing:-1px;line-height:1.2;margin:0 0 9px}h2{font-size:19px;line-height:1.3;letter-spacing:-.4px;margin:0}h3{font-size:14px;margin:0}
+p{margin:7px 0 0}.intro{color:var(--muted);max-width:850px;font-size:13px}.heading{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:0 0 24px}
+.pill{display:inline-block;border-radius:100px;background:#e4f2ee;color:#0d6f60;font-size:11px;padding:7px 11px;font-weight:650}.pill.waiting{background:#f0f3f6;color:#66758a}.pill.error{background:#fff0ec;color:#af4027}
+.workspace{display:grid;grid-template-columns:300px minmax(0,1fr);gap:22px;align-items:start}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);min-width:0;box-shadow:0 2px 3px #14243a03}
+.controls-panel{padding:22px;position:sticky;top:18px}
+.controls-panel h2{margin-bottom:6px}.desc{font-size:11px;color:var(--muted);line-height:1.7}
+.field{padding:18px 0;border-bottom:1px solid #edf0f4}.field label{font-size:12px;font-weight:650;display:block;margin-bottom:9px}
+.field-row{display:grid;grid-template-columns:minmax(0,1fr) 90px;gap:10px;align-items:center}
+input[type=range]{width:100%;min-width:0;accent-color:var(--teal);height:32px;cursor:pointer}
+input[type=number],select{border:1px solid #d2dce6;border-radius:8px;background:#fff;color:var(--ink);padding:9px 10px;min-width:0;max-width:100%;width:100%;min-height:41px;font-size:13px}
+input[aria-invalid=true]{border-color:#bd492e;background:#fff7f4}
+.field small{display:block;color:var(--muted);font-size:10px;margin-top:6px}
+button{border:1px solid #d1dbe5;background:#fff;color:var(--ink);border-radius:9px;padding:9px 12px;font-weight:650;font-size:12px;min-height:40px}
+button:hover:enabled{background:#f1f5f8}button.primary{background:var(--teal);border-color:var(--teal);color:#fff}button.primary:hover:enabled{background:#066b60}
+.reset{margin-top:18px;width:100%}.equation{border-radius:9px;padding:13px;background:#f5f8fa;font:12px/1.9 Consolas,monospace;white-space:normal;margin-top:17px;color:#39546a}
+.results{display:grid;gap:18px;min-width:0}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.metric{padding:16px 16px 14px}.metric-label{color:var(--muted);font-size:10px;display:block;margin-bottom:8px}.metric-value{font-size:24px;font-weight:700;letter-spacing:-.65px;overflow-wrap:anywhere}.metric small{display:block;margin-top:5px;color:var(--muted);font-size:10px}
+.chart-panel{padding:20px 21px}.chart-panel header{display:flex;align-items:start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.chart-panel p{color:var(--muted);font-size:11px;line-height:1.7}
+.chart{width:100%;height:335px;min-width:0}.chart.short{height:295px}
+.reading-note{font-size:11px;color:#52677d;background:#f5f8fb;border-radius:8px;padding:11px 13px;margin-top:10px}
+.section{margin-top:29px}.section-heading{display:flex;justify-content:space-between;align-items:end;gap:15px;margin-bottom:14px}
+.bode-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.bode-grid .chart-panel{overflow:hidden}
+.more-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.more-grid>.panel{padding:21px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:15px 0}
+.form-grid label{display:block;font-size:11px;font-weight:600;margin-bottom:6px}
+.calc-results{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.calc-results>div{background:#f5f8fa;border-radius:8px;padding:12px;min-width:0}
+.calc-results span{font-size:10px;color:var(--muted)}.calc-results strong{display:block;font-size:19px;margin-top:4px;overflow-wrap:anywhere}
+.message{margin-top:12px;font-size:11px;line-height:1.7;padding:10px 12px;background:#f5f8fa;border-radius:8px}
+.message.success{background:#e9f6ee;color:#07613d}.message.warning{background:#fff5ec;color:#98551a}.message.error{background:#fff0ed;color:#b4442c}
+.prediction-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.prediction-actions button:last-child{grid-column:1/-1}
+.table-panel{padding:22px;margin-top:18px}
+.table-wrap{max-width:100%;overflow-x:auto;margin-top:13px}table{width:100%;border-collapse:collapse;font-size:11px;min-width:570px;text-align:left}
+td,th{padding:11px 10px;border-bottom:1px solid #e9eef3;white-space:nowrap}thead{background:#f6f8fa;color:#61748a}
+.tag{font-size:10px;font-weight:700;border-radius:5px;padding:4px 8px;background:#e4f5ec;color:#0b774d}
+.tag.fail{background:#fff0ec;color:#ae4026}
+.explain{margin-top:12px;font-size:11px;color:var(--muted);line-height:1.8}
+.explain summary{font-size:12px;color:var(--ink);font-weight:600;cursor:pointer}
+.explain p{font-size:11px;color:var(--muted);margin-top:8px}
+footer{border-top:1px solid var(--line);color:#8290a0;font-size:10px;margin-top:27px;padding-top:17px;display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap}
+@media(max-width:1050px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.bode-grid{grid-template-columns:1fr}}
+@media(max-width:760px){main{padding:23px 15px 35px}.topbar-inner{padding:14px 16px}.topbar nav{gap:11px}.heading{align-items:start}.workspace{grid-template-columns:1fr}.controls-panel{position:static}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.more-grid{grid-template-columns:1fr}.section-heading{align-items:start}.chart-panel{padding:16px 12px}.chart{height:300px}.metric-value{font-size:22px}}
+@media(max-width:360px){.topbar nav{font-size:10px}.brand{font-size:14px}.metric-value{font-size:20px}.form-grid{grid-template-columns:1fr}}
+</style>
+<script src="https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.js"></script>
+<script src="https://cdn.plot.ly/plotly-4.1.1.min.js" charset="utf-8"></script>
+</head>
+<body>
+<header class="topbar"><div class="topbar-inner"><a href="index.html" class="brand">Dynamics Lab <span>· T19</span></a><nav aria-label="Main navigation"><a href="index.html">Home</a><a href="module-1.html">Module 1</a><a href="module-2.html" aria-current="page">Module 2</a></nav></div></header>
+<main>
+  <div class="heading"><div><p class="eyebrow">ENCS4380 / Module 02</p><h1>First-order frequency response</h1><p class="intro">How does a sensor follow a repeating signal? Change the time constant and angular frequency. Watch amplitude attenuation, phase lag, the cutoff, and the dynamic error update live.</p></div><span id="runtime" class="pill waiting" role="status">Loading Python…</span></div>
+
+  <div class="workspace">
+    <section class="panel controls-panel" aria-labelledby="parameters-title">
+      <h2 id="parameters-title">Parameters</h2><p class="desc">Use sliders or type values. For easy amplitude comparisons, this model uses input amplitude A = 1 and gain K = 1.</p>
+      <fieldset id="model-controls" disabled style="border:0;padding:0;margin:0;min-width:0">
+        <div class="field"><label for="tau-number">Time constant τ <small style="display:inline">· seconds</small></label>
+          <div class="field-row"><input id="tau-slider" type="range" min="0.001" max="3" step="any" value="0.2" aria-label="Time constant slider"><input id="tau-number" type="number" min="0.00001" step="any" value="0.2" aria-label="Time constant in seconds"></div>
+          <small>Smaller τ means a sensor that follows faster changes.</small></div>
+        <div class="field"><label for="omega-number">Angular frequency ω <small style="display:inline">· rad/s</small></label>
+          <div class="field-row"><input id="omega-slider" type="range" min="0.1" max="50" step="any" value="2" aria-label="Angular frequency slider"><input id="omega-number" type="number" min="0.00001" step="any" value="2" aria-label="Angular frequency in radians per second"></div>
+          <small>ω = 2πf. For example, 2 rad/s is about 0.318 Hz.</small></div>
+        <button class="reset" type="button" id="reset">Reset example (τ = 0.2, ω = 2)</button>
+      </fieldset>
+      <div class="equation">G(s) = 1 / (τs + 1)<br>M = 1 / √(1 + (ωτ)²)<br>φ = −atan(ωτ)</div>
+      <p id="model-error" class="message error" role="alert" hidden></p>
+    </section>
+
+    <div class="results" id="experiment">
+      <div class="metrics">
+        <div class="panel metric"><span class="metric-label">Amplitude ratio M</span><div class="metric-value" id="metric-m">—</div><small>Output amplitude / ideal amplitude</small></div>
+        <div class="panel metric"><span class="metric-label">Phase lag φ</span><div class="metric-value" id="metric-phase">—</div><small>Negative = output lags input</small></div>
+        <div class="panel metric"><span class="metric-label">Dynamic error δ</span><div class="metric-value" id="metric-error">—</div><small>100 × (M − 1), signed</small></div>
+        <div class="panel metric"><span class="metric-label">Cutoff ωc</span><div class="metric-value" id="metric-cutoff">—</div><small>1 / τ, in rad/s</small></div>
+      </div>
+      <section class="panel chart-panel" aria-labelledby="sine-title">
+        <header><div><p class="eyebrow">Live signal experiment</p><h2 id="sine-title">Input and output sine waves</h2><p>Both signals share one plot so you can see the reduced amplitude and delayed peaks.</p></div><span class="pill">Steady state · A = K = 1</span></header>
+        <div id="sine-chart" class="chart" aria-label="Sine input and steady-state sensor output"></div>
+        <div class="reading-note" id="sine-note">The output uses yss(t) = M sin(ωt + φ). It does not show the initial start-up transient.</div>
+      </section>
+    </div>
+  </div>
+
+  <section class="section" id="bode"><div class="section-heading"><div><p class="eyebrow">Frequency-domain view</p><h2>Bode magnitude and phase</h2></div><span class="pill">Logarithmic frequency axis</span></div>
+    <div class="bode-grid">
+      <section class="panel chart-panel"><h3>Magnitude · 20 log₁₀(M) dB</h3><p>The dashed vertical line marks ωc = 1/τ. At cutoff, M = 0.707 (−3.01 dB).</p><div id="magnitude-chart" class="chart short" aria-label="Bode magnitude plot with cutoff"></div></section>
+      <section class="panel chart-panel"><h3>Phase · degrees</h3><p>At cutoff, φ = −45°. Faster input oscillations produce more phase lag.</p><div id="phase-chart" class="chart short" aria-label="Bode phase plot with cutoff"></div></section>
+    </div>
+    <p class="reading-note" id="cutoff-note">At cutoff, amplitude ratio is 0.7071 and phase shift is −45°.</p>
+  </section>
+
+  <section class="section" id="learn"><div class="section-heading"><div><p class="eyebrow">Apply what you learned</p><h2>Design and prediction</h2></div></div>
+    <div class="more-grid">
+      <section class="panel" aria-labelledby="calculator-title">
+        <p class="eyebrow">Dynamic-error calculator</p><h2 id="calculator-title">How fast must the sensor be?</h2>
+        <p class="desc">Choose the highest input frequency in Hz and the maximum allowed amplitude error. We solve for the largest acceptable τ.</p>
+        <fieldset id="calculator-controls" disabled style="border:0;padding:0;margin:0">
+          <div class="form-grid"><div><label for="max-frequency">Maximum frequency · Hz</label><input id="max-frequency" type="number" min="0.00001" step="any" value="100"></div>
+          <div><label for="allowed-error">Maximum error · %</label><input id="allowed-error" type="number" min="0.00001" max="99.999" step="any" value="5"></div></div>
+        </fieldset>
+        <div class="calc-results">
+          <div><span>Maximum allowed τ</span><strong id="calc-tau">—</strong></div>
+          <div><span>Phase lag at half fmax (using τmax)</span><strong id="calc-phase">—</strong></div>
+          <div><span>Current sensor τ</span><strong id="calc-current-tau">—</strong></div>
+          <div><span>Current error at fmax</span><strong id="calc-current-error">—</strong></div>
+        </div>
+        <p id="calculator-feedback" class="message" role="status">Waiting for Python…</p>
+        <details class="explain"><summary>How is τmax calculated?</summary><p>Require M ≥ 1 − e, with e = allowed error / 100. Since M = 1 / √(1 + (ωτ)²), solving for τ gives τmax = √(1/(1−e)² − 1)/(2πfmax). The phase calculation uses τmax, not your current τ.</p></details>
+      </section>
+      <section class="panel" aria-labelledby="prediction-title">
+        <p class="eyebrow">Predict, then check</p><h2 id="prediction-title">What happens when ω increases?</h2>
+        <p class="desc">Keep τ fixed. Predict how the output amplitude ratio M changes, save your guess, then increase the angular frequency using the slider or number field.</p>
+        <fieldset id="prediction-controls" disabled style="border:0;padding:0;margin:0">
+          <div class="field" style="border-bottom:0"><label for="prediction-choice">I think the amplitude ratio will…</label><select id="prediction-choice"><option value="">Choose a prediction</option><option value="increases">Increase</option><option value="decreases">Decrease</option><option value="same">Stay the same</option></select></div>
+          <div class="prediction-actions"><button class="primary" type="button" id="save-prediction">1. Save prediction</button><button type="button" id="check-prediction" disabled>2. Increase ω, then check</button><button type="button" id="reset-prediction" disabled>New prediction</button></div>
+        </fieldset>
+        <p class="message" id="prediction-feedback" role="status">Save a prediction, increase ω, then check.</p>
+        <details class="explain"><summary>Why should M change?</summary><p>M = 1 / √(1 + (ωτ)²). With τ fixed, increasing ω increases the denominator. The normalized amplitude gets smaller, even though the input sine still has amplitude 1.</p></details>
+      </section>
+    </div>
+  </section>
+
+  <section class="panel table-panel" id="validation" aria-labelledby="validation-title">
+    <p class="eyebrow">Validation checks 2 and 3 · from the assignment</p><h2 id="validation-title">Expected vs calculated</h2>
+    <p class="desc">Fixed lecture benchmarks, independent of the sliders: τ = 0.2 s and ω = 2 rad/s for test 2; fmax = 100 Hz and 5% allowed error for test 3.</p>
+    <div class="table-wrap" role="region" aria-label="Validation table" tabindex="0"><table><thead><tr><th scope="col">Test</th><th scope="col">Expected</th><th scope="col">Calculated</th><th scope="col">Tolerance</th><th scope="col">Result</th></tr></thead><tbody id="validation-rows"></tbody></table></div>
+    <p class="desc">The expected results in the lecture are rounded, so the tests use stated numerical tolerances. A passing lecture benchmark does not mean the current slider configuration satisfies a chosen sensor specification.</p>
+  </section>
+  <footer><span>Dynamics Lab · Team T19 · Birzeit University</span><span>Module 02 · ENCS4380 Interfacing Techniques</span><span>Khaled Bani Oudeh · Jibreel Haddar · Mohammad Khaleel · Waad Melhem</span></footer>
+</main>
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const format = (value, digits=4) => Number.isFinite(value) ? Number(value).toPrecision(digits) : "—";
+let python = null;
+let savedPrediction = null;
+let currentRender = 0;
+let redrawTimer = null;
+
+function showModelError(message) {
+  $("model-error").hidden = !message;
+  $("model-error").textContent = message || "";
+}
+function modelParameters() {
+  const tau = $("tau-number").valueAsNumber;
+  const omega = $("omega-number").valueAsNumber;
+  for (const [id, value] of [["tau-number",tau],["omega-number",omega]]) {
+    $(id).setAttribute("aria-invalid",String(!Number.isFinite(value) || value<=0));
+  }
+  if (!(Number.isFinite(tau) && Number.isFinite(omega) && tau>0 && omega>0)) {
+    throw new Error("τ and ω must both be finite positive numbers.");
+  }
+  return {tau,omega};
+}
+function baseLayout(yTitle, logXAxis=false) {
+  return {
+    autosize:true, margin:{t:19,r:15,b:54,l:63}, paper_bgcolor:"#fff",plot_bgcolor:"#fff",
+    font:{family:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',size:11,color:"#65758a"},
+    xaxis:{title:{text:logXAxis?"Angular frequency ω (rad/s)":"Time (s)"},type:logXAxis?"log":"linear",gridcolor:"#edf1f5",zerolinecolor:"#d6dee7"},
+    yaxis:{title:{text:yTitle},gridcolor:"#edf1f5",zerolinecolor:"#d6dee7"},
+    legend:{orientation:"h",x:0,y:1.16, font:{size:10}},hovermode:"x unified"
+  };
+}
+const plotConfig = {responsive:true,displaylogo:false,scrollZoom:false,modeBarButtonsToRemove:["select2d","lasso2d"]};
+function cutoffMark(cutoff) {
+  return [{type:"line",xref:"x",x0:cutoff,x1:cutoff,yref:"paper",y0:0,y1:1,line:{color:"#b56425",width:2,dash:"dash"}}];
+}
+async function render() {
+  if (!python) return;
+  const revision = ++currentRender;
+  try {
+    const {tau,omega}=modelParameters();
+    showModelError("");
+    const data=JSON.parse(python.dashboard(tau,omega));
+    $("metric-m").textContent=format(data.amplitude_ratio,5);
+    $("metric-phase").textContent=format(data.phase_degrees,5)+"°";
+    $("metric-error").textContent=format(data.dynamic_error_percent,5)+"%";
+    $("metric-cutoff").textContent=format(data.cutoff_rad_s,5)+" rad/s";
+    $("sine-note").textContent="Input: sin(ωt). Steady-state output: M sin(ωt + φ). Here M = "+
+        format(data.amplitude_ratio,5)+", φ = "+format(data.phase_degrees,5)+
+        "°, and the equivalent peak delay is "+format(data.time_lag_seconds,4)+
+        " s. The startup transient is not included.";
+    $("cutoff-note").textContent="For τ = "+format(tau,5)+" s, cutoff is ωc = "+
+        format(data.cutoff_rad_s,5)+" rad/s ("+format(data.cutoff_hz,5)+
+        " Hz). At this point M ≈ 0.7071, magnitude ≈ −3.01 dB, phase = −45°.";
+    const inputTrace={x:data.time,y:data.input,name:"Input x(t)",type:"scatter",mode:"lines",line:{color:"#315dda",width:2.6}};
+    const outputTrace={x:data.time,y:data.output,name:"Sensor output yss(t)",type:"scatter",mode:"lines",line:{color:"#087f72",width:2.9}};
+    const sineLayout=baseLayout("Normalized signal");sineLayout.yaxis.range=[-1.12,1.12];
+    await Plotly.react($("sine-chart"),[inputTrace,outputTrace],sineLayout,plotConfig);
+    if (revision!==currentRender) return;
+    const magLayout=baseLayout("Magnitude (dB)",true);
+    magLayout.shapes=cutoffMark(data.cutoff_rad_s);
+    const magTraces=[
+      {x:data.bode_omega,y:data.bode_db,type:"scatter",mode:"lines",name:"Magnitude",line:{color:"#315dda",width:3}},
+      {x:[data.omega],y:[data.selected_magnitude_db],type:"scatter",mode:"markers",name:"Current ω",marker:{size:9,color:"#087f72"}},
+      {x:[data.cutoff_rad_s],y:[-3.0103],type:"scatter",mode:"markers",name:"Cutoff",marker:{size:8,color:"#b56425"}}
+    ];
+    await Plotly.react($("magnitude-chart"),magTraces,magLayout,plotConfig);
+    if (revision!==currentRender) return;
+    const phaseLayout=baseLayout("Phase (degrees)",true);
+    phaseLayout.shapes=cutoffMark(data.cutoff_rad_s);phaseLayout.yaxis.range=[-92,2];
+    const phaseTraces=[
+      {x:data.bode_omega,y:data.bode_phase,type:"scatter",mode:"lines",name:"Phase",line:{color:"#087f72",width:3}},
+      {x:[data.omega],y:[data.phase_degrees],type:"scatter",mode:"markers",name:"Current ω",marker:{size:9,color:"#315dda"}},
+      {x:[data.cutoff_rad_s],y:[-45],type:"scatter",mode:"markers",name:"Cutoff",marker:{size:8,color:"#b56425"}}
+    ];
+    await Plotly.react($("phase-chart"),phaseTraces,phaseLayout,plotConfig);
+    if (revision!==currentRender) return;
+    updateCalculator();
+  } catch(error) {
+    showModelError(error.message);
+    $("calculator-feedback").textContent="Check the model parameters.";
+  }
+}
+function scheduleRender() { clearTimeout(redrawTimer); redrawTimer=setTimeout(render,65); }
+function pair(sliderId,numberId) {
+  const slider=$(sliderId),field=$(numberId);
+  slider.addEventListener("input",()=>{
+    field.value=slider.value;
+    onParameterChange();
+  });
+  field.addEventListener("input",()=>{
+    const v=field.valueAsNumber;
+    if(Number.isFinite(v)&&v>0){
+      slider.min=String(Math.min(Number(slider.min),v));
+      slider.max=String(Math.max(Number(slider.max),v));
+      slider.value=String(v);
+    }
+    onParameterChange();
+  });
+}
+function onParameterChange() {
+  if(savedPrediction){
+    const tau=$("tau-number").valueAsNumber;
+    if(!Number.isFinite(tau)||tau!==savedPrediction.tau) {
+      savedPrediction=null;
+      $("prediction-feedback").textContent="τ changed. Save a new prediction with τ held fixed.";
+    }
+  }
+  syncPrediction();
+  scheduleRender();
+}
+function updateCalculator() {
+  if(!python) return;
+  try {
+    const {tau}=modelParameters();
+    const f=$("max-frequency").valueAsNumber;
+    const error=$("allowed-error").valueAsNumber;
+    const result=JSON.parse(python.calculator(tau,f,error));
+    $("calc-tau").textContent=format(result.tau_limit_ms,5)+" ms";
+    $("calc-phase").textContent=format(result.phase_at_half_frequency_deg,4)+"°";
+    $("calc-current-tau").textContent=format(result.current_tau_ms,5)+" ms";
+    $("calc-current-error").textContent=format(result.current_error_percent,5)+"%";
+    $("calculator-feedback").className="message "+(result.meets_requirement?"success":"warning");
+    $("calculator-feedback").textContent=result.meets_requirement?
+      "Pass: the current sensor meets the selected amplitude-error requirement at fmax.":
+      "Not within this design limit: the current τ is too large for the selected frequency and error. Reduce τ.";
+  } catch(error) {
+    for(const id of ["calc-tau","calc-phase","calc-current-tau","calc-current-error"]) $(id).textContent="—";
+    $("calculator-feedback").className="message error";
+    $("calculator-feedback").textContent=error.message;
+  }
+}
+function syncPrediction() {
+  const guess=$("prediction-choice").value;
+  let valid=false;
+  try { valid=!!modelParameters(); } catch(_error){}
+  $("save-prediction").disabled=!valid||!guess||!!savedPrediction;
+  $("reset-prediction").disabled=!savedPrediction;
+  $("prediction-choice").disabled=!!savedPrediction;
+  $("check-prediction").disabled=!valid||!savedPrediction||
+    $("omega-number").valueAsNumber<=savedPrediction?.omega||savedPrediction?.checked;
+}
+function savePrediction() {
+  try{
+    const {tau,omega}=modelParameters();
+    const guess=$("prediction-choice").value;
+    if(!guess) return;
+    savedPrediction={tau,omega,guess,checked:false};
+    $("prediction-feedback").textContent="Saved at ω = "+format(omega,5)+" rad/s and τ = "+
+       format(tau,5)+" s. Increase ω without changing τ, then click Check.";
+    $("prediction-feedback").className="message";
+    syncPrediction();
+  }catch(error){$("prediction-feedback").textContent=error.message;}
+}
+function checkPrediction() {
+  if(!savedPrediction||!python)return;
+  try{
+    const {tau,omega}=modelParameters();
+    if(tau!==savedPrediction.tau) throw new Error("Keep τ fixed for this prediction.");
+    const outcome=JSON.parse(python.predict(savedPrediction.omega,omega,tau,savedPrediction.guess));
+    savedPrediction.checked=true;
+    $("prediction-feedback").className="message "+(outcome.correct?"success":"warning");
+    $("prediction-feedback").textContent=(outcome.correct?"Correct! ":"Not quite. ")+
+       "M changed from "+format(outcome.before_ratio,5)+" to "+format(outcome.after_ratio,5)+
+       ". The amplitude ratio "+outcome.actual+" when ω increases.";
+    syncPrediction();
+  }catch(error){$("prediction-feedback").className="message error";$("prediction-feedback").textContent=error.message;}
+}
+function resetPrediction() {
+  savedPrediction=null;
+  $("prediction-choice").value="";
+  $("prediction-feedback").className="message";
+  $("prediction-feedback").textContent="Save a prediction, increase ω, then check.";
+  syncPrediction();
+}
+function showValidations() {
+  const rows=JSON.parse(python.validation());
+  const tbody=$("validation-rows");tbody.replaceChildren();
+  for(const item of rows){
+    const tr=document.createElement("tr");
+    const cells=[item.test,String(item.expected)+item.unit,format(item.actual,6)+item.unit,
+       "±"+String(item.tolerance)+item.unit,item.passed?"Pass":"Fail"];
+    for(const [i,value] of cells.entries()){
+      const td=document.createElement("td");
+      if(i===4){const tag=document.createElement("span");tag.className="tag"+(item.passed?"":" fail");tag.textContent=value;td.appendChild(tag);}
+      else td.textContent=value;
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  }
+}
+async function main() {
+  try {
+    if(typeof Plotly==="undefined"||typeof loadPyodide!=="function")
+      throw new Error("Plotly or Pyodide did not load. Check your internet connection and reload.");
+    const engine=await loadPyodide();
+    $("runtime").textContent="Loading model…";
+    const file=await fetch("./python/First-order%20frequency%20response.py",{cache:"no-store"});
+    if(!file.ok)throw new Error("Could not load First-order frequency response.py (HTTP "+file.status+").");
+    await engine.runPythonAsync(await file.text());
+    python={
+      dashboard:engine.globals.get("dashboard_json"),
+      calculator:engine.globals.get("calculator_json"),
+      validation:engine.globals.get("validation_json"),
+      predict:engine.globals.get("prediction_json")
+    };
+    $("model-controls").disabled=false;
+    $("calculator-controls").disabled=false;
+    $("prediction-controls").disabled=false;
+    $("runtime").textContent="Python ready";
+    $("runtime").className="pill";
+    showValidations();
+    syncPrediction();
+    await render();
+  } catch(error) {
+    $("runtime").textContent="Load error";
+    $("runtime").className="pill error";
+    showModelError(error.message+" Reload the page to try again.");
+  }
+}
+pair("tau-slider","tau-number");
+pair("omega-slider","omega-number");
+$("max-frequency").addEventListener("input",updateCalculator);
+$("allowed-error").addEventListener("input",updateCalculator);
+$("prediction-choice").addEventListener("change",syncPrediction);
+$("save-prediction").addEventListener("click",savePrediction);
+$("check-prediction").addEventListener("click",checkPrediction);
+$("reset-prediction").addEventListener("click",resetPrediction);
+$("reset").addEventListener("click",()=>{
+  $("tau-number").value="0.2";$("tau-slider").value="0.2";
+  $("omega-number").value="2";$("omega-slider").value="2";
+  $("max-frequency").value="100";$("allowed-error").value="5";
+  resetPrediction();scheduleRender();
+});
+main();
+</script>
+</body>
+</html>
