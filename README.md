@@ -10,7 +10,7 @@ A static browser toolkit for understanding sensor dynamics through live controls
 
 Module 1's first-order time-response features are implemented and published on GitHub Pages: Step and Ramp, K and τ sliders, response markers, ramp tracking metrics, logarithmic error plot, validation table, a Predict, then check exercise, and the optional Forward Euler comparison.
 
-The interface has been checked in a desktop browser and at 320 px and 390 px browser viewports. A physical-phone check is still pending. Modules 2–4 are planned and are not available on the page yet. Team membership, collaborator invitations and module ownership still need confirmation.
+The interface has been checked in a desktop browser and at 320 px and 390 px browser viewports. A physical-phone check is still pending. Module 2 is now implemented and linked from the home page; Module 3 and Module 4 remain planned. Module 2's numerical checks have been reviewed, but a full browser and physical-phone verification is still pending. Team membership, collaborator invitations and module ownership still need confirmation.
 
 ## Use the toolkit
 
@@ -30,6 +30,33 @@ K, A and r may be positive, negative or zero. τ must be finite and strictly pos
 Open the live link in Chrome or Safari, or press **Open on phone** in the page header and scan its QR code with your phone camera. The dialog also includes the website link and a copy button; if clipboard access is unavailable, copy the visible link manually.
 
 Wait for **Python ready**, then test both input modes, the sliders and number fields, the prediction exercise and horizontal scrolling in the validation table. Browser viewport checks do not replace testing on a real phone.
+
+## Module 2: first-order frequency response
+
+**[Open Module 2](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/module-2.html)**
+
+Module 2 reuses the first-order sensor, now with a sinusoidal input. This implementation deliberately uses unit static gain and input amplitude, K = A = 1, to make the frequency-dependent ratio M clear. Its output sine is the **steady-state** part, not the initial switch-on transient.
+
+- **Model:** G(s) = 1/(τs+1), M = 1/sqrt(1+(ωτ)^2), φ = −atan(ωτ). Angular frequency ω is always in rad/s, while the design calculator accepts f in Hz and converts with ω = 2πf.
+- **Interactive inputs:** positive τ (seconds) and ω (rad/s), with linked slider and numeric controls. The sine plot shows input x(t) = sin(ωt) and output yss(t) = M sin(ωt+φ) across three cycles.
+- **Metrics:** amplitude ratio, phase shift in degrees, signed amplitude-based dynamic error 100(M−1)%, and cutoff ωc = 1/τ. Equivalent sine-peak delay |φ|/ω is provided in seconds.
+- **Bode:** logarithmic angular-frequency axes for 20log10(M) and φ (degrees), with highlighted current frequency and the cutoff at −3.01 dB / −45°.
+- **Design calculator:** for a chosen maximum input frequency and permitted amplitude error, solve τmax = sqrt(1/(1−e)^2−1)/(2πfmax), where e is the allowed fractional error. Compare current τ with the limit. The displayed phase at half fmax is computed using τmax, not the current τ.
+- **Predict, then check:** make a prediction about the amplitude ratio when ω rises and τ stays fixed; save it, change ω, and check the result.
+- **Validation:** the page reports fixed course checks 2 and 3 with expected, computed, tolerance, and Pass/Fail. These tests do not depend on current sliders.
+- **Architecture:** `module-2.html` loads `python/First-order frequency response.py` using Pyodide, then renders the returned Python-computed samples with Plotly. The URL uses percent-encoded spaces.
+- **Limitations/testing:** the waveform is steady state, the first-order model assumes a stable τ > 0, the input amplitude and gain are held at one, and full cross-browser/physical-phone testing remains to be performed.
+
+### Module 2 lecture benchmark calculations
+
+| Check | Expected (rounded) | Calculated from formulas |
+| --- | ---: | ---: |
+| τ = 0.2 s, ω = 2 rad/s: M | 0.93 | 0.9284767 |
+| τ = 0.2 s, ω = 2 rad/s: phase lag | 21.8° | 21.8014° |
+| fmax = 100 Hz, allowed error = 5%: τmax | 0.52 ms | approximately 0.523 ms |
+| Phase at 50 Hz using that τmax | 9.3° | approximately 9.33° |
+
+The provided rounded benchmarks use tolerances of 0.01 for M, 0.2° for phase, and 0.02 ms for τmax. These values are independently calculated in the module; the page reports a Pass/Fail result for each.
 
 ## Module 1 model and outputs
 
@@ -82,6 +109,8 @@ Module 1 experiment dashboard with its parameter panel, live summary and respons
 | File | Responsibility |
 | --- | --- |
 | `python/first_order.py` | Python exact responses, our scalar Forward Euler solver, error/lag metrics, validation and prediction evaluation |
+| `python/First-order frequency response.py` | First-order steady-state frequency response, sine/Bode data, amplitude and phase metrics, cutoff, design calculator and validation checks 2–3 |
+| `module-2.html` | Interactive frequency-response page using the Python model through Pyodide and Plotly |
 | `index.html` | Lightweight home page: introduction, learning path, module navigation and beginner help |
 | `module-1.html` | First-order experiment, guided explanations, responsive controls, Pyodide bridge and Plotly rendering |
 | `README.md` | Live link, model assumptions, usage, validation and project status |
@@ -120,7 +149,7 @@ python -m unittest discover -s tests -v
 | Module | Scope | Tracking issue | Implementation | Owner |
 | --- | --- | --- | --- | --- |
 | 1 | First-order time response | [#1](../../issues/1) | Implemented; phone check pending | Khaled Bani Oudeh ([@Khaledbaniodeh](https://github.com/Khaledbaniodeh)) |
-| 2 | Frequency response, sines, Bode plots and dynamic error | [#2](../../issues/2) | Not started | To be assigned by the team |
+| 2 | Frequency response, sines, Bode plots and dynamic error | [#2](../../issues/2) | Implemented; browser/phone verification pending | To be assigned by the team |
 | 3 | Second-order response, poles, state space and phase plane | [#3](../../issues/3) | Not started | To be assigned by the team |
 | 4 | Guess the sensor: hidden parameters, noise, hints and scoring | [#4](../../issues/4) | Not started | To be assigned by the team |
 
@@ -137,7 +166,7 @@ Module 1 ownership is confirmed for Khaled Bani Oudeh (@Khaledbaniodeh). The rem
 - [ ] Confirm all team members and the instructor have collaborator access.
 - [ ] Assign module owners and record who built each module.
 - [ ] Verify on a physical phone: Step/Ramp switching, both sliders, number fields, prediction buttons, table scrolling and both plots.
-- [ ] Complete Modules 2–4 and validation checks 2–6.
+- [ ] Complete Modules 3–4 and validation checks 4–6; verify Module 2 in desktop and phone browsers.
 - [ ] Add the remaining module screenshots and each member's contributions.
 - [ ] Create the final release tagged `v1.0` and submit the Pages link on the course page.
 
@@ -158,8 +187,8 @@ Each checkpoint is a five-minute check in the lab. The brief specifies a five-po
 
 | Module | Expected result from the brief | Status |
 | --- | --- | --- |
-| 2 | τ = 0.2 s, input sin(2t): amplitude ratio approximately 0.93; phase lag 21.8° | Not implemented |
-| 2 | Up to 100 Hz, at most 5% dynamic error: τmax approximately 0.52 ms; phase lag approximately 9.3° at 50 Hz | Not implemented |
+| 2 | τ = 0.2 s, input sin(2t): amplitude ratio approximately 0.93; phase lag 21.8° | Implemented in validation table |
+| 2 | Up to 100 Hz, at most 5% dynamic error: τmax approximately 0.52 ms; phase lag approximately 9.3° at 50 Hz | Implemented in validation table |
 | 3 | ζ = 0.5: overshoot approximately 16.3% | Not implemented |
 | 3 | ζ = 1: no overshoot | Not implemented |
 | 3 | m = 1, b = 2, k = 4: eigenvalues/poles −1 ± j1.732; ζ = 0.5; ωn = 2 rad/s | Not implemented |
