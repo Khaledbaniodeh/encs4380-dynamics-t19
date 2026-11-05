@@ -1,33 +1,47 @@
 # Checkpoints and versioning
 
-## Module 1 reference snapshot
+This record distinguishes the saved source snapshots, current `main`, and actual course checkpoint/release status (reviewed on **5 November 2026**).
 
-- Source commit: [`20847b440a8155a036944168de1af0f5aacff641`](https://github.com/Khaledbaniodeh/encs4380-dynamics-t19/commit/20847b440a8155a036944168de1af0f5aacff641).
+## Checkpoint 1 — Module 1 reference snapshot
+
+- Course checkpoint date: **3 November 2026**.
+- Saved source commit: [`20847b440a8155a036944168de1af0f5aacff641`](https://github.com/Khaledbaniodeh/encs4380-dynamics-t19/commit/20847b440a8155a036944168de1af0f5aacff641).
 - Snapshot branch: [`checkpoint/module-1`](https://github.com/Khaledbaniodeh/encs4380-dynamics-t19/tree/checkpoint/module-1).
-- This records the code available on 3 November 2026. It is not an assertion that the instructor accepted the checkpoint or that all administrative/device checks are complete.
-- The snapshot is currently a saved **branch**, not a tag/release. The requested `checkpoint-1` tag/release has not been created.
-- The final homework release will be tagged `v1.0` after all four modules are complete.
+- This is a saved **branch**, not a tag or a GitHub Release; it does not establish instructor acceptance. The `checkpoint-1` tag/release is **not created**.
 
-## Keep future modules separate
+The saved baseline Git blob hashes are:
 
-Home/navigation lives in `index.html`. Module 1 lives in `module-1.html` and `python/first_order.py`, with its Euler regression tests in `tests/test_euler.py`.
+| File | Snapshot blob SHA | Current `main` comparison |
+| --- | --- | --- |
+| `module-1.html` | `20ce7df8bd2a7087499af983430b7aefcfe9bd33` | **Changed**: `4171e771a992afd19c02c5386e25fd211c53992d` |
+| `python/first_order.py` | `e095d0d876b405dab1d122b70714a6bd29547ea3` | Identical |
+| `tests/test_euler.py` | `3bde45d74fbb1d6644aedc201bfbd196dba598d6` | Identical |
 
-Add future modules as separate pages and Python files. A home-page link can be added without editing Module 1. Review and agree on any necessary Module 1 fix explicitly, then use a separate commit; retain the original snapshot.
+The `module-1.html` change is limited to three lines of text/default-view markup in the Step error section (the default now selects the natural-log view). The saved checkpoint branch still contains the earlier version.
 
-## Change detection
+## Module 2 implementation — 5 November 2026
 
-`Module 1 checkpoint guard` runs on pushes and pull requests to `main`. It uses read-only access to compare the current Git blob hashes with the saved values:
+Module 2 lives on `main`, separate from Module 1, in:
 
-| File | Baseline Git blob SHA |
-| --- | --- |
-| `module-1.html` | `20ce7df8bd2a7087499af983430b7aefcfe9bd33` |
-| `python/first_order.py` | `e095d0d876b405dab1d122b70714a6bd29547ea3` |
-| `tests/test_euler.py` | `3bde45d74fbb1d6644aedc201bfbd196dba598d6` |
+- [`module-2.html`](../module-2.html) — live sine/Bode interface, cutoff markers, dynamic-error calculator, prediction, validation and responsive navigation.
+- [`python/First-order frequency response.py`](../python/First-order%20frequency%20response.py) — the first-order frequency-response calculations and lecture checks 2–3.
+- [`docs/screenshots/module2-desktop.png`](screenshots/module2-desktop.png) and [`docs/screenshots/module2-mobile.png`](screenshots/module2-mobile.png) — supplied desktop and mobile screenshots.
 
-If one of these files is changed, deleted or cannot be verified, the check fails. Do not change the stored hashes solely to obtain a passing result.
+Jibreel Haddar is recorded as Module 2 owner and reported successful testing on a physical phone. This is a team report, not a claim of independently repeated device testing. No separate `checkpoint/module-2` branch or `checkpoint-2` tag/release has been created.
 
-This check reports changes; it is **not** a branch-protection rule or a deployment gate. The GitHub Pages URL continues to show the current `main` version. Use the saved commit/branch to inspect the checkpoint.
+## Checkpoint 2 and final release
 
-## Release creation status
+| Milestone | Deadline | Status |
+| --- | --- | --- |
+| Checkpoint 2: Modules 2 and 3 working | **9 November 2026** | **Pending**: Module 2 is implemented; Module 3 still needs to be built and tested |
+| Final delivery: Modules 1–4, version `v1.0` | **12 November 2026** | **Pending**: Modules 3–4 and release/submission requirements remain |
 
-The saved branch and the read-only guard are the completed safeguards. The `checkpoint-1` tag/release remains pending. No `v1.0` release has been published.
+The `v1.0` GitHub Release has **not** been published. Preserve existing snapshots and avoid representing an in-progress module as a completed course checkpoint.
+
+## Change detection and safeguarding earlier modules
+
+The earlier documentation said that a read-only **Module 1 checkpoint guard** runs on pushes and pull requests. However, the `.github/workflows/` directory was **absent from `main` when checked on 5 November 2026**. Therefore, that automated guard must **not** be treated as currently active.
+
+The table above is a *manual snapshot comparison*, not an automatically enforced GitHub status check. No branch-protection or deployment gate was verified. GitHub Pages serves the current `main` files, while the checkpoint branch preserves Module 1's historical version.
+
+Keep later modules in separate HTML and Python files. If a Module 1 fix is necessary, review and document the difference separately and retain the original checkpoint reference.
