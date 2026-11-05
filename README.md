@@ -106,13 +106,13 @@ The responsive rules and static JavaScript checks are in place. The phone test a
 
 **Desktop view** — the navigation, introduction, parameters and live result cards:
 
-![Module 2 desktop view](docs/screenshots/module2-desktop.avif)
+![Module 2 desktop view](docs/screenshots/module2-desktop.png)
 
 **Phone view** — the responsive header, module links, introduction and single-column learning steps:
 
-![Module 2 phone view](docs/screenshots/module2-mobile.avif)
+<img src="docs/screenshots/module2-mobile.png" alt="Module 2 mobile view" width="260">
 
-Screenshots provided by **Jibreel Haddar** on 5 November 2026 after testing Module 2 on his phone. They show the upper part of the interface; chart, calculator and validation interactions were tested by the team but are not pictured here. The screenshots are optimized for repository size.
+Screenshots provided by **Jibreel Haddar** on 5 November 2026 after testing Module 2 on his phone. They show the upper part of the interface; chart, calculator and validation interactions were tested by the team but are not pictured here. The screenshots are stored as PNG files, with the phone screenshot displayed at a compact width in this README. Click or open the image file to view it at its stored resolution.
 
 Module 2 reuses the first-order sensor, now with a sinusoidal input. This implementation deliberately uses unit static gain and input amplitude, K = A = 1, to make the frequency-dependent ratio M clear. Its output sine is the **steady-state** part, not the initial switch-on transient.
 
