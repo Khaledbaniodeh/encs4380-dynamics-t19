@@ -10,9 +10,9 @@ A static browser toolkit for understanding sensor dynamics through live controls
 
 Module 1's first-order time-response features are implemented and published on GitHub Pages: Step and Ramp, K and τ sliders, response markers, ramp tracking metrics, logarithmic error plot, validation table, a Predict, then check exercise, and the optional Forward Euler comparison.
 
-The interface has been checked in a desktop browser and at 320 px and 390 px browser viewports. A physical-phone check is still pending. Module 2 is now implemented and linked from the home page; Module 3 and Module 4 remain planned. Module 2's numerical checks have been reviewed, but a full browser and physical-phone verification is still pending. Team membership, collaborator invitations and module ownership still need confirmation.
+Module 1 has been checked in a desktop browser and at 320 px and 390 px browser viewports; testing on a physical phone is still pending. Module 2 is implemented, linked from the home page, and includes the live sine/Bode plots, dynamic-error design calculator, prediction exercise and on-page checks 2–3. The Module 2 formula benchmarks and JavaScript syntax have been reviewed, and phone-friendly layout and navigation rules are in place. A full browser-interaction check and physical-phone check are still pending; do not treat code inspection as device testing. Modules 3 and 4 remain planned. Team membership, instructor collaborator access and ownership of Modules 2–4 still need confirmation.
 
-## Use the toolkit
+## Module 1: using the time-response experiment
 
 1. Open the live link to see the toolkit introduction and learning path. Choose **Start with Module 1** or **Open module**. Module 1 has its own page at [module-1.html](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/module-1.html). Wait for Python to load inside the module. Internet access is required for its CDN libraries.
 2. Choose **Step** or **Ramp** using the input buttons in the Parameters panel.
@@ -25,7 +25,7 @@ The interface has been checked in a desktop browser and at 320 px and 390 px bro
 
 K, A and r may be positive, negative or zero. τ must be finite and strictly positive; t must be finite and nonnegative. Nonfinite inputs and results outside the supported numeric range produce an error message. For KA = 0, the normalized Step percentages, log-error plot and prediction exercise are not applicable.
 
-### Try it on your phone
+### Module 1: try it on your phone
 
 Open the live link in Chrome or Safari, or press **Open on phone** in the page header and scan its QR code with your phone camera. The dialog also includes the website link and a copy button; if clipboard access is unavailable, copy the visible link manually.
 
@@ -34,6 +34,27 @@ Wait for **Python ready**, then test both input modes, the sliders and number fi
 ## Module 2: first-order frequency response
 
 **[Open Module 2](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/module-2.html)**
+
+### How to use Module 2
+
+1. From the home page, choose **Open Module 2**, or use **Home / Module 1 / Module 2** in the header of the module page. **← All modules** also returns to the home page.
+2. Wait for **Python ready**, then change the time constant **τ** (seconds) and angular frequency **ω** (rad/s) using the linked sliders or number fields. **Reset example** restores τ = 0.2 s and ω = 2 rad/s.
+3. Compare the blue input sine with the green steady-state output. Read amplitude ratio **M**, phase lag **φ**, signed amplitude-based dynamic error **δ**, and cutoff angular frequency **ωc** in the metric cards.
+4. Scroll to the two **Bode plots**. Their logarithmic frequency axes show magnitude in dB and phase in degrees. The orange cutoff marker is at ωc = 1/τ, and the point at your selected ω is highlighted.
+5. In the **Dynamic-error calculator**, enter the *highest required frequency in Hz* and *maximum allowed amplitude error in percent*. Read the calculated maximum allowed τ, phase at half that frequency using τmax, and whether your currently selected sensor τ meets the limit.
+6. For **Predict, then check**, first choose and save a prediction for M. Increase **ω** while keeping **τ** fixed, then press **Check**. Use **New prediction** to try again. The expandable explanation provides a worked example.
+7. Review **Validation checks 2 and 3**: expected, computed, tolerance and Pass/Fail are shown for fixed lecture cases. They do not change with your sliders.
+
+### Module 2 phone / browser verification checklist
+
+- [ ] Open the live page on a **physical phone** (e.g., Chrome on Android or Safari on iPhone), and confirm the header links, back link and section links are tappable.
+- [ ] Check **Python ready** appears, and both numeric inputs/sliders update the sine and Bode plots without horizontal page overflow.
+- [ ] Swipe over the plots to check that vertical page scrolling still works; use the validation table's own horizontal scroll to see every column.
+- [ ] Change the dynamic-error calculator inputs and check both a passing and failing design condition.
+- [ ] Save a prediction, raise ω without changing τ, check the result, and reset the exercise.
+- [ ] Capture a **Module 2 screenshot** after verification and add it under `docs/screenshots/`; then link it here. (Not yet uploaded.)
+
+The responsive rules and static JavaScript checks are in place, but those checks do **not** replace a real mobile browser test.
 
 Module 2 reuses the first-order sensor, now with a sinusoidal input. This implementation deliberately uses unit static gain and input amplitude, K = A = 1, to make the frequency-dependent ratio M clear. Its output sine is the **steady-state** part, not the initial switch-on transient.
 
@@ -45,7 +66,7 @@ Module 2 reuses the first-order sensor, now with a sinusoidal input. This implem
 - **Predict, then check:** make a prediction about the amplitude ratio when ω rises and τ stays fixed; save it, change ω, and check the result.
 - **Validation:** the page reports fixed course checks 2 and 3 with expected, computed, tolerance, and Pass/Fail. These tests do not depend on current sliders.
 - **Architecture:** `module-2.html` loads `python/First-order frequency response.py` using Pyodide, then renders the returned Python-computed samples with Plotly. The URL uses percent-encoded spaces.
-- **Limitations/testing:** the waveform is steady state, the first-order model assumes a stable τ > 0, the input amplitude and gain are held at one, and full cross-browser/physical-phone testing remains to be performed.
+- **Limitations/testing:** the waveform is steady state, not the start-up transient; the first-order model assumes τ > 0, the input amplitude and gain are fixed at one, and ω > 0 is required for the logarithmic axis. The calculator's δ is an amplitude-ratio error, not instantaneous input-output difference or phase error. Full browser-interaction and physical-phone testing remain to be performed.
 
 ### Module 2 lecture benchmark calculations
 
@@ -115,7 +136,7 @@ Module 1 experiment dashboard with its parameter panel, live summary and respons
 | `module-1.html` | First-order experiment, guided explanations, responsive controls, Pyodide bridge and Plotly rendering |
 | `README.md` | Live link, model assumptions, usage, validation and project status |
 
-Python executes in the visitor's browser through **Pyodide v314.0.7**. **Plotly.js 4.1.1** renders the curves. Both CDN URLs are pinned in `module-1.html`; the home page loads no Python or plotting runtime. JavaScript connects controls to Python and passes the returned values to Plotly.
+Python executes in the visitor's browser through **Pyodide v314.0.7**. **Plotly.js 4.1.1** renders the curves. The CDN versions are pinned in both `module-1.html` and `module-2.html`; the home page loads no Python or plotting runtime. Each module loads its own Python source through Pyodide and passes calculated values to Plotly. Internet access is needed to load CDN libraries.
 
 GitHub Pages publishes the repository root from `main`. The deployed site needs no backend server, Binder or login. Numerical models remain in Python; Flask and Django are not used.
 
@@ -166,7 +187,9 @@ Module 1 ownership is confirmed for Khaled Bani Oudeh (@Khaledbaniodeh). The rem
 - [ ] Confirm all team members and the instructor have collaborator access.
 - [ ] Assign module owners and record who built each module.
 - [ ] Verify on a physical phone: Step/Ramp switching, both sliders, number fields, prediction buttons, table scrolling and both plots.
-- [ ] Complete Modules 3–4 and validation checks 4–6; verify Module 2 in desktop and phone browsers.
+- [x] Implement Module 2: sine input/output, magnitude/phase Bode plots, cutoff marker, dynamic-error calculator, prediction, and lecture checks 2–3.
+- [ ] Verify Module 2's full interactions on desktop and physical phone, and add its screenshot to the README.
+- [ ] Complete Modules 3–4 and validation checks 4–6.
 - [ ] Add the remaining module screenshots and each member's contributions.
 - [ ] Create the final release tagged `v1.0` and submit the Pages link on the course page.
 
@@ -183,7 +206,7 @@ Instructor invitation: repository Settings → Collaborators → Add people → 
 
 Each checkpoint is a five-minute check in the lab. The brief specifies a five-point deduction for each missed checkpoint.
 
-## Remaining validation checks
+## Validation checks 2–6
 
 | Module | Expected result from the brief | Status |
 | --- | --- | --- |
@@ -211,5 +234,5 @@ See [the versioning record](docs/versioning.md) for exact file hashes, limitatio
 
 ## AI Assistance
 
-ChatGPT was used to provide guidance throughout the assignment by explaining the homework requirements, clarifying mathematical concepts, and suggesting possible approaches to solving problems. It also assisted with identifying and fixing errors in the Python code and the HTML/CSS/JavaScript integration, reviewing the plots and prediction/validation features, and checking the optional Forward Euler implementation. Additionally, it helped improve the repository documentation and provided suggestions for testing and verifying the results.
+ChatGPT was used to explain the homework requirements and equations, help debug and review Module 1's Python/HTML/JavaScript integration and optional Forward Euler comparison, and support documentation. For Module 2, ChatGPT generated the initial Python calculation file and interactive HTML/JavaScript page, then made several layout, navigation and explanatory-text revisions. It also helped review mathematical benchmarks, code structure and the README. Team members remain responsible for understanding and independently checking the equations and code, testing the site on real browsers/devices, and explaining their submitted work in the demo.
 
