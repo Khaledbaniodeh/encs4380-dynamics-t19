@@ -1,0 +1,37 @@
+name: Convert Module 2 screenshots to PNG
+on:
+  push:
+    paths:
+      - .github/workflows/convert-module2-screenshots.yml
+permissions:
+  contents: write
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install AVIF decoder
+        run: python -m pip install "Pillow>=11.3" pillow-avif-plugin
+      - name: Convert existing screenshots
+        run: |
+          python - <<'PY'
+          from PIL import Image
+          import pillow_avif
+          from pathlib import Path
+          for stem in ("module2-desktop", "module2-mobile"):
+              source = Path("docs/screenshots") / f"{stem}.avif"
+              destination = source.with_suffix(".png")
+              with Image.open(source) as img:
+                  img.convert("RGB").save(destination, format="PNG", optimize=True)
+              print(destination, destination.stat().st_size)
+          PY
+      - name: Commit PNG files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/screenshots/module2-desktop.png docs/screenshots/module2-mobile.png
+          git commit -m "Replace Module 2 screenshots with PNG format"
+          git push
