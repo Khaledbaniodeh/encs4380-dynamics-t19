@@ -238,11 +238,18 @@ The brief's reference values will be checked against the lecture formulas when t
 
 ## Checkpoint and versioning
 
-Module 1's reference snapshot is saved at [`checkpoint/module-1`](https://github.com/Khaledbaniodeh/encs4380-dynamics-t19/tree/checkpoint/module-1), pinned to commit `20847b4`. This is a saved branch, not a tag/release. The `checkpoint-1` tag/release is still pending; `v1.0` is reserved for the final four-module submission.
+| Milestone | Date | Current status |
+| --- | --- | --- |
+| Checkpoint 1 — Module 1 | 3 November 2026 | A reference snapshot was saved in the `checkpoint/module-1` branch at [`20847b4`](https://github.com/Khaledbaniodeh/encs4380-dynamics-t19/commit/20847b440a8155a036944168de1af0f5aacff641). This preserves the code; it does **not** by itself confirm instructor acceptance. |
+| Module 2 — First-order frequency response | 5 November 2026 | Implemented on `main` with Python calculations, interactive plots, validation checks 2–3, documentation and PNG desktop/mobile screenshots. Jibreel Haddar reported successful testing on a physical phone. |
+| Checkpoint 2 — Modules 2 **and** 3 | 9 November 2026 | **Pending.** Module 2 is in place, but Module 3 is not yet implemented; do not mark Checkpoint 2 complete until both modules work and are presented as required. |
+| Final submission — All four modules | 12 November 2026 | **Pending.** Create the `v1.0` release only after Modules 1–4 and the final submission checks are ready. |
 
-A read-only **Module 1 checkpoint guard** checks that its HTML page, Python model and Euler tests remain unchanged. Later modules should use independent pages and Python files. Any required Module 1 fix must be discussed explicitly and recorded separately. The check detects changes; it does not itself block GitHub Pages deployment.
+**Branches and releases:** `main` contains the ongoing work, while [`checkpoint/module-1`](https://github.com/Khaledbaniodeh/encs4380-dynamics-t19/tree/checkpoint/module-1) preserves the Module 1 baseline. As checked on 5 November, the `checkpoint-1` tag/release and `v1.0` release have not been created. There is no separate Module 2 or Checkpoint 2 snapshot yet.
 
-See [the versioning record](docs/versioning.md) for exact file hashes, limitations and the saved source reference.
+**Protecting earlier work:** Module 1's Python model and Euler tests still match the stored checkpoint hashes, but `module-1.html` has three explanation/default-view edits compared with the saved branch. The checkpoint copy is unchanged. The previously documented **Module 1 checkpoint guard** is **not currently installed** under `.github/workflows/` on `main`, so no active automated guard should be assumed. Keep future modules in separate pages and Python files; review any Module 1 change against the saved snapshot.
+
+See [`docs/versioning.md`](docs/versioning.md) for the saved commit, Git blob hashes, differences from the snapshot, and release/guard status.
 
 ## AI Assistance
 
