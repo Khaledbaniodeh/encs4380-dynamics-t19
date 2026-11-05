@@ -68,6 +68,39 @@ footer{border-top:1px solid var(--line);color:#8290a0;font-size:10px;margin-top:
 @media(max-width:1050px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.bode-grid{grid-template-columns:1fr}}
 @media(max-width:760px){main{padding:23px 15px 35px}.topbar-inner{padding:14px 16px}.topbar nav{gap:11px}.heading{align-items:start}.workspace{grid-template-columns:1fr}.controls-panel{position:static}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.more-grid{grid-template-columns:1fr}.section-heading{align-items:start}.chart-panel{padding:16px 12px}.chart{height:300px}.metric-value{font-size:22px}}
 @media(max-width:360px){.topbar nav{font-size:10px}.brand{font-size:14px}.metric-value{font-size:20px}.form-grid{grid-template-columns:1fr}}
+
+/* Module 2 learning path: match the gentle green guidance used in Module 1. */
+html{scroll-padding-top:22px}
+.section-links{display:flex;gap:19px;flex-wrap:wrap;font-size:12px;margin:0 0 20px;border-bottom:1px solid var(--line);padding:0 0 13px}
+.section-links a{color:var(--muted);padding:4px 0}
+.section-links a:first-child{font-weight:700;color:var(--ink)}
+.section-links a:hover,.section-links a:focus-visible{color:var(--teal)}
+.start-panel{background:#eaf6f1;border-color:#cce7db;padding:25px 28px;margin-bottom:23px}
+.start-panel h2{font-size:19px;margin:0 0 7px}
+.start-panel>p{color:#47687a;font-size:12px;line-height:1.8;margin:0 0 19px}
+.start-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:25px}
+.start-step{display:flex;align-items:start;gap:11px}
+.step-badge{display:grid;place-items:center;flex:none;width:27px;height:27px;border-radius:50%;background:#d3ebe1;color:#096d5e;font-size:12px;font-weight:700}
+.start-step h3{font-size:12px;font-weight:700;margin:1px 0 5px}
+.start-step p{color:#516c7b;font-size:11px;line-height:1.7;margin:0}
+.metric.accent{background:#eef8f5;border-color:#d7eae3}
+.metric.accent .metric-value{color:#096c60}
+.panel.soft{background:#fcfefd;border-color:#dcece6}
+.section-body{color:#5c7080;font-size:12px;line-height:1.8;margin-top:6px;max-width:860px}
+.field-help{display:block;color:#64778a;font-size:10px;line-height:1.75;margin-top:7px}
+.field-help strong{color:#2e5760}
+.calc-results>div:nth-child(1),.calc-results>div:nth-child(4){background:#eef8f5}
+.calc-results strong{color:#15334b}
+.calc-results .result-help{font-size:10px;line-height:1.6;color:#66758a;margin-top:5px}
+.explain p{line-height:1.85}
+.explain .worked-example{margin-top:11px;padding:12px;border-radius:8px;background:#eef8f5;color:#265d56}
+.explain .formula{font:12px/1.8 Consolas,monospace;color:#1f6160}
+@media(max-width:760px){
+  .start-panel{padding:20px 18px}
+  .start-grid{grid-template-columns:1fr;gap:17px}
+  .section-links{gap:11px 16px}
+  .section-body{font-size:11px}
+}
 </style>
 <script src="https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.js"></script>
 <script src="https://cdn.plot.ly/plotly-4.1.1.min.js" charset="utf-8"></script>
@@ -75,7 +108,22 @@ footer{border-top:1px solid var(--line);color:#8290a0;font-size:10px;margin-top:
 <body>
 <header class="topbar"><div class="topbar-inner"><a href="index.html" class="brand">Dynamics Lab <span>· T19</span></a><nav aria-label="Main navigation"><a href="index.html">Home</a><a href="module-1.html">Module 1</a><a href="module-2.html" aria-current="page">Module 2</a></nav></div></header>
 <main>
-  <div class="heading"><div><p class="eyebrow">ENCS4380 / Module 02</p><h1>First-order frequency response</h1><p class="intro">How does a sensor follow a repeating signal? Change the time constant and angular frequency. Watch amplitude attenuation, phase lag, the cutoff, and the dynamic error update live.</p></div><span id="runtime" class="pill waiting" role="status">Loading Python…</span></div>
+  <div class="heading"><div><p class="eyebrow">ENCS4380 / Module 02</p><h1>First-order frequency response</h1><p class="intro">See how a first-order sensor follows a periodic input. Change τ and ω, then watch how amplitude, phase lag, cutoff frequency and dynamic error change together.</p></div><span id="runtime" class="pill waiting" role="status">Loading Python…</span></div>
+  <nav class="section-links" aria-label="Module 2 sections">
+    <a href="#experiment">Experiment</a>
+    <a href="#bode">Bode plots</a>
+    <a href="#learn">Design &amp; prediction</a>
+    <a href="#validation">Validation</a>
+  </nav>
+  <section class="panel start-panel" aria-labelledby="start-title">
+    <h2 id="start-title">New here? Start with one small frequency experiment.</h2>
+    <p>A first-order sensor may measure slow changes accurately but miss part of a fast oscillation. Follow these three steps to understand what the graphs and calculations are telling you.</p>
+    <div class="start-grid">
+      <div class="start-step"><span class="step-badge" aria-hidden="true">1</span><div><h3>Choose the sensor</h3><p>Set the time constant τ and the sine frequency ω. A smaller τ means a faster sensor; a larger ω means the input changes direction more often.</p></div></div>
+      <div class="start-step"><span class="step-badge" aria-hidden="true">2</span><div><h3>Watch amplitude and phase</h3><p>Compare the blue input with the green output. Notice how the output becomes smaller and its peaks arrive later at higher frequency.</p></div></div>
+      <div class="start-step"><span class="step-badge" aria-hidden="true">3</span><div><h3>Read, design, then predict</h3><p>Use the Bode plots to find the cutoff, check your design limits with the calculator, then make a prediction before changing ω.</p></div></div>
+    </div>
+  </section>
 
   <div class="workspace">
     <section class="panel controls-panel" aria-labelledby="parameters-title">
@@ -95,46 +143,49 @@ footer{border-top:1px solid var(--line);color:#8290a0;font-size:10px;margin-top:
 
     <div class="results" id="experiment">
       <div class="metrics">
-        <div class="panel metric"><span class="metric-label">Amplitude ratio M</span><div class="metric-value" id="metric-m">—</div><small>Output amplitude / ideal amplitude</small></div>
+        <div class="panel metric accent"><span class="metric-label">Amplitude ratio M</span><div class="metric-value" id="metric-m">—</div><small>Output amplitude / ideal amplitude</small></div>
         <div class="panel metric"><span class="metric-label">Phase lag φ</span><div class="metric-value" id="metric-phase">—</div><small>Negative = output lags input</small></div>
         <div class="panel metric"><span class="metric-label">Dynamic error δ</span><div class="metric-value" id="metric-error">—</div><small>100 × (M − 1), signed</small></div>
-        <div class="panel metric"><span class="metric-label">Cutoff ωc</span><div class="metric-value" id="metric-cutoff">—</div><small>1 / τ, in rad/s</small></div>
+        <div class="panel metric accent"><span class="metric-label">Cutoff ωc</span><div class="metric-value" id="metric-cutoff">—</div><small>1 / τ, in rad/s</small></div>
       </div>
-      <section class="panel chart-panel" aria-labelledby="sine-title">
-        <header><div><p class="eyebrow">Live signal experiment</p><h2 id="sine-title">Input and output sine waves</h2><p>Both signals share one plot so you can see the reduced amplitude and delayed peaks.</p></div><span class="pill">Steady state · A = K = 1</span></header>
+      <section class="panel chart-panel soft" aria-labelledby="sine-title">
+        <header><div><p class="eyebrow">Live signal experiment</p><h2 id="sine-title">Input and output sine waves</h2><p class="section-body">The blue curve is the input signal and the green curve is the steady-state sensor output. Compare their heights to see amplitude attenuation, then compare their peaks to see the phase lag. Both curves have the same frequency.</p></div><span class="pill">Steady state · A = K = 1</span></header>
         <div id="sine-chart" class="chart" aria-label="Sine input and steady-state sensor output"></div>
         <div class="reading-note" id="sine-note">The output uses yss(t) = M sin(ωt + φ). It does not show the initial start-up transient.</div>
       </section>
     </div>
   </div>
 
-  <section class="section" id="bode"><div class="section-heading"><div><p class="eyebrow">Frequency-domain view</p><h2>Bode magnitude and phase</h2></div><span class="pill">Logarithmic frequency axis</span></div>
+  <section class="section" id="bode"><div class="section-heading"><div><p class="eyebrow">Frequency-domain view</p><h2>Bode magnitude and phase</h2><p class="section-body">These plots show how the same sensor behaves across many frequencies. Magnitude measures the loss of output amplitude in decibels, while phase shows the output's delay as an angle. The dashed line marks the cutoff at ωc = 1/τ.</p></div><span class="pill">Logarithmic frequency axis</span></div>
     <div class="bode-grid">
-      <section class="panel chart-panel"><h3>Magnitude · 20 log₁₀(M) dB</h3><p>The dashed vertical line marks ωc = 1/τ. At cutoff, M = 0.707 (−3.01 dB).</p><div id="magnitude-chart" class="chart short" aria-label="Bode magnitude plot with cutoff"></div></section>
-      <section class="panel chart-panel"><h3>Phase · degrees</h3><p>At cutoff, φ = −45°. Faster input oscillations produce more phase lag.</p><div id="phase-chart" class="chart short" aria-label="Bode phase plot with cutoff"></div></section>
+      <section class="panel chart-panel soft"><h3>Magnitude · 20 log₁₀(M) dB</h3><p>The dashed vertical line marks ωc = 1/τ. At cutoff, M = 0.707 (−3.01 dB).</p><div id="magnitude-chart" class="chart short" aria-label="Bode magnitude plot with cutoff"></div></section>
+      <section class="panel chart-panel soft"><h3>Phase · degrees</h3><p>At cutoff, φ = −45°. Faster input oscillations produce more phase lag.</p><div id="phase-chart" class="chart short" aria-label="Bode phase plot with cutoff"></div></section>
     </div>
     <p class="reading-note" id="cutoff-note">At cutoff, amplitude ratio is 0.7071 and phase shift is −45°.</p>
   </section>
 
-  <section class="section" id="learn"><div class="section-heading"><div><p class="eyebrow">Apply what you learned</p><h2>Design and prediction</h2></div></div>
+  <section class="section" id="learn"><div class="section-heading"><div><p class="eyebrow">Apply what you learned</p><h2>Design and prediction</h2><p class="section-body">Now use the equations to make an engineering decision. Choose an allowed error, find the sensor's required speed, then check your intuition with a prediction before changing the frequency.</p></div></div>
     <div class="more-grid">
-      <section class="panel" aria-labelledby="calculator-title">
+      <section class="panel soft" aria-labelledby="calculator-title">
         <p class="eyebrow">Dynamic-error calculator</p><h2 id="calculator-title">How fast must the sensor be?</h2>
-        <p class="desc">Choose the highest input frequency in Hz and the maximum allowed amplitude error. We solve for the largest acceptable τ.</p>
+        <p class="desc">Choose the highest input frequency you need to measure and the maximum amplitude error you can accept. The calculator finds the largest time constant τ that still meets that design requirement.</p>
         <fieldset id="calculator-controls" disabled style="border:0;padding:0;margin:0">
-          <div class="form-grid"><div><label for="max-frequency">Maximum frequency · Hz</label><input id="max-frequency" type="number" min="0.00001" step="any" value="100"></div>
-          <div><label for="allowed-error">Maximum error · %</label><input id="allowed-error" type="number" min="0.00001" max="99.999" step="any" value="5"></div></div>
+          <div class="form-grid">
+            <div><label for="max-frequency">Maximum frequency · Hz</label><input id="max-frequency" type="number" min="0.00001" step="any" value="100" aria-describedby="max-frequency-help"><small id="max-frequency-help" class="field-help">Highest signal frequency the sensor must follow. For example, 100 Hz means 100 cycles every second. The calculator converts it using <strong>ω = 2πf</strong>.</small></div>
+            <div><label for="allowed-error">Maximum error · %</label><input id="allowed-error" type="number" min="0.00001" max="99.999" step="any" value="5" aria-describedby="allowed-error-help"><small id="allowed-error-help" class="field-help">Largest allowed <strong>amplitude loss</strong>, not phase error. A 5% limit requires the amplitude ratio to stay at or above <strong>M = 0.95</strong> at the highest frequency.</small></div>
+          </div>
         </fieldset>
         <div class="calc-results">
-          <div><span>Maximum allowed τ</span><strong id="calc-tau">—</strong></div>
-          <div><span>Phase lag at half fmax (using τmax)</span><strong id="calc-phase">—</strong></div>
-          <div><span>Current sensor τ</span><strong id="calc-current-tau">—</strong></div>
-          <div><span>Current error at fmax</span><strong id="calc-current-error">—</strong></div>
+          <div><span>Maximum allowed τ</span><strong id="calc-tau">—</strong><p class="result-help">The slowest acceptable sensor time constant for your limit.</p></div>
+          <div><span>Phase lag at half fmax (using τmax)</span><strong id="calc-phase">—</strong><p class="result-help">Phase shift for a sensor designed exactly at this maximum allowed τ.</p></div>
+          <div><span>Current sensor τ</span><strong id="calc-current-tau">—</strong><p class="result-help">Time constant selected in the Parameters panel above.</p></div>
+          <div><span>Current error at fmax</span><strong id="calc-current-error">—</strong><p class="result-help">Signed amplitude error for your current τ at the highest required frequency.</p></div>
         </div>
+        <p class="section-body">Compare <strong>current sensor τ</strong> with <strong>maximum allowed τ</strong>. The calculator checks amplitude error at the highest frequency; it does not measure the phase error or the instantaneous difference between sine waves.</p>
         <p id="calculator-feedback" class="message" role="status">Waiting for Python…</p>
         <details class="explain"><summary>How is τmax calculated?</summary><p>Require M ≥ 1 − e, with e = allowed error / 100. Since M = 1 / √(1 + (ωτ)²), solving for τ gives τmax = √(1/(1−e)² − 1)/(2πfmax). The phase calculation uses τmax, not your current τ.</p></details>
       </section>
-      <section class="panel" aria-labelledby="prediction-title">
+      <section class="panel soft" aria-labelledby="prediction-title">
         <p class="eyebrow">Predict, then check</p><h2 id="prediction-title">What happens when ω increases?</h2>
         <p class="desc">Keep τ fixed. Predict how the output amplitude ratio M changes, save your guess, then increase the angular frequency using the slider or number field.</p>
         <fieldset id="prediction-controls" disabled style="border:0;padding:0;margin:0">
@@ -142,13 +193,21 @@ footer{border-top:1px solid var(--line);color:#8290a0;font-size:10px;margin-top:
           <div class="prediction-actions"><button class="primary" type="button" id="save-prediction">1. Save prediction</button><button type="button" id="check-prediction" disabled>2. Increase ω, then check</button><button type="button" id="reset-prediction" disabled>New prediction</button></div>
         </fieldset>
         <p class="message" id="prediction-feedback" role="status">Save a prediction, increase ω, then check.</p>
-        <details class="explain"><summary>Why should M change?</summary><p>M = 1 / √(1 + (ωτ)²). With τ fixed, increasing ω increases the denominator. The normalized amplitude gets smaller, even though the input sine still has amplitude 1.</p></details>
+        <details class="explain">
+          <summary>Why does M change when ω changes?</summary>
+          <p>The amplitude ratio is <strong>M = 1 / √(1 + (ωτ)²)</strong>. In this exercise we keep <strong>τ fixed</strong> and increase <strong>ω</strong>, the input's angular frequency.</p>
+          <p><strong>Step 1 — Think about the formula.</strong> Increasing ω makes the product ωτ larger. Its square becomes larger too, so the denominator √(1 + (ωτ)²) increases. When you divide 1 by a larger number, the result is smaller. Therefore <strong>M decreases</strong>.</p>
+          <p><strong>Step 2 — Think about the sensor.</strong> With a slow-changing input, the sensor has more time to follow each rise and fall, so the output amplitude is close to the ideal value. At higher frequencies, the input changes direction more quickly than the sensor can follow, so the measured swings become smaller.</p>
+          <p><strong>Step 3 — Separate amplitude from phase.</strong> The input sine still has amplitude 1. It is the <em>sensor output</em> that gets attenuated. At the same time, the output phase becomes more negative, meaning the output peaks lag behind the input peaks.</p>
+          <p class="worked-example"><strong>Worked example (τ = 0.2 s):</strong> at ω = 2 rad/s, M ≈ 0.928, but at ω = 10 rad/s, M ≈ 0.447. The amplitude ratio drops as the frequency rises even though the sensor and input amplitude stay the same.</p>
+          <p class="formula">M(2, 0.2) = 1 / √(1 + 0.4²) ≈ 0.928<br>M(10, 0.2) = 1 / √(1 + 2²) ≈ 0.447</p>
+        </details>
       </section>
     </div>
   </section>
 
   <section class="panel table-panel" id="validation" aria-labelledby="validation-title">
-    <p class="eyebrow">Validation checks 2 and 3 · from the assignment</p><h2 id="validation-title">Expected vs calculated</h2>
+    <p class="eyebrow">Validation checks 2 and 3 · from the assignment</p><h2 id="validation-title">Expected vs calculated</h2><p class="section-body">These are fixed lecture benchmarks to verify the implementation. Each calculated value is compared with its expected rounded value and a stated tolerance. Changing your sliders does not change these reference checks.</p>
     <p class="desc">Fixed lecture benchmarks, independent of the sliders: τ = 0.2 s and ω = 2 rad/s for test 2; fmax = 100 Hz and 5% allowed error for test 3.</p>
     <div class="table-wrap" role="region" aria-label="Validation table" tabindex="0"><table><thead><tr><th scope="col">Test</th><th scope="col">Expected</th><th scope="col">Calculated</th><th scope="col">Tolerance</th><th scope="col">Result</th></tr></thead><tbody id="validation-rows"></tbody></table></div>
     <p class="desc">The expected results in the lecture are rounded, so the tests use stated numerical tolerances. A passing lecture benchmark does not mean the current slider configuration satisfies a chosen sensor specification.</p>
