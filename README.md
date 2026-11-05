@@ -98,9 +98,21 @@ Module 1 experiment dashboard with its parameter panel, live summary and respons
 - [x] Team confirmed Module 2 works on the phone, including its interactive controls; dedicated plot/table screenshots are still useful as additional evidence.
 - [x] Team reports the dynamic-error calculator works on the phone; a saved pass/fail comparison screenshot is optional additional evidence.
 - [x] Team reports the prediction exercise works on the phone.
-- [x] Desktop and mobile page-header screenshots supplied by Jibreel Haddar for documentation. Screenshots of lower-page charts and validation results can be added later if desired.
+- [x] Desktop and mobile page-header screenshots uploaded to `docs/screenshots/` and linked below. Screenshots of lower-page charts and validation results can be added later if desired.
 
 The responsive rules and static JavaScript checks are in place. The phone test above is confirmed by the team, rather than independently reproduced by the documentation reviewer.
+
+### Module 2 screenshots
+
+**Desktop view** — the navigation, introduction, parameters and live result cards:
+
+![Module 2 desktop view](docs/screenshots/module2-desktop.avif)
+
+**Phone view** — the responsive header, module links, introduction and single-column learning steps:
+
+![Module 2 phone view](docs/screenshots/module2-mobile.avif)
+
+Screenshots provided by **Jibreel Haddar** on 5 November 2026 after testing Module 2 on his phone. They show the upper part of the interface; chart, calculator and validation interactions were tested by the team but are not pictured here. The screenshots are optimized for repository size.
 
 Module 2 reuses the first-order sensor, now with a sinusoidal input. This implementation deliberately uses unit static gain and input amplitude, K = A = 1, to make the frequency-dependent ratio M clear. Its output sine is the **steady-state** part, not the initial switch-on transient.
 
