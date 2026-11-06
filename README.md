@@ -10,7 +10,7 @@ A static browser toolkit for understanding sensor dynamics through live controls
 
 Module 1's first-order time-response features are implemented and published on GitHub Pages: Step and Ramp, K and τ sliders, response markers, ramp tracking metrics, logarithmic error plot, validation table, a Predict, then check exercise, and the optional Forward Euler comparison.
 
-Module 1 has been checked in a desktop browser and at 320 px and 390 px browser viewports; testing on a physical phone is still pending. Module 2 is implemented, linked from the home page, and includes the live sine/Bode plots, dynamic-error design calculator, prediction exercise and on-page checks 2–3. The Module 2 formula benchmarks and JavaScript syntax have been reviewed, and phone-friendly layout and navigation rules are in place. A team member (Jibreel Haddar) confirmed that Module 2 interactions work on a physical phone and supplied desktop and phone screenshots of the page header. This is team-reported testing, not an independently reproduced cross-device test. Modules 3 and 4 remain planned. Instructor collaborator access, ownership of Modules 3–4, and any unconfirmed team administration details still need confirmation.
+Module 1 has been checked in a desktop browser and at 320 px and 390 px browser viewports; testing on a physical phone is still pending. Module 2 is implemented, linked from the home page, and includes the live sine/Bode plots, dynamic-error design calculator, prediction exercise and on-page checks 2–3. The Module 2 formula benchmarks and JavaScript syntax have been reviewed, and phone-friendly layout and navigation rules are in place. A team member (Jibreel Haddar) confirmed that Module 2 interactions work on a physical phone and supplied desktop and phone screenshots of the page header. This is team-reported testing, not an independently reproduced cross-device test. Module 3 is implemented, linked from the home page, and tested on desktop and a physical phone; all three required Module 3 validation checks pass. Module 4 remains planned. Instructor collaborator access, Module 3–4 ownership, and any unconfirmed team administration details still need confirmation.
 
 ## Module 1: using the time-response experiment
 
@@ -178,6 +178,18 @@ The step response is simulated in Python with RK4. Rise time uses the 10–90% c
 
 Module 3 was tested with underdamped, critically damped and overdamped examples on desktop, and its responsive layout and controls were also checked on a physical phone.
 
+### Module 3 screenshots
+
+**Desktop view** — the Module 3 header, section navigation, parameters, live metrics and second-order step response:
+
+![Module 3 desktop view](docs/screenshots/module3-desktop.jpeg)
+
+**Phone view** — the responsive Module 3 header, section links and parameter controls:
+
+<img src="docs/screenshots/module3-mobile.jpeg" alt="Module 3 mobile view" width="260">
+
+The screenshots were captured after testing Module 3 on desktop and a physical phone.
+
 ## Files and technology
 
 | File | Responsibility |
@@ -246,7 +258,8 @@ Module 1 ownership is confirmed for Khaled Bani Oudeh (@Khaledbaniodeh). Module 
 - [x] Module 2 physical-phone functionality confirmed by Jibreel Haddar; desktop and mobile screenshots supplied for README documentation.
 - [x] Implement Module 3: second-order response, poles, state space, phase plane, prediction, and validation checks 4–6.
 - [ ] Complete Module 4.
-- [ ] Add screenshots for Modules 3–4, optionally add Module 2 charts/results screenshots, and complete contributor records.
+- [x] Add desktop and mobile screenshots for Module 3.
+- [ ] Add Module 4 screenshots after implementation, optionally add Module 2 charts/results screenshots, and complete contributor records.
 - [ ] Create the final release tagged `v1.0` and submit the Pages link on the course page.
 
 Instructor invitation: repository Settings → Collaborators → Add people → `ghanem@staff.birzeit.edu`.
