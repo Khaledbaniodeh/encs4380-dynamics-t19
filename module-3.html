@@ -547,6 +547,24 @@ footer{
     </div>
   </div>
 
+  <section class="section" id="poles">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Pole locations</p>
+        <h2>Poles in the s-plane</h2>
+        <p class="section-body">
+          The poles move when ζ or ωn changes. Their position explains whether the response is
+          underdamped, critically damped, or overdamped.
+        </p>
+      </div>
+      <span class="pill" id="pole-values">—</span>
+    </div>
+
+    <section class="panel chart-panel">
+      <div id="pole-chart" class="chart" aria-label="Second-order poles in the s-plane"></div>
+    </section>
+  </section>
+
   <section class="section" id="state-space">
     <div class="section-heading">
       <div>
@@ -627,6 +645,24 @@ footer{
     </div>
   </section>
 
+  <section class="section" id="phase-plane">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">State trajectory</p>
+        <h2>Phase plane · x1 vs x2</h2>
+        <p class="section-body">
+          The phase plane shows displacement x1 against velocity x2 for the same mass–spring–damper step response.
+          Underdamped motion spirals toward equilibrium, while overdamped motion approaches without circling.
+        </p>
+      </div>
+      <span class="pill" id="phase-type">—</span>
+    </div>
+
+    <section class="panel chart-panel">
+      <div id="phase-chart" class="chart" aria-label="Phase plane of displacement versus velocity"></div>
+    </section>
+  </section>
+
   <section class="section" id="prediction">
     <div class="section-heading">
       <div>
@@ -656,42 +692,6 @@ footer{
       <p class="message" id="prediction-feedback" role="status">
         Save a prediction, increase ζ while keeping ωn fixed, then check.
       </p>
-    </section>
-  </section>
-
-  <section class="section" id="phase-plane">
-    <div class="section-heading">
-      <div>
-        <p class="eyebrow">State trajectory</p>
-        <h2>Phase plane · x1 vs x2</h2>
-        <p class="section-body">
-          The phase plane shows displacement x1 against velocity x2 for the same mass–spring–damper step response.
-          Underdamped motion spirals toward equilibrium, while overdamped motion approaches without circling.
-        </p>
-      </div>
-      <span class="pill" id="phase-type">—</span>
-    </div>
-
-    <section class="panel chart-panel">
-      <div id="phase-chart" class="chart" aria-label="Phase plane of displacement versus velocity"></div>
-    </section>
-  </section>
-
-  <section class="section" id="poles">
-    <div class="section-heading">
-      <div>
-        <p class="eyebrow">Pole locations</p>
-        <h2>Poles in the s-plane</h2>
-        <p class="section-body">
-          The poles move when ζ or ωn changes. Their position explains whether the response is
-          underdamped, critically damped, or overdamped.
-        </p>
-      </div>
-      <span class="pill" id="pole-values">—</span>
-    </div>
-
-    <section class="panel chart-panel">
-      <div id="pole-chart" class="chart" aria-label="Second-order poles in the s-plane"></div>
     </section>
   </section>
 
