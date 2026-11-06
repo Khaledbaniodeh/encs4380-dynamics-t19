@@ -338,15 +338,22 @@ footer{
   .workspace{grid-template-columns:1fr}
   .controls-panel{position:static}
   .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .metric-value{font-size:21px;letter-spacing:-.4px;overflow-wrap:normal;word-break:normal}
+  #metric-type{font-size:18px;white-space:nowrap}
   .chart-panel{padding:16px 12px}
   .chart{height:320px}
   .field-row{grid-template-columns:minmax(0,1fr) 95px}
   input[type=number]{font-size:16px;min-height:44px}
 }
 
+@media(max-width:420px){
+  #metric-type{font-size:16px}
+}
+
 @media(max-width:360px){
   .module-nav a{font-size:10px}
-  .metric-value{font-size:20px}
+  .metric-value{font-size:19px}
+  #metric-type{font-size:15px}
 }
 </style>
 
@@ -527,9 +534,11 @@ function parameters() {
 }
 
 function chartLayout() {
+  const mobile = window.matchMedia("(max-width:760px), (pointer:coarse)").matches;
+
   return {
     autosize:true,
-    margin:{t:20,r:18,b:55,l:65},
+    margin:mobile ? {t:38,r:10,b:52,l:52} : {t:20,r:18,b:55,l:65},
     paper_bgcolor:"#fff",
     plot_bgcolor:"#fff",
     font:{
@@ -547,8 +556,10 @@ function chartLayout() {
       gridcolor:"#edf1f5",
       zerolinecolor:"#d6dee7"
     },
-    legend:{orientation:"h",x:0,y:1.12,font:{size:10}},
-    dragmode:window.matchMedia("(max-width:760px), (pointer:coarse)").matches ? false : "zoom"
+    legend:mobile
+      ? {orientation:"h",x:0,y:1.16,font:{size:9}}
+      : {orientation:"h",x:0,y:1.12,font:{size:10}},
+    dragmode:mobile ? false : "zoom"
   };
 }
 
@@ -556,6 +567,7 @@ const plotConfig = {
   responsive:true,
   displaylogo:false,
   scrollZoom:false,
+  displayModeBar:window.matchMedia("(max-width:760px), (pointer:coarse)").matches ? false : "hover",
   modeBarButtonsToRemove:["select2d","lasso2d"]
 };
 
