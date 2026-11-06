@@ -238,10 +238,10 @@ python -m unittest discover -s tests -v
 | --- | --- | --- | --- | --- |
 | 1 | First-order time response | [#1](../../issues/1) | Implemented; phone check pending | Khaled Bani Oudeh ([@Khaledbaniodeh](https://github.com/Khaledbaniodeh)) |
 | 2 | Frequency response, sines, Bode plots and dynamic error | [#2](../../issues/2) | Implemented; phone functionality confirmed by team | Jibreel Haddar |
-| 3 | Second-order response, poles, state space and phase plane | [#3](../../issues/3) | Implemented and tested on desktop and phone | To be assigned by the team |
+| 3 | Second-order response, poles, state space and phase plane | [#3](../../issues/3) | Implemented and tested on desktop and phone | Waad Melhem ([@WaadMelhem05](https://github.com/WaadMelhem05)) |
 | 4 | Guess the sensor: hidden parameters, noise, hints and scoring | [#4](../../issues/4) | Not started | To be assigned by the team |
 
-Module 1 ownership is confirmed for Khaled Bani Oudeh (@Khaledbaniodeh). Module 2 is recorded under Jibreel Haddar, who confirmed the phone test and provided screenshots. Owners of Modules 3–4 and any additional contributor information remain to be recorded. Every member must contribute from their own account and be able to explain their code and equations.
+Module 1 ownership is confirmed for Khaled Bani Oudeh (@Khaledbaniodeh). Module 2 is recorded under Jibreel Haddar, who confirmed the phone test and provided screenshots. Module 3 ownership is confirmed for Waad Melhem ([@WaadMelhem05](https://github.com/WaadMelhem05)). Module 4 ownership and any additional contributor information remain to be recorded. Every member must contribute from their own account and be able to explain their code and equations.
 
 ## Delivery checklist
 
@@ -252,7 +252,7 @@ Module 1 ownership is confirmed for Khaled Bani Oudeh (@Khaledbaniodeh). Module 
 - [x] Add a Step prediction exercise and on-page validation check 1.
 - [x] Document Module 1, its live link and an interface screenshot.
 - [ ] Confirm all team members and the instructor have collaborator access.
-- [ ] Confirm owners for Modules 3 and 4; Modules 1 and 2 have named owners.
+- [ ] Confirm owner for Module 4; Modules 1, 2 and 3 have named owners.
 - [ ] Verify on a physical phone: Step/Ramp switching, both sliders, number fields, prediction buttons, table scrolling and both plots.
 - [x] Implement Module 2: sine input/output, magnitude/phase Bode plots, cutoff marker, dynamic-error calculator, prediction, and lecture checks 2–3.
 - [x] Module 2 physical-phone functionality confirmed by Jibreel Haddar; desktop and mobile screenshots supplied for README documentation.
