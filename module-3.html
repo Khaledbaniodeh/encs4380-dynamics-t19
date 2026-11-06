@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#14243a">
+<meta name="description" content="Interactive second-order response lab for ENCS4380 Team T19.">
+<title>Second-order response · Dynamics Lab</title>
+
+<style>
+:root{
+  --ink:#17263b;
+  --muted:#66758a;
+  --line:#e0e6ed;
+  --paper:#fff;
+  --bg:#f4f6f8;
+  --teal:#087f72;
+  --teal-soft:#e7f5f1;
+  --blue:#315dda;
+  --orange:#b56425;
+  --radius:16px
+}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
+}
+
+button,input{font:inherit}
+button{cursor:pointer}
+a{color:var(--teal);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:3px solid #dfac50;outline-offset:3px}
+
+.topbar{background:#14243a;color:#fff}
+.topbar-inner{
+  max-width:1380px;
+  margin:auto;
+  padding:17px 36px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-size:17px;
+  font-weight:700;
+  letter-spacing:-.4px
+}
+
+.brand-home{color:inherit}
+.brand-home:hover{text-decoration:none;color:#b5ead9}
+
+.brand-mark{
+  width:33px;
+  height:33px;
+  display:grid;
+  place-items:center;
+  border:1px solid #496271;
+  border-radius:9px;
+  color:#81d5bc
+}
+
+.brand-mark .icon{
+  width:20px;
+  height:20px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.7;
+  stroke-linecap:round;
+  stroke-linejoin:round
+}
+
+.brand small{
+  font-size:12px;
+  font-weight:500;
+  color:#b7c2d1;
+  letter-spacing:.8px;
+  margin-left:10px
+}
+
+.topbar-right{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:18px
+}
+
+.topbar-meta{
+  font-size:11px;
+  color:#c0cada;
+  letter-spacing:1.5px;
+  display:flex;
+  align-items:center;
+  gap:12px
+}
+
+.topbar-meta b{
+  color:#b5ead9;
+  background:#244b4b;
+  padding:5px 9px;
+  border-radius:5px;
+  font-weight:600
+}
+
+.module-nav{display:flex;align-items:center;gap:5px}
+.module-nav a{
+  display:inline-flex;
+  justify-content:center;
+  align-items:center;
+  min-height:44px;
+  padding:9px 12px;
+  border:1px solid transparent;
+  border-radius:9px;
+  color:#c7d5e3;
+  font-size:12px;
+  font-weight:600
+}
+.module-nav a:hover{background:#213b4d;color:#fff;text-decoration:none}
+.module-nav a[aria-current="page"]{
+  background:#244b4b;
+  border-color:#35665d;
+  color:#b5ead9
+}
+
+main{max-width:1380px;margin:auto;padding:28px 36px 40px}
+
+.breadcrumb{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  font-size:12px;
+  color:var(--muted);
+  margin:0 0 20px;
+  flex-wrap:wrap
+}
+
+.eyebrow{
+  margin:0 0 7px;
+  font-size:10px;
+  font-weight:750;
+  letter-spacing:1.7px;
+  color:var(--teal);
+  text-transform:uppercase
+}
+
+h1{
+  font-size:clamp(27px,3.2vw,38px);
+  letter-spacing:-1px;
+  line-height:1.2;
+  margin:0 0 9px
+}
+
+h2{font-size:19px;line-height:1.3;letter-spacing:-.4px;margin:0}
+
+.intro{color:var(--muted);max-width:850px;font-size:13px}
+.heading{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  margin:0 0 24px
+}
+
+.pill{
+  display:inline-block;
+  border-radius:100px;
+  background:#e4f2ee;
+  color:#0d6f60;
+  font-size:11px;
+  padding:7px 11px;
+  font-weight:650
+}
+.pill.waiting{background:#f0f3f6;color:#66758a}
+.pill.error{background:#fff0ec;color:#af4027}
+
+.workspace{
+  display:grid;
+  grid-template-columns:300px minmax(0,1fr);
+  gap:22px;
+  align-items:start
+}
+
+.panel{
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  min-width:0;
+  box-shadow:0 2px 3px #14243a03
+}
+
+.controls-panel{
+  padding:22px;
+  position:sticky;
+  top:18px
+}
+
+.desc{font-size:11px;color:var(--muted);line-height:1.7}
+
+.field{
+  padding:18px 0;
+  border-bottom:1px solid #edf0f4
+}
+
+.field label{
+  font-size:12px;
+  font-weight:650;
+  display:block;
+  margin-bottom:9px
+}
+
+.field-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 90px;
+  gap:10px;
+  align-items:center
+}
+
+input[type=range]{
+  width:100%;
+  min-width:0;
+  accent-color:var(--teal);
+  height:32px
+}
+
+input[type=number]{
+  border:1px solid #d2dce6;
+  border-radius:8px;
+  background:#fff;
+  color:var(--ink);
+  padding:9px 10px;
+  width:100%;
+  min-height:41px;
+  font-size:13px
+}
+
+button{
+  border:1px solid #d1dbe5;
+  background:#fff;
+  color:var(--ink);
+  border-radius:9px;
+  padding:9px 12px;
+  font-weight:650;
+  font-size:12px;
+  min-height:40px
+}
+
+.reset{margin-top:18px;width:100%}
+
+.equation{
+  border-radius:9px;
+  padding:13px;
+  background:#f5f8fa;
+  font:12px/1.9 Consolas,monospace;
+  margin-top:17px;
+  color:#39546a
+}
+
+.message{
+  margin-top:12px;
+  font-size:11px;
+  line-height:1.7;
+  padding:10px 12px;
+  background:#fff0ed;
+  color:#b4442c;
+  border-radius:8px
+}
+
+.results{display:grid;gap:18px;min-width:0}
+
+.metrics{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px
+}
+
+.metric{padding:16px 16px 14px}
+.metric-label{color:var(--muted);font-size:10px;display:block;margin-bottom:8px}
+.metric-value{
+  font-size:24px;
+  font-weight:700;
+  letter-spacing:-.65px;
+  overflow-wrap:anywhere
+}
+.metric small{display:block;margin-top:5px;color:var(--muted);font-size:10px}
+.metric.accent{background:#eef8f5;border-color:#d7eae3}
+.metric.accent .metric-value{color:#096c60}
+
+.chart-panel{padding:20px 21px}
+.chart-panel header{
+  display:flex;
+  align-items:start;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap
+}
+.chart-panel p{color:var(--muted);font-size:11px;line-height:1.7}
+.chart{width:100%;height:390px;min-width:0}
+
+footer{
+  border-top:1px solid var(--line);
+  color:#8290a0;
+  font-size:10px;
+  margin-top:27px;
+  padding-top:17px;
+  display:flex;
+  gap:12px;
+  justify-content:space-between;
+  flex-wrap:wrap
+}
+
+@media(max-width:1050px){
+  .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+@media(max-width:760px){
+  main{padding:23px 15px 35px}
+  .topbar-inner{padding:12px 16px;flex-wrap:wrap;row-gap:10px}
+  .topbar-right{width:100%}
+  .topbar-meta{display:none}
+  .module-nav{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:7px;
+    width:100%
+  }
+  .module-nav a{font-size:11px;padding:10px 4px}
+  .brand small{font-size:10px;margin-left:2px}
+  .workspace{grid-template-columns:1fr}
+  .controls-panel{position:static}
+  .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .chart-panel{padding:16px 12px}
+  .chart{height:320px}
+  .field-row{grid-template-columns:minmax(0,1fr) 95px}
+  input[type=number]{font-size:16px;min-height:44px}
+}
+
+@media(max-width:360px){
+  .module-nav a{font-size:10px}
+  .metric-value{font-size:20px}
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.js"></script>
+<script src="https://cdn.plot.ly/plotly-4.1.1.min.js" charset="utf-8"></script>
+</head>
+
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand brand-home" href="./" aria-label="Dynamics Lab home">
+      <span class="brand-mark">
+        <svg class="icon" aria-hidden="true" viewBox="0 0 24 24">
+          <path d="M3 19h18M3 19V5M5 17c2-1 2-8 5-8s5 1 10 0"/>
+        </svg>
+      </span>
+      Dynamics Lab <small>ENCS4380</small>
+    </a>
+
+    <div class="topbar-right">
+      <div class="topbar-meta"><span>TEAM T19</span><b>MODULE 03</b></div>
+
+      <nav class="module-nav" aria-label="Switch between modules">
+        <a href="./">Home</a>
+        <a href="module-1.html">Module 1</a>
+        <a href="module-2.html">Module 2</a>
+        <a href="module-3.html" aria-current="page">Module 3</a>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<main>
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="./">← All modules</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">03 · Second-order response</span>
+  </nav>
+
+  <div class="heading">
+    <div>
+      <p class="eyebrow">ENCS4380 / Module 03</p>
+      <h1>Second-order response</h1>
+      <p class="intro">
+        Change the damping ratio ζ and natural frequency ωn, then observe the step response,
+        damping type, rise time, peak time, overshoot and settling time.
+      </p>
+    </div>
+
+    <span id="runtime" class="pill waiting" role="status">Loading Python…</span>
+  </div>
+
+  <div class="workspace">
+    <section class="panel controls-panel" aria-labelledby="parameters-title">
+      <h2 id="parameters-title">Parameters</h2>
+      <p class="desc">
+        This first test uses the standard second-order model with gain K = 1 and a unit step input.
+      </p>
+
+      <fieldset id="model-controls" disabled style="border:0;padding:0;margin:0;min-width:0">
+        <div class="field">
+          <label for="zeta-number">Damping ratio ζ</label>
+
+          <div class="field-row">
+            <input id="zeta-slider" type="range" min="0" max="2.5" step="0.01" value="0.5">
+            <input id="zeta-number" type="number" min="0" max="2.5" step="0.01" value="0.5">
+          </div>
+
+          <small>ζ &lt; 1 underdamped, ζ = 1 critical, ζ &gt; 1 overdamped.</small>
+        </div>
+
+        <div class="field">
+          <label for="wn-number">Natural frequency ωn · rad/s</label>
+
+          <div class="field-row">
+            <input id="wn-slider" type="range" min="0.2" max="10" step="0.1" value="2">
+            <input id="wn-number" type="number" min="0.2" max="10" step="0.1" value="2">
+          </div>
+
+          <small>Higher ωn gives a faster natural response.</small>
+        </div>
+
+        <button class="reset" type="button" id="reset">Reset example (ζ = 0.5, ωn = 2)</button>
+      </fieldset>
+
+      <div class="equation">
+        G(s) = ωn² / (s² + 2ζωn s + ωn²)
+      </div>
+
+      <p id="model-error" class="message" role="alert" hidden></p>
+    </section>
+
+    <div class="results">
+      <div class="metrics">
+        <div class="panel metric accent">
+          <span class="metric-label">Damping type</span>
+          <div class="metric-value" id="metric-type">—</div>
+          <small>Based on ζ</small>
+        </div>
+
+        <div class="panel metric">
+          <span class="metric-label">Rise time</span>
+          <div class="metric-value" id="metric-rise">—</div>
+          <small>10% → 90%, read from curve</small>
+        </div>
+
+        <div class="panel metric">
+          <span class="metric-label">Peak time</span>
+          <div class="metric-value" id="metric-peak">—</div>
+          <small>Shown when overshoot exists</small>
+        </div>
+
+        <div class="panel metric accent">
+          <span class="metric-label">Overshoot</span>
+          <div class="metric-value" id="metric-overshoot">—</div>
+          <small>Percent above final value</small>
+        </div>
+
+        <div class="panel metric">
+          <span class="metric-label">Settling time</span>
+          <div class="metric-value" id="metric-settling">—</div>
+          <small>Inside ±2% band</small>
+        </div>
+      </div>
+
+      <section class="panel chart-panel" aria-labelledby="step-title">
+        <header>
+          <div>
+            <p class="eyebrow">Live step experiment</p>
+            <h2 id="step-title">Second-order step response</h2>
+            <p>
+              The response is calculated in Python with RK4. The dashed line is the final value.
+            </p>
+          </div>
+
+          <span class="pill">K = 1 · unit step</span>
+        </header>
+
+        <div id="step-chart" class="chart" aria-label="Second-order step response"></div>
+      </section>
+    </div>
+  </div>
+
+  <footer>
+    <span>Dynamics Lab · Team T19 · Birzeit University</span>
+    <span>Module 03 · ENCS4380 Interfacing Techniques</span>
+  </footer>
+</main>
+
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+const format = (value, digits=4) =>
+  Number.isFinite(value) ? Number(value).toPrecision(digits) : "—";
+
+let python = null;
+let redrawTimer = null;
+
+function showError(message) {
+  $("model-error").hidden = !message;
+  $("model-error").textContent = message || "";
+}
+
+function parameters() {
+  const zeta = $("zeta-number").valueAsNumber;
+  const wn = $("wn-number").valueAsNumber;
+
+  if (!Number.isFinite(zeta) || zeta < 0) {
+    throw new Error("ζ must be zero or greater.");
+  }
+
+  if (!Number.isFinite(wn) || wn <= 0) {
+    throw new Error("ωn must be greater than zero.");
+  }
+
+  return {zeta, wn};
+}
+
+function chartLayout() {
+  return {
+    autosize:true,
+    margin:{t:20,r:18,b:55,l:65},
+    paper_bgcolor:"#fff",
+    plot_bgcolor:"#fff",
+    font:{
+      family:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
+      size:11,
+      color:"#65758a"
+    },
+    xaxis:{
+      title:{text:"Time (s)"},
+      gridcolor:"#edf1f5",
+      zerolinecolor:"#d6dee7"
+    },
+    yaxis:{
+      title:{text:"Output y(t)"},
+      gridcolor:"#edf1f5",
+      zerolinecolor:"#d6dee7"
+    },
+    legend:{orientation:"h",x:0,y:1.12,font:{size:10}},
+    dragmode:window.matchMedia("(max-width:760px), (pointer:coarse)").matches ? false : "zoom"
+  };
+}
+
+const plotConfig = {
+  responsive:true,
+  displaylogo:false,
+  scrollZoom:false,
+  modeBarButtonsToRemove:["select2d","lasso2d"]
+};
+
+async function render() {
+  if (!python) return;
+
+  try {
+    const {zeta, wn} = parameters();
+    showError("");
+
+    const data = JSON.parse(python.dashboard(zeta, wn));
+
+    $("metric-type").textContent = data.damping_type;
+    $("metric-rise").textContent =
+      data.rise_time === null ? "—" : format(data.rise_time, 4) + " s";
+    $("metric-peak").textContent =
+      data.peak_time === null ? "—" : format(data.peak_time, 4) + " s";
+    $("metric-overshoot").textContent =
+      data.overshoot_percent === null ? "—" : format(data.overshoot_percent, 4) + "%";
+    $("metric-settling").textContent =
+      data.settling_time === null ? "—" : format(data.settling_time, 4) + " s";
+
+    const responseTrace = {
+      x:data.time,
+      y:data.position,
+      type:"scatter",
+      mode:"lines",
+      name:"Step response",
+      line:{color:"#087f72",width:3}
+    };
+
+    const finalTrace = {
+      x:[data.time[0], data.time[data.time.length - 1]],
+      y:[data.final_value, data.final_value],
+      type:"scatter",
+      mode:"lines",
+      name:"Final value",
+      line:{color:"#b56425",width:2,dash:"dash"}
+    };
+
+    await Plotly.react(
+      $("step-chart"),
+      [responseTrace, finalTrace],
+      chartLayout(),
+      plotConfig
+    );
+
+  } catch (error) {
+    showError(error.message);
+  }
+}
+
+function scheduleRender() {
+  clearTimeout(redrawTimer);
+  redrawTimer = setTimeout(render, 70);
+}
+
+function pair(sliderId, numberId) {
+  const slider = $(sliderId);
+  const field = $(numberId);
+
+  slider.addEventListener("input", () => {
+    field.value = slider.value;
+    scheduleRender();
+  });
+
+  field.addEventListener("input", () => {
+    const value = field.valueAsNumber;
+
+    if (Number.isFinite(value)) {
+      slider.value = String(value);
+    }
+
+    scheduleRender();
+  });
+}
+
+async function main() {
+  try {
+    if (typeof Plotly === "undefined" || typeof loadPyodide !== "function") {
+      throw new Error("Plotly or Pyodide did not load. Check your internet connection.");
+    }
+
+    const engine = await loadPyodide();
+
+    $("runtime").textContent = "Loading model…";
+
+    const file = await fetch("./python/second_order.py", {cache:"no-store"});
+
+    if (!file.ok) {
+      throw new Error("Could not load second_order.py (HTTP " + file.status + ").");
+    }
+
+    const source = await file.text();
+
+    // Load only the model definitions in the browser.
+    // The local test block stays available for terminal testing.
+    const modelSource = source.split('\nif __name__ == "__main__":')[0];
+
+    await engine.runPythonAsync(modelSource);
+
+    python = {
+      dashboard:engine.globals.get("dashboard_json")
+    };
+
+    $("model-controls").disabled = false;
+    $("runtime").textContent = "Python ready";
+    $("runtime").className = "pill";
+
+    await render();
+
+  } catch (error) {
+    $("runtime").textContent = "Load error";
+    $("runtime").className = "pill error";
+    showError(error.message);
+  }
+}
+
+pair("zeta-slider", "zeta-number");
+pair("wn-slider", "wn-number");
+
+$("reset").addEventListener("click", () => {
+  $("zeta-slider").value = "0.5";
+  $("zeta-number").value = "0.5";
+  $("wn-slider").value = "2";
+  $("wn-number").value = "2";
+  scheduleRender();
+});
+
+main();
+</script>
+</body>
+</html>
