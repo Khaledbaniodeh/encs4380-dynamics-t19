@@ -137,6 +137,47 @@ Module 2 reuses the first-order sensor, now with a sinusoidal input. This implem
 
 The provided rounded benchmarks use tolerances of 0.01 for M, 0.2° for phase, and 0.02 ms for τmax. These values are independently calculated in the module; the page reports a Pass/Fail result for each.
 
+## Module 3: second-order response
+
+**[Open Module 3](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/module-3.html)**
+
+Module 3 uses the standard second-order model
+
+```text
+G(s) = ωn² / (s² + 2ζωn s + ωn²)
+```
+
+with live controls for damping ratio ζ and natural frequency ωn. The page classifies the response as underdamped, critically damped or overdamped and reports rise time, peak time, overshoot and 2% settling time from the simulated curve.
+
+The same page also includes:
+
+- A live s-plane pole plot.
+- A mass–spring–damper state-space model with adjustable m, b and k.
+- Live A and B matrices, derived ωn and ζ, eigenvalues of A and matching poles.
+- A phase-plane plot of displacement x1 versus velocity x2.
+- A Predict-then-check exercise for the effect of increasing ζ on overshoot.
+- Validation checks for the three Module 3 lecture benchmarks.
+
+The physical model uses
+
+```text
+A = [[0, 1], [-k/m, -b/m]]
+B = [[0], [1/m]]
+y = [1 0]x
+```
+
+The step response is simulated in Python with RK4. Rise time uses the 10–90% convention and settling time uses a ±2% band.
+
+### Module 3 validation
+
+| Check | Expected | Calculated | Result |
+| --- | --- | --- | --- |
+| ζ = 0.5 overshoot | 16.3% | 16.3029% | Pass |
+| ζ = 1 overshoot | 0% | 0% | Pass |
+| m = 1, b = 2, k = 4 | ωn = 2 rad/s, ζ = 0.5, poles/eigenvalues = −1 ± j1.732 | Matching values | Pass |
+
+Module 3 was tested with underdamped, critically damped and overdamped examples on desktop, and its responsive layout and controls were also checked on a physical phone.
+
 ## Files and technology
 
 | File | Responsibility |
@@ -144,11 +185,13 @@ The provided rounded benchmarks use tolerances of 0.01 for M, 0.2° for phase, a
 | `python/first_order.py` | Python exact responses, our scalar Forward Euler solver, error/lag metrics, validation and prediction evaluation |
 | `python/First-order frequency response.py` | First-order steady-state frequency response, sine/Bode data, amplitude and phase metrics, cutoff, design calculator and validation checks 2–3 |
 | `module-2.html` | Interactive frequency-response page using the Python model through Pyodide and Plotly |
+| `python/second_order.py` | Second-order RK4 simulation, curve-based metrics, poles, state-space calculations, eigenvalues, phase-plane data and Module 3 validation |
+| `module-3.html` | Interactive second-order response page with damping controls, poles, state space, phase plane, prediction and validation |
 | `index.html` | Lightweight home page: introduction, learning path, module navigation and beginner help |
 | `module-1.html` | First-order experiment, guided explanations, responsive controls, Pyodide bridge and Plotly rendering |
 | `README.md` | Live link, model assumptions, usage, validation and project status |
 
-Python executes in the visitor's browser through **Pyodide v314.0.7**. **Plotly.js 4.1.1** renders the curves. The CDN versions are pinned in both `module-1.html` and `module-2.html`; the home page loads no Python or plotting runtime. Each module loads its own Python source through Pyodide and passes calculated values to Plotly. Internet access is needed to load CDN libraries.
+Python executes in the visitor's browser through **Pyodide v314.0.7**. **Plotly.js 4.1.1** renders the curves. The CDN versions are pinned in the interactive module pages; the home page loads no Python or plotting runtime. Each module loads its own Python source through Pyodide and passes calculated values to Plotly. Internet access is needed to load CDN libraries.
 
 GitHub Pages publishes the repository root from `main`. The deployed site needs no backend server, Binder or login. Numerical models remain in Python; Flask and Django are not used.
 
@@ -183,7 +226,7 @@ python -m unittest discover -s tests -v
 | --- | --- | --- | --- | --- |
 | 1 | First-order time response | [#1](../../issues/1) | Implemented; phone check pending | Khaled Bani Oudeh ([@Khaledbaniodeh](https://github.com/Khaledbaniodeh)) |
 | 2 | Frequency response, sines, Bode plots and dynamic error | [#2](../../issues/2) | Implemented; phone functionality confirmed by team | Jibreel Haddar |
-| 3 | Second-order response, poles, state space and phase plane | [#3](../../issues/3) | Not started | To be assigned by the team |
+| 3 | Second-order response, poles, state space and phase plane | [#3](../../issues/3) | Implemented and tested on desktop and phone | To be assigned by the team |
 | 4 | Guess the sensor: hidden parameters, noise, hints and scoring | [#4](../../issues/4) | Not started | To be assigned by the team |
 
 Module 1 ownership is confirmed for Khaled Bani Oudeh (@Khaledbaniodeh). Module 2 is recorded under Jibreel Haddar, who confirmed the phone test and provided screenshots. Owners of Modules 3–4 and any additional contributor information remain to be recorded. Every member must contribute from their own account and be able to explain their code and equations.
@@ -201,7 +244,8 @@ Module 1 ownership is confirmed for Khaled Bani Oudeh (@Khaledbaniodeh). Module 
 - [ ] Verify on a physical phone: Step/Ramp switching, both sliders, number fields, prediction buttons, table scrolling and both plots.
 - [x] Implement Module 2: sine input/output, magnitude/phase Bode plots, cutoff marker, dynamic-error calculator, prediction, and lecture checks 2–3.
 - [x] Module 2 physical-phone functionality confirmed by Jibreel Haddar; desktop and mobile screenshots supplied for README documentation.
-- [ ] Complete Modules 3–4 and validation checks 4–6.
+- [x] Implement Module 3: second-order response, poles, state space, phase plane, prediction, and validation checks 4–6.
+- [ ] Complete Module 4.
 - [ ] Add screenshots for Modules 3–4, optionally add Module 2 charts/results screenshots, and complete contributor records.
 - [ ] Create the final release tagged `v1.0` and submit the Pages link on the course page.
 
@@ -224,11 +268,11 @@ Each checkpoint is a five-minute check in the lab. The brief specifies a five-po
 | --- | --- | --- |
 | 2 | τ = 0.2 s, input sin(2t): amplitude ratio approximately 0.93; phase lag 21.8° | Implemented in validation table |
 | 2 | Up to 100 Hz, at most 5% dynamic error: τmax approximately 0.52 ms; phase lag approximately 9.3° at 50 Hz | Implemented in validation table |
-| 3 | ζ = 0.5: overshoot approximately 16.3% | Not implemented |
-| 3 | ζ = 1: no overshoot | Not implemented |
-| 3 | m = 1, b = 2, k = 4: eigenvalues/poles −1 ± j1.732; ζ = 0.5; ωn = 2 rad/s | Not implemented |
+| 3 | ζ = 0.5: overshoot approximately 16.3% | Implemented; calculated 16.3029%, Pass |
+| 3 | ζ = 1: no overshoot | Implemented; calculated 0%, Pass |
+| 3 | m = 1, b = 2, k = 4: eigenvalues/poles −1 ± j1.732; ζ = 0.5; ωn = 2 rad/s | Implemented; values match, Pass |
 
-The brief's reference values will be checked against the lecture formulas when those modules are implemented. Each module needs its own Predict, then check interaction.
+Module 3 checks are calculated by the page and shown with expected, calculated and Pass/Fail results. Each implemented module includes its own Predict, then check interaction.
 
 ## Course references
 
@@ -242,7 +286,7 @@ The brief's reference values will be checked against the lecture formulas when t
 | --- | --- | --- |
 | Checkpoint 1 — Module 1 | 3 November 2026 | A reference snapshot was saved in the `checkpoint/module-1` branch at [`20847b4`](https://github.com/Khaledbaniodeh/encs4380-dynamics-t19/commit/20847b440a8155a036944168de1af0f5aacff641). This preserves the code; it does **not** by itself confirm instructor acceptance. |
 | Module 2 — First-order frequency response | 5 November 2026 | Implemented on `main` with Python calculations, interactive plots, validation checks 2–3, documentation and PNG desktop/mobile screenshots. Jibreel Haddar reported successful testing on a physical phone. |
-| Checkpoint 2 — Modules 2 **and** 3 | 9 November 2026 | **Pending.** Module 2 is in place, but Module 3 is not yet implemented; do not mark Checkpoint 2 complete until both modules work and are presented as required. |
+| Checkpoint 2 — Modules 2 **and** 3 | 9 November 2026 | **Ready for presentation.** Modules 2 and 3 are implemented; Module 3 has been tested on desktop and phone and all three required validation checks pass. |
 | Final submission — All four modules | 12 November 2026 | **Pending.** Create the `v1.0` release only after Modules 1–4 and the final submission checks are ready. |
 
 **Branches and releases:** `main` contains the ongoing work, while [`checkpoint/module-1`](https://github.com/Khaledbaniodeh/encs4380-dynamics-t19/tree/checkpoint/module-1) preserves the Module 1 baseline. As checked on 5 November, the `checkpoint-1` tag/release and `v1.0` release have not been created. There is no separate Module 2 or Checkpoint 2 snapshot yet.
