@@ -23,7 +23,7 @@
 
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;scroll-padding-top:22px}
 body{
   margin:0;
   background:var(--bg);
@@ -133,6 +133,11 @@ a:hover{text-decoration:underline}
 }
 
 main{max-width:1380px;margin:auto;padding:28px 36px 40px}
+
+.section-links{display:flex;gap:19px;flex-wrap:wrap;font-size:12px;margin:0 0 20px;border-bottom:1px solid var(--line);padding:0 0 13px}
+.section-links a{color:var(--muted);padding:4px 0}
+.section-links a:first-child{font-weight:700;color:var(--ink)}
+.section-links a:hover,.section-links a:focus-visible{color:var(--teal)}
 
 .breadcrumb{
   display:flex;
@@ -442,7 +447,16 @@ footer{
     <span id="runtime" class="pill waiting" role="status">Loading Python…</span>
   </div>
 
-  <div class="workspace">
+  <nav class="section-links" aria-label="Module 3 sections">
+    <a href="#experiment">Experiment</a>
+    <a href="#poles">Poles</a>
+    <a href="#state-space">State Space</a>
+    <a href="#phase-plane">Phase Plane</a>
+    <a href="#prediction">Prediction</a>
+    <a href="#validation">Validation</a>
+  </nav>
+
+  <div class="workspace" id="experiment">
     <section class="panel controls-panel" aria-labelledby="parameters-title">
       <h2 id="parameters-title">Parameters</h2>
       <p class="desc">
