@@ -241,8 +241,6 @@ python -m unittest discover -s tests -v
 | 3 | Second-order response, poles, state space and phase plane | [#3](../../issues/3) | Implemented and tested on desktop and phone | Waad Melhem ([@WaadMelhem05](https://github.com/WaadMelhem05)) |
 | 4 | Guess the sensor: hidden parameters, noise, hints and scoring | [#4](../../issues/4) | Not started | To be assigned by the team |
 
-Module 1 ownership is confirmed for Khaled Bani Oudeh (@Khaledbaniodeh). Module 2 is recorded under Jibreel Haddar, who confirmed the phone test and provided screenshots. Module 3 ownership is confirmed for Waad Melhem ([@WaadMelhem05](https://github.com/WaadMelhem05)). Module 4 ownership and any additional contributor information remain to be recorded. Every member must contribute from their own account and be able to explain their code and equations.
-
 ## Delivery checklist
 
 - [x] Create the public repository using the required naming pattern.
