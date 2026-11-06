@@ -355,6 +355,7 @@ footer{
   .state-grid{grid-template-columns:1fr}
   .state-metrics,.matrix-grid,.state-values{grid-template-columns:1fr}
   .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .settling-card{grid-column:1/-1}
   .metric-value{font-size:21px;letter-spacing:-.4px;overflow-wrap:normal;word-break:normal}
   #metric-type{font-size:18px;white-space:nowrap}
   .chart-panel{padding:16px 12px}
@@ -489,7 +490,7 @@ footer{
           <small>Percent above final value</small>
         </div>
 
-        <div class="panel metric">
+        <div class="panel metric settling-card">
           <span class="metric-label">Settling time</span>
           <div class="metric-value" id="metric-settling">—</div>
           <small>Inside ±2% band</small>
@@ -739,13 +740,13 @@ function renderStateSpace() {
     $("matrix-a").textContent = matrixText(data.A);
     $("matrix-b").textContent = vectorText(data.B);
 
-    $("eigenvalues").textContent =
+    $("eigenvalues").innerHTML =
       "λ₁ = " + formatPole(data.eigenvalues[0]) +
-      " · λ₂ = " + formatPole(data.eigenvalues[1]);
+      "<br>λ₂ = " + formatPole(data.eigenvalues[1]);
 
-    $("state-poles").textContent =
+    $("state-poles").innerHTML =
       "s₁ = " + formatPole(data.poles[0]) +
-      " · s₂ = " + formatPole(data.poles[1]);
+      "<br>s₂ = " + formatPole(data.poles[1]);
 
   } catch (error) {
     $("state-wn").textContent = "—";
