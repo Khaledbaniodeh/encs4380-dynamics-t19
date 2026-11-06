@@ -308,6 +308,17 @@ button{
 .section{margin-top:29px}
 .section-heading{display:flex;justify-content:space-between;align-items:end;gap:15px;margin-bottom:14px}
 .section-body{color:#5c7080;font-size:12px;line-height:1.8;margin-top:6px;max-width:860px}
+.state-grid{display:grid;grid-template-columns:320px minmax(0,1fr);gap:18px}
+.state-controls,.state-results{padding:21px}
+.state-controls h3{font-size:14px;margin:0 0 5px}
+.state-metrics{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.state-metrics>div,.state-values>div{background:#f5f8fa;border-radius:9px;padding:13px}
+.state-metrics span,.state-values span,.matrix-label{display:block;font-size:10px;color:var(--muted);margin-bottom:5px}
+.state-metrics strong,.state-values strong{display:block;font-size:20px;color:#15334b;overflow-wrap:anywhere}
+.matrix-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.matrix-grid>div{background:#fcfefd;border:1px solid #dcece6;border-radius:9px;padding:13px;min-width:0}
+.matrix-grid pre{margin:0;font:13px/1.8 Consolas,monospace;color:#234b5d;white-space:pre-wrap}
+.state-values{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 
 footer{
   border-top:1px solid var(--line);
@@ -341,6 +352,8 @@ footer{
   .brand small{font-size:10px;margin-left:2px}
   .workspace{grid-template-columns:1fr}
   .controls-panel{position:static}
+  .state-grid{grid-template-columns:1fr}
+  .state-metrics,.matrix-grid,.state-values{grid-template-columns:1fr}
   .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
   .metric-value{font-size:21px;letter-spacing:-.4px;overflow-wrap:normal;word-break:normal}
   #metric-type{font-size:18px;white-space:nowrap}
@@ -501,6 +514,86 @@ footer{
     </div>
   </div>
 
+  <section class="section" id="state-space">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">State-space model</p>
+        <h2>Mass–spring–damper system</h2>
+        <p class="section-body">
+          Change m, b, and k. The state-space matrices, natural frequency, damping ratio,
+          poles, and eigenvalues update from the same physical model.
+        </p>
+      </div>
+    </div>
+
+    <div class="state-grid">
+      <section class="panel state-controls">
+        <h3>Physical parameters</h3>
+
+        <div class="field">
+          <label for="mass-number">Mass m</label>
+          <div class="field-row">
+            <input id="mass-slider" type="range" min="0.2" max="5" step="0.1" value="1">
+            <input id="mass-number" type="number" min="0.2" max="5" step="0.1" value="1">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="b-number">Damping b</label>
+          <div class="field-row">
+            <input id="b-slider" type="range" min="0" max="10" step="0.1" value="2">
+            <input id="b-number" type="number" min="0" max="10" step="0.1" value="2">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="k-number">Spring constant k</label>
+          <div class="field-row">
+            <input id="k-slider" type="range" min="0.2" max="10" step="0.1" value="4">
+            <input id="k-number" type="number" min="0.2" max="10" step="0.1" value="4">
+          </div>
+        </div>
+
+        <button class="reset" type="button" id="state-reset">Reset example (m = 1, b = 2, k = 4)</button>
+      </section>
+
+      <section class="panel state-results">
+        <div class="state-metrics">
+          <div>
+            <span>Natural frequency ωn</span>
+            <strong id="state-wn">—</strong>
+          </div>
+          <div>
+            <span>Damping ratio ζ</span>
+            <strong id="state-zeta">—</strong>
+          </div>
+        </div>
+
+        <div class="matrix-grid">
+          <div>
+            <span class="matrix-label">A matrix</span>
+            <pre id="matrix-a">—</pre>
+          </div>
+          <div>
+            <span class="matrix-label">B matrix</span>
+            <pre id="matrix-b">—</pre>
+          </div>
+        </div>
+
+        <div class="state-values">
+          <div>
+            <span>Eigenvalues of A</span>
+            <strong id="eigenvalues">—</strong>
+          </div>
+          <div>
+            <span>Poles</span>
+            <strong id="state-poles">—</strong>
+          </div>
+        </div>
+      </section>
+    </div>
+  </section>
+
   <section class="section" id="poles">
     <div class="section-heading">
       <div>
@@ -599,6 +692,69 @@ function poleLayout(p1, p2) {
     showlegend:false,
     dragmode:mobile ? false : "zoom"
   };
+}
+
+function stateParameters() {
+  const mass = $("mass-number").valueAsNumber;
+  const b = $("b-number").valueAsNumber;
+  const k = $("k-number").valueAsNumber;
+
+  if (!Number.isFinite(mass) || mass <= 0) {
+    throw new Error("m must be greater than zero.");
+  }
+
+  if (!Number.isFinite(b) || b < 0) {
+    throw new Error("b must be zero or greater.");
+  }
+
+  if (!Number.isFinite(k) || k <= 0) {
+    throw new Error("k must be greater than zero.");
+  }
+
+  return {mass, b, k};
+}
+
+function matrixText(matrix) {
+  if (Array.isArray(matrix[0])) {
+    return "[ " + matrix[0].map(v => format(v, 4)).join("   ") + " ]\n" +
+           "[ " + matrix[1].map(v => format(v, 4)).join("   ") + " ]";
+  }
+
+  return "[ " + matrix.map(v => format(v, 4)).join(" ]\n[ ") + " ]";
+}
+
+function vectorText(vector) {
+  return "[ " + format(vector[0], 4) + " ]\n[ " + format(vector[1], 4) + " ]";
+}
+
+function renderStateSpace() {
+  if (!python?.physical) return;
+
+  try {
+    const {mass, b, k} = stateParameters();
+    const data = JSON.parse(python.physical(mass, b, k, 1.0));
+
+    $("state-wn").textContent = format(data.omega_n, 5) + " rad/s";
+    $("state-zeta").textContent = format(data.zeta, 5);
+    $("matrix-a").textContent = matrixText(data.A);
+    $("matrix-b").textContent = vectorText(data.B);
+
+    $("eigenvalues").textContent =
+      "λ₁ = " + formatPole(data.eigenvalues[0]) +
+      " · λ₂ = " + formatPole(data.eigenvalues[1]);
+
+    $("state-poles").textContent =
+      "s₁ = " + formatPole(data.poles[0]) +
+      " · s₂ = " + formatPole(data.poles[1]);
+
+  } catch (error) {
+    $("state-wn").textContent = "—";
+    $("state-zeta").textContent = "—";
+    $("matrix-a").textContent = "—";
+    $("matrix-b").textContent = "—";
+    $("eigenvalues").textContent = error.message;
+    $("state-poles").textContent = "—";
+  }
 }
 
 function chartLayout() {
@@ -762,13 +918,15 @@ async function main() {
     await engine.runPythonAsync(modelSource);
 
     python = {
-      dashboard:engine.globals.get("dashboard_json")
+      dashboard:engine.globals.get("dashboard_json"),
+      physical:engine.globals.get("physical_dashboard_json")
     };
 
     $("model-controls").disabled = false;
     $("runtime").textContent = "Python ready";
     $("runtime").className = "pill";
 
+    renderStateSpace();
     await render();
 
   } catch (error) {
@@ -780,6 +938,13 @@ async function main() {
 
 pair("zeta-slider", "zeta-number");
 pair("wn-slider", "wn-number");
+pair("mass-slider", "mass-number");
+pair("b-slider", "b-number");
+pair("k-slider", "k-number");
+
+for (const id of ["mass-slider","mass-number","b-slider","b-number","k-slider","k-number"]) {
+  $(id).addEventListener("input", renderStateSpace);
+}
 
 $("reset").addEventListener("click", () => {
   $("zeta-slider").value = "0.5";
@@ -787,6 +952,16 @@ $("reset").addEventListener("click", () => {
   $("wn-slider").value = "2";
   $("wn-number").value = "2";
   scheduleRender();
+});
+
+$("state-reset").addEventListener("click", () => {
+  $("mass-slider").value = "1";
+  $("mass-number").value = "1";
+  $("b-slider").value = "2";
+  $("b-number").value = "2";
+  $("k-slider").value = "4";
+  $("k-number").value = "4";
+  renderStateSpace();
 });
 
 main();
