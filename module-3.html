@@ -323,6 +323,13 @@ button{
 .prediction-panel label{display:block;font-size:12px;font-weight:650;margin-bottom:8px}
 .prediction-panel select{width:100%;max-width:360px;border:1px solid #d2dce6;border-radius:8px;background:#fff;color:var(--ink);padding:10px;min-height:41px;font:inherit}
 .prediction-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;max-width:560px}
+.validation-panel{padding:22px;margin-top:29px}
+.table-wrap{max-width:100%;overflow-x:auto;margin-top:13px}
+table{width:100%;border-collapse:collapse;font-size:11px;min-width:650px;text-align:left}
+td,th{padding:11px 10px;border-bottom:1px solid #e9eef3;white-space:nowrap}
+thead{background:#f6f8fa;color:#61748a}
+.tag{font-size:10px;font-weight:700;border-radius:5px;padding:4px 8px;background:#e4f5ec;color:#0b774d}
+.tag.fail{background:#fff0ec;color:#ae4026}
 .prediction-actions button:last-child{grid-column:1/-1}
 button.primary{background:var(--teal);border-color:var(--teal);color:#fff}
 button.primary:hover:enabled{background:#066b60}
@@ -672,6 +679,28 @@ footer{
     <section class="panel chart-panel">
       <div id="pole-chart" class="chart" aria-label="Second-order poles in the s-plane"></div>
     </section>
+  </section>
+
+  <section class="panel validation-panel" id="validation">
+    <p class="eyebrow">Validation checks · from the assignment</p>
+    <h2>Expected vs calculated</h2>
+    <p class="section-body">
+      These fixed checks verify the Module 3 implementation against the assignment benchmarks.
+    </p>
+
+    <div class="table-wrap" role="region" aria-label="Validation table" tabindex="0">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Test</th>
+            <th scope="col">Expected</th>
+            <th scope="col">Calculated</th>
+            <th scope="col">Result</th>
+          </tr>
+        </thead>
+        <tbody id="validation-rows"></tbody>
+      </table>
+    </div>
   </section>
 
   <footer>
@@ -1106,6 +1135,60 @@ function resetPrediction() {
   syncPrediction();
 }
 
+function showValidations() {
+  const checks = JSON.parse(python.validation());
+  const tbody = $("validation-rows");
+  tbody.replaceChildren();
+
+  for (const item of checks) {
+    const tr = document.createElement("tr");
+
+    let expected = "";
+    let actual = "";
+
+    if (typeof item.expected === "object") {
+      expected =
+        "ωn = " + item.expected.omega_n +
+        ", ζ = " + item.expected.zeta +
+        ", eigenvalues = " + item.expected.eigenvalues;
+
+      actual =
+        "ωn = " + format(item.actual.omega_n, 5) +
+        ", ζ = " + format(item.actual.zeta, 5) +
+        ", eigenvalues = " +
+        formatPole(item.actual.eigenvalues[0]) + ", " +
+        formatPole(item.actual.eigenvalues[1]);
+    } else {
+      expected = String(item.expected);
+      actual = format(item.actual, 6);
+    }
+
+    const values = [
+      item.test,
+      expected,
+      actual,
+      item.passed ? "Pass" : "Fail"
+    ];
+
+    values.forEach((value, index) => {
+      const td = document.createElement("td");
+
+      if (index === 3) {
+        const tag = document.createElement("span");
+        tag.className = "tag" + (item.passed ? "" : " fail");
+        tag.textContent = value;
+        td.appendChild(tag);
+      } else {
+        td.textContent = value;
+      }
+
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  }
+}
+
 function pair(sliderId, numberId) {
   const slider = $(sliderId);
   const field = $(numberId);
@@ -1160,7 +1243,8 @@ async function main() {
 
     python = {
       dashboard:engine.globals.get("dashboard_json"),
-      physical:engine.globals.get("physical_dashboard_json")
+      physical:engine.globals.get("physical_dashboard_json"),
+      validation:engine.globals.get("validation_json")
     };
 
     $("model-controls").disabled = false;
@@ -1170,6 +1254,7 @@ async function main() {
     await renderStateSpace();
     await render();
     syncPrediction();
+    showValidations();
 
   } catch (error) {
     $("runtime").textContent = "Load error";
