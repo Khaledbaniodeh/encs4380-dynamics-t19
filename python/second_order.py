@@ -1,882 +1,436 @@
-"""Module 3: Second-order response model for the ENCS4380 toolkit."""
-
-from math import sqrt, pi, isfinite
+from math import sqrt, pi
 import json
 
 
-# ------------------------------------------------------------
-# Validation helpers
-# ------------------------------------------------------------
-
-def require_positive(**values):
-    """Require every supplied value to be finite and greater than zero."""
-    for name, value in values.items():
-        if not isfinite(value) or value <= 0:
-            raise ValueError(
-                name + " must be a finite number greater than zero."
-            )
-
-
-def require_nonnegative(**values):
-    """Require every supplied value to be finite and >= 0."""
-    for name, value in values.items():
-        if not isfinite(value) or value < 0:
-            raise ValueError(
-                name + " must be a finite number greater than or equal to zero."
-            )
-
-
-# ------------------------------------------------------------
-# Damping type and poles
-# ------------------------------------------------------------
-
 def damping_type(zeta):
-    """Classify the second-order response using zeta."""
-    require_nonnegative(zeta=zeta)
-
-    if abs(zeta - 1.0) < 1e-9:
-        return "Critically damped"
-
-    if zeta < 1.0:
+    if zeta < 1:
         return "Underdamped"
+
+    if abs(zeta - 1) < 1e-9:
+        return "Critically damped"
 
     return "Overdamped"
 
 
-def poles(zeta, omega_n):
-    """Return the two poles of the standard second-order system."""
-    require_nonnegative(zeta=zeta)
-    require_positive(omega_n=omega_n)
+def poles(zeta, wn):
+    real = -zeta * wn
 
-    real_part = -zeta * omega_n
-
-    # Underdamped: complex-conjugate poles.
-    if zeta < 1.0:
-        imag_part = omega_n * sqrt(1.0 - zeta * zeta)
+    if zeta < 1:
+        imag = wn * sqrt(1 - zeta ** 2)
 
         return [
-            {"re": real_part, "im": imag_part},
-            {"re": real_part, "im": -imag_part},
+            {"re": real, "im": imag},
+            {"re": real, "im": -imag}
         ]
 
-    # Critically damped: repeated real pole.
-    if abs(zeta - 1.0) < 1e-9:
+    if abs(zeta - 1) < 1e-9:
         return [
-            {"re": -omega_n, "im": 0.0},
-            {"re": -omega_n, "im": 0.0},
+            {"re": -wn, "im": 0},
+            {"re": -wn, "im": 0}
         ]
 
-    # Overdamped: two different negative real poles.
-    root = omega_n * sqrt(zeta * zeta - 1.0)
+    root = wn * sqrt(zeta ** 2 - 1)
 
     return [
-        {"re": real_part + root, "im": 0.0},
-        {"re": real_part - root, "im": 0.0},
+        {"re": real + root, "im": 0},
+        {"re": real - root, "im": 0}
     ]
 
 
-# ------------------------------------------------------------
-# State-space matrices
-# ------------------------------------------------------------
-
-def second_order_matrices(zeta, omega_n, gain=1.0):
-    """
-    Standard second-order model:
-
-        G(s) = K*wn^2 / (s^2 + 2*zeta*wn*s + wn^2)
-
-    States:
-        x1 = y
-        x2 = y_dot
-    """
-    require_nonnegative(zeta=zeta)
-    require_positive(omega_n=omega_n)
-
-    if not isfinite(gain):
-        raise ValueError("gain must be finite.")
+def physical_values(m, b, k):
+    wn = sqrt(k / m)
+    zeta = b / (2 * sqrt(k * m))
 
     A = [
-        [0.0, 1.0],
-        [-(omega_n ** 2), -2.0 * zeta * omega_n],
+        [0, 1],
+        [-k / m, -b / m]
     ]
 
     B = [
-        0.0,
-        gain * (omega_n ** 2),
+        0,
+        1 / m
     ]
 
-    return A, B
+    return wn, zeta, A, B
 
 
-def physical_parameters(m, b, k):
-    """Convert mass-spring-damper parameters into omega_n and zeta."""
-    require_positive(m=m, k=k)
-    require_nonnegative(b=b)
-
-    omega_n = sqrt(k / m)
-    zeta = b / (2.0 * sqrt(k * m))
-
-    return {
-        "omega_n": omega_n,
-        "zeta": zeta,
-    }
-
-
-def physical_state_space(m, b, k):
-    """
-    Mass-spring-damper model:
-
-        m*x_ddot + b*x_dot + k*x = F
-
-    States:
-        x1 = position
-        x2 = velocity
-    """
-    require_positive(m=m, k=k)
-    require_nonnegative(b=b)
-
-    A = [
-        [0.0, 1.0],
-        [-k / m, -b / m],
-    ]
-
-    B = [
-        0.0,
-        1.0 / m,
-    ]
-
-    return A, B
-
-
-# ------------------------------------------------------------
-# Eigenvalues
-# ------------------------------------------------------------
-
-def eigenvalues_2x2(A):
-    """Return the two eigenvalues of a 2x2 matrix."""
+def eigenvalues(A):
     trace = A[0][0] + A[1][1]
+    det = A[0][0] * A[1][1] - A[0][1] * A[1][0]
 
-    determinant = (
-        A[0][0] * A[1][1]
-        - A[0][1] * A[1][0]
-    )
+    d = trace ** 2 / 4 - det
 
-    discriminant = trace * trace / 4.0 - determinant
-
-    if discriminant >= 0:
-        root = sqrt(discriminant)
+    if d >= 0:
+        root = sqrt(d)
 
         return [
-            {
-                "re": trace / 2.0 + root,
-                "im": 0.0,
-            },
-            {
-                "re": trace / 2.0 - root,
-                "im": 0.0,
-            },
+            {"re": trace / 2 + root, "im": 0},
+            {"re": trace / 2 - root, "im": 0}
         ]
 
-    imag = sqrt(-discriminant)
+    imag = sqrt(-d)
 
     return [
-        {
-            "re": trace / 2.0,
-            "im": imag,
-        },
-        {
-            "re": trace / 2.0,
-            "im": -imag,
-        },
+        {"re": trace / 2, "im": imag},
+        {"re": trace / 2, "im": -imag}
     ]
 
 
-# ------------------------------------------------------------
-# Adaptive simulation settings
-# ------------------------------------------------------------
+def simulation_settings(zeta, wn):
+    if zeta > 1:
+        root = sqrt(zeta ** 2 - 1)
 
-def simulation_settings(zeta, omega_n):
-    """
-    Choose simulation duration and RK4 step size from the system poles.
+        slow = wn / (zeta + root)
+        fast = wn * (zeta + root)
 
-    Settling time is based on the slow dynamics.
-    Integration step is based on the fastest dynamics.
-    """
-    require_nonnegative(zeta=zeta)
-    require_positive(omega_n=omega_n)
+        settling_estimate = 4 / slow
 
-    # Overdamped:
-    # use the slow pole for settling and the fast pole for dt.
-    if zeta > 1.0 + 1e-9:
-        root = sqrt(zeta * zeta - 1.0)
+    elif zeta >= 1 - 1e-9:
+        fast = wn
+        settling_estimate = 5.83 / wn
 
-        slow = omega_n / (zeta + root)
-        fast = omega_n * (zeta + root)
-
-        estimated_settling = 4.0 / slow
-
-    # Critically damped.
-    elif zeta >= 1.0 - 1e-9:
-        fast = omega_n
-
-        # Approximate 2% settling time for the critical case.
-        estimated_settling = 5.83 / omega_n
-
-    # Underdamped.
     elif zeta > 0:
-        fast = omega_n
-        estimated_settling = 4.0 / (zeta * omega_n)
+        fast = wn
+        settling_estimate = 4 / (zeta * wn)
 
-    # Undamped system never settles.
     else:
-        dt = 1.0 / (40.0 * omega_n)
-        end_time = 10.0 * pi / omega_n
+        dt = 1 / (40 * wn)
+        end_time = 10 * pi / wn
 
         return dt, end_time
 
-    end_time = max(
-        10.0 / omega_n,
-        1.5 * estimated_settling,
-    )
-
     dt = min(
         0.01,
-        1.0 / (40.0 * fast),
+        1 / (40 * fast)
+    )
+
+    end_time = max(
+        10 / wn,
+        1.5 * settling_estimate
     )
 
     return dt, end_time
 
 
-# ------------------------------------------------------------
-# Generic RK4 state-space simulator
-# ------------------------------------------------------------
+def rk4(A, B, u, dt, end_time):
+    x = [0.0, 0.0]
 
-def simulate_rk4(
-    A,
-    B,
-    input_value,
-    x0,
-    dt,
-    end_time,
-):
-    """Simulate dx/dt = A*x + B*u using fourth-order Runge-Kutta."""
-    require_positive(dt=dt, end_time=end_time)
+    time = [0.0]
+    x1 = [0.0]
+    x2 = [0.0]
 
-    x = list(x0)
+    steps = round(end_time / dt)
 
-    times = [0.0]
-    states = [x.copy()]
+    def f(state):
+        return [
+            A[0][0] * state[0]
+            + A[0][1] * state[1]
+            + B[0] * u,
 
-    # Fixed step count avoids floating-point accumulation
-    # from repeatedly doing t += dt.
-    steps = max(
-        1,
-        round(end_time / dt),
-    )
-
-    def derivative(state):
-        """Compute dx/dt = A*x + B*u."""
-        result = []
-
-        for i in range(len(state)):
-            value = 0.0
-
-            for j in range(len(state)):
-                value += A[i][j] * state[j]
-
-            value += B[i] * input_value
-
-            result.append(value)
-
-        return result
-
-    for step in range(steps):
-        k1 = derivative(x)
-
-        state2 = [
-            x[i] + 0.5 * dt * k1[i]
-            for i in range(len(x))
-        ]
-        k2 = derivative(state2)
-
-        state3 = [
-            x[i] + 0.5 * dt * k2[i]
-            for i in range(len(x))
-        ]
-        k3 = derivative(state3)
-
-        state4 = [
-            x[i] + dt * k3[i]
-            for i in range(len(x))
-        ]
-        k4 = derivative(state4)
-
-        x = [
-            x[i]
-            + dt / 6.0
-            * (
-                k1[i]
-                + 2.0 * k2[i]
-                + 2.0 * k3[i]
-                + k4[i]
-            )
-            for i in range(len(x))
+            A[1][0] * state[0]
+            + A[1][1] * state[1]
+            + B[1] * u
         ]
 
-        t = (step + 1) * dt
+    for n in range(steps):
+        k1 = f(x)
 
-        times.append(t)
-        states.append(x.copy())
+        k2 = f([
+            x[0] + dt * k1[0] / 2,
+            x[1] + dt * k1[1] / 2
+        ])
 
-    return {
-        "time": times,
-        "states": states,
-    }
+        k3 = f([
+            x[0] + dt * k2[0] / 2,
+            x[1] + dt * k2[1] / 2
+        ])
 
+        k4 = f([
+            x[0] + dt * k3[0],
+            x[1] + dt * k3[1]
+        ])
 
-# ------------------------------------------------------------
-# Standard second-order simulation
-# ------------------------------------------------------------
-
-def standard_step_response(
-    zeta,
-    omega_n,
-    gain=1.0,
-    step_amplitude=1.0,
-):
-    """Simulate the standard second-order step response."""
-    require_nonnegative(zeta=zeta)
-    require_positive(omega_n=omega_n)
-
-    if not isfinite(gain) or not isfinite(step_amplitude):
-        raise ValueError(
-            "gain and step amplitude must be finite."
+        x[0] += dt / 6 * (
+            k1[0]
+            + 2 * k2[0]
+            + 2 * k3[0]
+            + k4[0]
         )
 
-    A, B = second_order_matrices(
-        zeta,
-        omega_n,
-        gain,
-    )
+        x[1] += dt / 6 * (
+            k1[1]
+            + 2 * k2[1]
+            + 2 * k3[1]
+            + k4[1]
+        )
 
-    dt, end_time = simulation_settings(
-        zeta,
-        omega_n,
-    )
+        time.append((n + 1) * dt)
+        x1.append(x[0])
+        x2.append(x[1])
 
-    simulation = simulate_rk4(
-        A=A,
-        B=B,
-        input_value=step_amplitude,
-        x0=[0.0, 0.0],
-        dt=dt,
-        end_time=end_time,
-    )
-
-    position = [
-        state[0]
-        for state in simulation["states"]
-    ]
-
-    velocity = [
-        state[1]
-        for state in simulation["states"]
-    ]
-
-    return {
-        "time": simulation["time"],
-        "position": position,
-        "velocity": velocity,
-        "dt": dt,
-        "end_time": end_time,
-    }
+    return time, x1, x2
 
 
-# ------------------------------------------------------------
-# Physical mass-spring-damper simulation
-# ------------------------------------------------------------
-
-def physical_step_response(
-    m,
-    b,
-    k,
-    force=1.0,
-):
-    """Simulate the mass-spring-damper directly using m, b and k."""
-    require_positive(m=m, k=k)
-    require_nonnegative(b=b)
-
-    if not isfinite(force):
-        raise ValueError("force must be finite.")
-
-    params = physical_parameters(
-        m,
-        b,
-        k,
-    )
-
-    omega_n = params["omega_n"]
-    zeta = params["zeta"]
-
-    A, B = physical_state_space(
-        m,
-        b,
-        k,
-    )
-
-    dt, end_time = simulation_settings(
-        zeta,
-        omega_n,
-    )
-
-    simulation = simulate_rk4(
-        A=A,
-        B=B,
-        input_value=force,
-        x0=[0.0, 0.0],
-        dt=dt,
-        end_time=end_time,
-    )
-
-    position = [
-        state[0]
-        for state in simulation["states"]
-    ]
-
-    velocity = [
-        state[1]
-        for state in simulation["states"]
-    ]
-
-    return {
-        "time": simulation["time"],
-        "position": position,
-        "velocity": velocity,
-        "dt": dt,
-        "end_time": end_time,
-    }
-
-
-# ------------------------------------------------------------
-# Curve measurement helpers
-# ------------------------------------------------------------
-
-def interpolated_crossing_time(
-    t1,
-    y1,
-    t2,
-    y2,
-    target,
-):
-    """Linearly interpolate the time at which a curve crosses target."""
+def crossing_time(t1, y1, t2, y2, target):
     if y2 == y1:
         return t2
 
-    fraction = (
-        (target - y1)
+    return (
+        t1
+        + (target - y1)
+        * (t2 - t1)
         / (y2 - y1)
     )
 
-    return (
-        t1
-        + fraction * (t2 - t1)
-    )
 
-
-def rise_time_from_curve(
-    times,
-    values,
-    final_value,
-):
-    """Measure the 10%-to-90% rise time from the simulated curve."""
-    if final_value == 0:
-        return None
-
-    # Normalize the response relative to its final value.
-    normalized = [
-        value / final_value
-        for value in values
-    ]
-
-    crossing_times = {}
-
-    for target in (0.1, 0.9):
-        for i in range(1, len(normalized)):
-            y1 = normalized[i - 1]
-            y2 = normalized[i]
-
-            if y1 < target <= y2:
-                crossing_times[target] = interpolated_crossing_time(
-                    times[i - 1],
-                    y1,
-                    times[i],
-                    y2,
-                    target,
-                )
-                break
-
-    if 0.1 not in crossing_times or 0.9 not in crossing_times:
-        return None
-
-    return (
-        crossing_times[0.9]
-        - crossing_times[0.1]
-    )
-
-
-def peak_metrics_from_curve(
-    times,
-    values,
-    final_value,
-):
-    """Measure peak value, peak time and overshoot from the curve."""
+def metrics(time, y, final_value):
     if final_value == 0:
         return {
+            "rise_time": None,
             "peak_time": None,
             "peak_value": None,
             "overshoot_percent": None,
+            "settling_time": None
         }
 
     normalized = [
         value / final_value
-        for value in values
+        for value in y
     ]
+
+    t10 = None
+    t90 = None
+
+    for i in range(1, len(normalized)):
+        y1 = normalized[i - 1]
+        y2 = normalized[i]
+
+        if t10 is None and y1 < 0.1 <= y2:
+            t10 = crossing_time(
+                time[i - 1],
+                y1,
+                time[i],
+                y2,
+                0.1
+            )
+
+        if t90 is None and y1 < 0.9 <= y2:
+            t90 = crossing_time(
+                time[i - 1],
+                y1,
+                time[i],
+                y2,
+                0.9
+            )
+
+    rise_time = (
+        None
+        if t10 is None or t90 is None
+        else t90 - t10
+    )
 
     peak_index = max(
         range(len(normalized)),
-        key=lambda i: normalized[i],
+        key=lambda i: normalized[i]
     )
 
-    peak_ratio = normalized[peak_index]
+    peak_value = y[peak_index]
 
     overshoot = max(
-        0.0,
-        (peak_ratio - 1.0) * 100.0,
+        0,
+        (normalized[peak_index] - 1) * 100
     )
 
-    # Critical and overdamped systems have no overshoot peak.
-    if overshoot <= 1e-6:
-        peak_time = None
-    else:
-        peak_time = times[peak_index]
+    peak_time = (
+        time[peak_index]
+        if overshoot > 1e-6
+        else None
+    )
 
-    return {
-        "peak_time": peak_time,
-        "peak_value": values[peak_index],
-        "overshoot_percent": overshoot,
-    }
-
-
-def settling_time_from_curve(
-    times,
-    values,
-    final_value,
-    tolerance=0.02,
-):
-    """Measure settling time using a +/-2% band."""
-    if final_value == 0:
-        return None
-
-    band = tolerance * abs(final_value)
+    band = 0.02 * abs(final_value)
 
     last_outside = None
 
-    for i, value in enumerate(values):
+    for i, value in enumerate(y):
         if abs(value - final_value) > band:
             last_outside = i
 
     if last_outside is None:
-        return 0.0
+        settling_time = 0.0
 
-    if last_outside >= len(values) - 1:
-        return None
+    elif last_outside >= len(y) - 1:
+        settling_time = None
 
-    return times[last_outside + 1]
-
-
-def response_metrics(
-    times,
-    values,
-    final_value,
-):
-    """Measure all required Module 3 response metrics from the curve."""
-    peak = peak_metrics_from_curve(
-        times,
-        values,
-        final_value,
-    )
+    else:
+        settling_time = time[last_outside + 1]
 
     return {
-        "rise_time": rise_time_from_curve(
-            times,
-            values,
-            final_value,
-        ),
-
-        "peak_time": peak["peak_time"],
-
-        "peak_value": peak["peak_value"],
-
-        "overshoot_percent": peak[
-            "overshoot_percent"
-        ],
-
-        "settling_time": settling_time_from_curve(
-            times,
-            values,
-            final_value,
-        ),
+        "rise_time": rise_time,
+        "peak_time": peak_time,
+        "peak_value": peak_value,
+        "overshoot_percent": overshoot,
+        "settling_time": settling_time
     }
 
 
-# ------------------------------------------------------------
-# JSON dashboard: zeta and omega_n
-# ------------------------------------------------------------
-
 def dashboard_json(
     zeta,
-    omega_n,
+    wn,
     gain=1.0,
-    step_amplitude=1.0,
+    step=1.0
 ):
-    """Return live second-order response data for module-3.html."""
-    response = standard_step_response(
+    A = [
+        [0, 1],
+        [-(wn ** 2), -2 * zeta * wn]
+    ]
+
+    B = [
+        0,
+        gain * wn ** 2
+    ]
+
+    dt, end_time = simulation_settings(
         zeta,
-        omega_n,
-        gain,
-        step_amplitude,
+        wn
     )
 
-    final_value = (
-        gain * step_amplitude
+    time, position, velocity = rk4(
+        A,
+        B,
+        step,
+        dt,
+        end_time
     )
 
-    metrics = response_metrics(
-        response["time"],
-        response["position"],
-        final_value,
+    final_value = gain * step
+
+    response_metrics = metrics(
+        time,
+        position,
+        final_value
     )
 
     result = {
         "zeta": zeta,
-        "omega_n": omega_n,
+        "omega_n": wn,
         "gain": gain,
-        "step_amplitude": step_amplitude,
+        "step_amplitude": step,
 
-        "damping_type": damping_type(
-            zeta
-        ),
+        "damping_type": damping_type(zeta),
+        "poles": poles(zeta, wn),
 
-        "poles": poles(
-            zeta,
-            omega_n,
-        ),
+        "time": time,
+        "position": position,
+        "velocity": velocity,
 
-        "time": response["time"],
-        "position": response["position"],
-        "velocity": response["velocity"],
-
-        "rise_time": metrics["rise_time"],
-        "peak_time": metrics["peak_time"],
-        "peak_value": metrics["peak_value"],
-        "overshoot_percent": metrics[
-            "overshoot_percent"
-        ],
-        "settling_time": metrics[
-            "settling_time"
-        ],
+        **response_metrics,
 
         "final_value": final_value,
-
-        "dt": response["dt"],
-        "end_time": response["end_time"],
+        "dt": dt,
+        "end_time": end_time
     }
 
     return json.dumps(
         result,
-        allow_nan=False,
+        allow_nan=False
     )
 
-
-# ------------------------------------------------------------
-# JSON dashboard: physical m, b, k model
-# ------------------------------------------------------------
 
 def physical_dashboard_json(
-    m,
+    mass,
     b,
     k,
-    force=1.0,
+    force=1.0
 ):
-    """Return live mass-spring-damper state-space data."""
-    params = physical_parameters(
-        m,
+    wn, zeta, A, B = physical_values(
+        mass,
         b,
-        k,
+        k
     )
 
-    omega_n = params["omega_n"]
-    zeta = params["zeta"]
-
-    A, B = physical_state_space(
-        m,
-        b,
-        k,
+    dt, end_time = simulation_settings(
+        zeta,
+        wn
     )
 
-    eigenvalues = eigenvalues_2x2(A)
-
-    response = physical_step_response(
-        m,
-        b,
-        k,
+    time, position, velocity = rk4(
+        A,
+        B,
         force,
+        dt,
+        end_time
     )
 
-    # At steady state:
-    # k*x = F  ->  x = F/k
     final_value = force / k
 
-    metrics = response_metrics(
-        response["time"],
-        response["position"],
-        final_value,
+    response_metrics = metrics(
+        time,
+        position,
+        final_value
     )
 
     result = {
-        "m": m,
+        "m": mass,
         "b": b,
         "k": k,
         "force": force,
 
-        "omega_n": omega_n,
+        "omega_n": wn,
         "zeta": zeta,
-
-        "damping_type": damping_type(
-            zeta
-        ),
+        "damping_type": damping_type(zeta),
 
         "A": A,
         "B": B,
 
-        "eigenvalues": eigenvalues,
+        "poles": poles(zeta, wn),
+        "eigenvalues": eigenvalues(A),
 
-        "poles": poles(
-            zeta,
-            omega_n,
-        ),
+        "time": time,
+        "position": position,
+        "velocity": velocity,
 
-        "time": response["time"],
-        "position": response["position"],
-        "velocity": response["velocity"],
-
-        "rise_time": metrics["rise_time"],
-        "peak_time": metrics["peak_time"],
-        "peak_value": metrics["peak_value"],
-        "overshoot_percent": metrics[
-            "overshoot_percent"
-        ],
-        "settling_time": metrics[
-            "settling_time"
-        ],
+        **response_metrics,
 
         "final_value": final_value,
-
-        "dt": response["dt"],
-        "end_time": response["end_time"],
+        "dt": dt,
+        "end_time": end_time
     }
 
     return json.dumps(
         result,
-        allow_nan=False,
+        allow_nan=False
     )
 
-
-# ------------------------------------------------------------
-# Required homework validation
-# ------------------------------------------------------------
 
 def validation_json():
-    """Return the Module 3 validation checks required by the homework."""
-
-    # Check 1: zeta = 0.5 -> overshoot approximately 16.3%.
-    response_half = standard_step_response(
-        zeta=0.5,
-        omega_n=2.0,
+    test1 = json.loads(
+        dashboard_json(
+            0.5,
+            2
+        )
     )
 
-    metrics_half = response_metrics(
-        response_half["time"],
-        response_half["position"],
-        1.0,
+    test2 = json.loads(
+        dashboard_json(
+            1.0,
+            2
+        )
     )
 
-    measured_overshoot = metrics_half[
-        "overshoot_percent"
-    ]
-
-    overshoot_pass = (
-        abs(measured_overshoot - 16.3)
-        <= 0.1
+    wn, zeta, A, _ = physical_values(
+        1,
+        2,
+        4
     )
 
-    # Check 2: zeta = 1 -> no overshoot.
-    response_critical = standard_step_response(
-        zeta=1.0,
-        omega_n=2.0,
-    )
+    eig = eigenvalues(A)
+    system_poles = poles(zeta, wn)
 
-    metrics_critical = response_metrics(
-        response_critical["time"],
-        response_critical["position"],
-        1.0,
-    )
+    physical_pass = (
+        abs(wn - 2.0) <= 0.001
+        and abs(zeta - 0.5) <= 0.001
 
-    critical_overshoot = metrics_critical[
-        "overshoot_percent"
-    ]
-
-    critical_pass = (
-        abs(critical_overshoot)
-        <= 0.01
-    )
-
-    # Check 3: m = 1, b = 2, k = 4.
-    m = 1.0
-    b = 2.0
-    k = 4.0
-
-    params = physical_parameters(
-        m,
-        b,
-        k,
-    )
-
-    A, _ = physical_state_space(
-        m,
-        b,
-        k,
-    )
-
-    eig = eigenvalues_2x2(A)
-
-    system_poles = poles(
-        params["zeta"],
-        params["omega_n"],
-    )
-
-    omega_pass = (
-        abs(params["omega_n"] - 2.0)
-        <= 0.001
-    )
-
-    zeta_pass = (
-        abs(params["zeta"] - 0.5)
-        <= 0.001
-    )
-
-    eigenvalue_pass = (
-        abs(
+        and abs(
             eig[0]["re"]
             - system_poles[0]["re"]
         ) <= 0.001
@@ -897,91 +451,99 @@ def validation_json():
         ) <= 0.001
     )
 
-    result = [
+    checks = [
         {
             "test": "zeta = 0.5 overshoot",
             "expected": 16.3,
-            "actual": measured_overshoot,
-            "unit": "%",
-            "passed": overshoot_pass,
+            "actual": test1["overshoot_percent"],
+            "passed": abs(
+                test1["overshoot_percent"] - 16.3
+            ) <= 0.1
         },
         {
             "test": "zeta = 1 overshoot",
-            "expected": 0.0,
-            "actual": critical_overshoot,
-            "unit": "%",
-            "passed": critical_pass,
+            "expected": 0,
+            "actual": test2["overshoot_percent"],
+            "passed": abs(
+                test2["overshoot_percent"]
+            ) <= 0.01
         },
         {
-            "test": "m=1, b=2, k=4 natural frequency",
-            "expected": 2.0,
-            "actual": params["omega_n"],
-            "unit": "rad/s",
-            "passed": omega_pass,
-        },
-        {
-            "test": "m=1, b=2, k=4 damping ratio",
-            "expected": 0.5,
-            "actual": params["zeta"],
-            "unit": "",
-            "passed": zeta_pass,
-        },
-        {
-            "test": "Eigenvalues match poles",
-            "expected": "-1 +/- j1.732",
-            "actual": eig,
-            "unit": "",
-            "passed": eigenvalue_pass,
-        },
+            "test": "m=1, b=2, k=4",
+            "expected": {
+                "omega_n": 2.0,
+                "zeta": 0.5,
+                "eigenvalues": "-1 +/- j1.732"
+            },
+            "actual": {
+                "omega_n": wn,
+                "zeta": zeta,
+                "eigenvalues": eig
+            },
+            "passed": physical_pass
+        }
     ]
 
     return json.dumps(
-        result,
-        allow_nan=False,
+        checks,
+        allow_nan=False
     )
 
-
-# ------------------------------------------------------------
-# Local tests
-# ------------------------------------------------------------
 
 if __name__ == "__main__":
-    print("Module 3 test")
-    print()
-
-    print("Standard model: zeta=0.5, omega_n=2")
-    print(dashboard_json(0.5, 2.0))
-    print()
-
-    print("Physical model: m=1, b=2, k=4, F=4")
-    print(
-        physical_dashboard_json(
-            1.0,
-            2.0,
-            4.0,
-            4.0,
-        )
-    )
-    print()
-
     print("Homework validation")
     print(validation_json())
+
     print()
 
-    # Extra check for the overdamped simulation duration.
-    overdamped_test = json.loads(
+    overdamped = json.loads(
         dashboard_json(
             2.0,
-            2.0,
+            2.0
         )
     )
 
-    print("Overdamped test: zeta=2, omega_n=2")
+    print("Overdamped test")
     print(
-        "end_time:",
-        overdamped_test["end_time"],
+        "settling_time:",
+        overdamped["settling_time"]
+    )
+
+    print()
+
+    small_zeta = json.loads(
+        dashboard_json(
+            0.05,
+            2.0
+        )
+    )
+
+    print("Small zeta test")
+    print(
+        "points:",
+        len(small_zeta["time"])
     )
     print(
         "settling_time:",
-        overdamped_test["settling_time"],
+        small_zeta["settling_time"]
+    )
+
+    print()
+
+    zero_gain = json.loads(
+        dashboard_json(
+            0.5,
+            2.0,
+            gain=0.0
+        )
+    )
+
+    print("Zero gain test")
+    print(
+        "rise_time:",
+        zero_gain["rise_time"]
+    )
+    print(
+        "overshoot:",
+        zero_gain["overshoot_percent"]
     )
