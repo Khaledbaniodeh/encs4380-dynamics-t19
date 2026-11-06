@@ -319,6 +319,15 @@ button{
 .matrix-grid>div{background:#fcfefd;border:1px solid #dcece6;border-radius:9px;padding:13px;min-width:0}
 .matrix-grid pre{margin:0;font:13px/1.8 Consolas,monospace;color:#234b5d;white-space:pre-wrap}
 .state-values{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.prediction-panel{padding:21px}
+.prediction-panel label{display:block;font-size:12px;font-weight:650;margin-bottom:8px}
+.prediction-panel select{width:100%;max-width:360px;border:1px solid #d2dce6;border-radius:8px;background:#fff;color:var(--ink);padding:10px;min-height:41px;font:inherit}
+.prediction-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;max-width:560px}
+.prediction-actions button:last-child{grid-column:1/-1}
+button.primary{background:var(--teal);border-color:var(--teal);color:#fff}
+button.primary:hover:enabled{background:#066b60}
+.message.success{background:#e9f6ee;color:#07613d}
+.message.warning{background:#fff5ec;color:#98551a}
 
 footer{
   border-top:1px solid var(--line);
@@ -354,6 +363,8 @@ footer{
   .controls-panel{position:static}
   .state-grid{grid-template-columns:1fr}
   .state-metrics,.matrix-grid,.state-values{grid-template-columns:1fr}
+  .prediction-actions{grid-template-columns:1fr}
+  .prediction-actions button:last-child{grid-column:auto}
   .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
   .settling-card{grid-column:1/-1}
   .metric-value{font-size:21px;letter-spacing:-.4px;overflow-wrap:normal;word-break:normal}
@@ -595,6 +606,38 @@ footer{
     </div>
   </section>
 
+  <section class="section" id="prediction">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Predict, then check</p>
+        <h2>What happens to overshoot when ζ increases?</h2>
+        <p class="section-body">
+          Keep ωn fixed. Save your prediction, then increase ζ using the controls above and check what happened to the measured overshoot.
+        </p>
+      </div>
+    </div>
+
+    <section class="panel prediction-panel">
+      <label for="prediction-choice">I think the overshoot will…</label>
+      <select id="prediction-choice">
+        <option value="">Choose a prediction</option>
+        <option value="increases">Increase</option>
+        <option value="decreases">Decrease</option>
+        <option value="same">Stay the same</option>
+      </select>
+
+      <div class="prediction-actions">
+        <button class="primary" type="button" id="save-prediction">1. Save prediction</button>
+        <button type="button" id="check-prediction" disabled>2. Increase ζ, then check</button>
+        <button type="button" id="reset-prediction" disabled>New prediction</button>
+      </div>
+
+      <p class="message" id="prediction-feedback" role="status">
+        Save a prediction, increase ζ while keeping ωn fixed, then check.
+      </p>
+    </section>
+  </section>
+
   <section class="section" id="phase-plane">
     <div class="section-heading">
       <div>
@@ -646,6 +689,7 @@ const format = (value, digits=4) =>
 
 let python = null;
 let redrawTimer = null;
+let savedPrediction = null;
 
 function showError(message) {
   $("model-error").hidden = !message;
@@ -962,6 +1006,106 @@ function scheduleRender() {
   redrawTimer = setTimeout(render, 70);
 }
 
+function syncPrediction() {
+  const guess = $("prediction-choice").value;
+  let valid = false;
+
+  try {
+    const {zeta, wn} = parameters();
+    valid = Number.isFinite(zeta) && Number.isFinite(wn);
+  } catch (_error) {}
+
+  $("save-prediction").disabled = !valid || !guess || !!savedPrediction;
+  $("reset-prediction").disabled = !savedPrediction;
+  $("prediction-choice").disabled = !!savedPrediction;
+
+  $("check-prediction").disabled =
+    !savedPrediction ||
+    $("zeta-number").valueAsNumber <= savedPrediction.zeta ||
+    $("wn-number").valueAsNumber !== savedPrediction.wn ||
+    savedPrediction?.checked;
+}
+
+function savePrediction() {
+  try {
+    const {zeta, wn} = parameters();
+    const guess = $("prediction-choice").value;
+    if (!guess) return;
+
+    const data = JSON.parse(python.dashboard(zeta, wn));
+
+    savedPrediction = {
+      zeta,
+      wn,
+      guess,
+      overshoot:data.overshoot_percent,
+      checked:false
+    };
+
+    $("prediction-feedback").className = "message";
+    $("prediction-feedback").textContent =
+      "Saved at ζ = " + format(zeta, 4) +
+      " and ωn = " + format(wn, 4) +
+      ". Increase ζ without changing ωn, then click Check.";
+
+    syncPrediction();
+
+  } catch (error) {
+    $("prediction-feedback").className = "message";
+    $("prediction-feedback").textContent = error.message;
+  }
+}
+
+function checkPrediction() {
+  if (!savedPrediction || !python) return;
+
+  try {
+    const {zeta, wn} = parameters();
+
+    if (wn !== savedPrediction.wn) {
+      throw new Error("Keep ωn fixed for this prediction.");
+    }
+
+    if (zeta <= savedPrediction.zeta) {
+      throw new Error("Increase ζ before checking.");
+    }
+
+    const data = JSON.parse(python.dashboard(zeta, wn));
+    const before = savedPrediction.overshoot;
+    const after = data.overshoot_percent;
+
+    let actual = "same";
+    if (after < before - 1e-6) actual = "decreases";
+    if (after > before + 1e-6) actual = "increases";
+
+    const correct = savedPrediction.guess === actual;
+    savedPrediction.checked = true;
+
+    $("prediction-feedback").className =
+      "message " + (correct ? "success" : "warning");
+
+    $("prediction-feedback").textContent =
+      (correct ? "Correct! " : "Not quite. ") +
+      "Overshoot changed from " + format(before, 4) + "% to " +
+      format(after, 4) + "%. It " + actual + " as ζ increased.";
+
+    syncPrediction();
+
+  } catch (error) {
+    $("prediction-feedback").className = "message";
+    $("prediction-feedback").textContent = error.message;
+  }
+}
+
+function resetPrediction() {
+  savedPrediction = null;
+  $("prediction-choice").value = "";
+  $("prediction-feedback").className = "message";
+  $("prediction-feedback").textContent =
+    "Save a prediction, increase ζ while keeping ωn fixed, then check.";
+  syncPrediction();
+}
+
 function pair(sliderId, numberId) {
   const slider = $(sliderId);
   const field = $(numberId);
@@ -969,6 +1113,10 @@ function pair(sliderId, numberId) {
   slider.addEventListener("input", () => {
     field.value = slider.value;
     scheduleRender();
+
+    if (sliderId === "zeta-slider" || sliderId === "wn-slider") {
+      syncPrediction();
+    }
   });
 
   field.addEventListener("input", () => {
@@ -979,6 +1127,10 @@ function pair(sliderId, numberId) {
     }
 
     scheduleRender();
+
+    if (numberId === "zeta-number" || numberId === "wn-number") {
+      syncPrediction();
+    }
   });
 }
 
@@ -1017,6 +1169,7 @@ async function main() {
 
     await renderStateSpace();
     await render();
+    syncPrediction();
 
   } catch (error) {
     $("runtime").textContent = "Load error";
@@ -1042,6 +1195,11 @@ $("reset").addEventListener("click", () => {
   $("wn-number").value = "2";
   scheduleRender();
 });
+
+$("prediction-choice").addEventListener("change", syncPrediction);
+$("save-prediction").addEventListener("click", savePrediction);
+$("check-prediction").addEventListener("click", checkPrediction);
+$("reset-prediction").addEventListener("click", resetPrediction);
 
 $("state-reset").addEventListener("click", () => {
   $("mass-slider").value = "1";
