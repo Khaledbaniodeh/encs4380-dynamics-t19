@@ -6,7 +6,7 @@ Read [README.md](README.md), [CONTRIBUTING.md](CONTRIBUTING.md), and [docs/versi
 
 - **Module 1 (time domain)** uses `module-1.html`, `python/first_order.py`, and `tests/test_euler.py`; its owner is Khaled Bani Oudeh. It includes the optional Forward Euler comparison.
 - **Module 2 (frequency domain)** uses `module-2.html` and `python/First-order frequency response.py`; its owner is Jibreel Haddar. Keep the exact Python filename (including spaces) unless an explicitly agreed rename updates all references.
-- Modules 3–4 are not yet implemented. Add them as independent HTML/Python files, updating `index.html` and README links when ready.
+- Module 3 is implemented and tested in `module-3.html` and `python/second_order.py`. Module 4 remains pending. Keep later modules separate and update `index.html` and README links when ready.
 - Do not silently rewrite existing module logic or visuals to implement a new module. Obtain the team's agreement before making unrelated changes to a completed module.
 - Python performs numerical calculations in the browser via Pyodide; browser JavaScript integrates controls and Plotly. No server or login should be required. Required response curves use lecture closed-form formulas, with explicitly documented gain, units and initial conditions.
 - Module 2 uses **angular frequency in rad/s** in its main model and **Hz** in its design calculator. `omega=2*pi*f` is required for conversions; its sine output is steady-state (not the switch-on transient).
@@ -32,6 +32,6 @@ Read [README.md](README.md), [CONTRIBUTING.md](CONTRIBUTING.md), and [docs/versi
 ## Releases and course milestones
 
 - Checkpoint 1 (3 Nov 2026): Module 1 code preserved on a reference branch; a saved branch does **not** prove instructor sign-off.
-- Checkpoint 2 (9 Nov 2026): **Modules 2 and 3** must work. Module 2 is implemented; Module 3 is still pending as of 5 Nov 2026.
+- Checkpoint 2 (9 Nov 2026): **Modules 2 and 3** must work. Modules 2 and 3 are implemented and ready for Checkpoint 2.
 - Final submission (12 Nov 2026): all four modules and a GitHub release tagged **`v1.0`**, with the live Pages link submitted according to the brief.
 - The `checkpoint-1` tag/release and `v1.0` release were not created at the last check. Do not represent a branch as a tag or publish a final release early.
