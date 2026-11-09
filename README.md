@@ -154,6 +154,7 @@ The same page also includes:
 - A live s-plane pole plot.
 - A mass–spring–damper state-space model with adjustable m, b and k.
 - Live A and B matrices, derived ωn and ζ, eigenvalues of A and matching poles.
+- A state-space s-plane plot that shows the eigenvalues and poles together so their matching locations are visible.
 - A phase-plane plot of displacement x1 versus velocity x2.
 - A Predict-then-check exercise for the effect of increasing ζ on overshoot.
 - Validation checks for the three Module 3 lecture benchmarks.
@@ -166,7 +167,7 @@ B = [[0], [1/m]]
 y = [1 0]x
 ```
 
-The step response is simulated in Python with RK4. Rise time uses the 10–90% convention and settling time uses a ±2% band.
+The required step response uses the closed-form second-order solution, with RK4 shown as an optional numerical comparison. Rise time uses the 10–90% convention and settling time uses a ±2% band.
 
 ### Module 3 validation
 
@@ -197,7 +198,7 @@ The screenshots were captured after testing Module 3 on desktop and a physical p
 | `python/first_order.py` | Python exact responses, our scalar Forward Euler solver, error/lag metrics, validation and prediction evaluation |
 | `python/First-order frequency response.py` | First-order steady-state frequency response, sine/Bode data, amplitude and phase metrics, cutoff, design calculator and validation checks 2–3 |
 | `module-2.html` | Interactive frequency-response page using the Python model through Pyodide and Plotly |
-| `python/second_order.py` | Second-order RK4 simulation, curve-based metrics, poles, state-space calculations, eigenvalues, phase-plane data and Module 3 validation |
+| `python/second_order.py` | Closed-form second-order response, optional RK4 comparison, curve-based metrics, poles, state-space calculations, eigenvalues, phase-plane data and Module 3 validation |
 | `module-3.html` | Interactive second-order response page with damping controls, poles, state space, phase plane, prediction and validation |
 | `index.html` | Lightweight home page: introduction, learning path, module navigation and beginner help |
 | `module-1.html` | First-order experiment, guided explanations, responsive controls, Pyodide bridge and Plotly rendering |
@@ -224,7 +225,7 @@ For the default Step (K = 1, A = 10, τ = 2 s), Δt = 0.5 s gives 20 steps, maxi
 
 The page explains the homogeneous Euler stability condition: every applied step must be less than 2τ. A coarse or unstable step gets an explicit message; stability does not guarantee accuracy. Invalid or overly small Δt values affect only the optional comparison. A 2,000-step limit keeps the browser responsive.
 
-Development checks cover hand-calculated Step/Ramp updates, convergence when Δt is reduced, negative and zero signals, a final partial step, the stability boundary and unstable case, and invalid/excessive runs. RK4 has not been implemented.
+Development checks cover hand-calculated Step/Ramp updates, convergence when Δt is reduced, negative and zero signals, a final partial step, the stability boundary and unstable case, and invalid/excessive runs. RK4 is not used in Module 1; Module 1 uses the optional Forward Euler comparison.
 
 Run the numerical regression checks from the repository root with standard Python:
 
