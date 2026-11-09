@@ -535,7 +535,7 @@ footer{
             <p class="eyebrow">Live step experiment</p>
             <h2 id="step-title">Second-order step response</h2>
             <p>
-              The response is calculated in Python with RK4. The dashed line is the final value.
+              The required closed-form response is compared with the RK4 numerical solution. The dashed line is the final value.
             </p>
           </div>
 
@@ -641,6 +641,7 @@ footer{
             <strong id="state-poles">—</strong>
           </div>
         </div>
+        <div id="state-pole-chart" class="chart" aria-label="State-space poles and eigenvalues"></div>
       </section>
     </div>
   </section>
@@ -852,6 +853,39 @@ async function renderStateSpace() {
     $("state-poles").innerHTML =
       "s₁ = " + formatPole(data.poles[0]) +
       "<br>s₂ = " + formatPole(data.poles[1]);
+      const statePoleTrace = {
+       x:[data.poles[0].re, data.poles[1].re],
+       y:[data.poles[0].im, data.poles[1].im],
+       type:"scatter",
+       mode:"markers",
+       name:"Poles",
+       marker:{size:13,symbol:"x"}
+      };
+
+      const eigenTrace = {
+       x:[data.eigenvalues[0].re, data.eigenvalues[1].re],
+       y:[data.eigenvalues[0].im, data.eigenvalues[1].im],
+       type:"scatter",
+       mode:"markers",
+       name:"Eigenvalues",
+       marker:{size:8,symbol:"circle-open"}
+      };
+       
+      const statePoleLayout = poleLayout(data.poles[0], data.poles[1]);
+      statePoleLayout.showlegend = true;
+      statePoleLayout.legend = {
+        orientation:"h",
+        x:0,
+        y:1.12,
+       font:{size:10}
+      };
+      
+      await Plotly.react(
+       $("state-pole-chart"),
+       [statePoleTrace, eigenTrace],
+       statePoleLayout,
+       plotConfig
+      );
 
     $("phase-type").textContent = data.damping_type;
 
@@ -995,9 +1029,19 @@ async function render() {
       y:data.position,
       type:"scatter",
       mode:"lines",
-      name:"Step response",
+      name:"Closed-form",
       line:{color:"#087f72",width:3}
     };
+
+
+    const rk4Trace = {
+      x:data.rk4_time,
+      y:data.rk4_position,
+      type:"scatter",
+      mode:"lines",
+      name:"RK4",
+      line:{width:2,dash:"dot"}
+     };
 
     const finalTrace = {
       x:[data.time[0], data.time[data.time.length - 1]],
@@ -1010,7 +1054,7 @@ async function render() {
 
     await Plotly.react(
       $("step-chart"),
-      [responseTrace, finalTrace],
+      [responseTrace, rk4Trace, finalTrace],
       chartLayout(),
       plotConfig
     );

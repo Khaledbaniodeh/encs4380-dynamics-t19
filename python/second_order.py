@@ -1,14 +1,13 @@
-from math import sqrt, pi
+
+from math import sqrt, pi, exp, sin, cos
 import json
 
 
 def damping_type(zeta):
     if zeta < 1:
         return "Underdamped"
-
     if abs(zeta - 1) < 1e-9:
         return "Critically damped"
-
     return "Overdamped"
 
 
@@ -29,7 +28,6 @@ def poles(zeta, wn):
 def physical_values(m, b, k):
     wn = sqrt(k / m)
     zeta = b / (2 * sqrt(k * m))
-
     A = [[0, 1], [-k / m, -b / m]]
     B = [0, 1 / m]
 
@@ -43,16 +41,10 @@ def eigenvalues(A):
 
     if d >= 0:
         root = sqrt(d)
-        return [
-            {"re": trace / 2 + root, "im": 0},
-            {"re": trace / 2 - root, "im": 0}
-        ]
+        return [{"re": trace / 2 + root, "im": 0}, {"re": trace / 2 - root, "im": 0}]
 
     imag = sqrt(-d)
-    return [
-        {"re": trace / 2, "im": imag},
-        {"re": trace / 2, "im": -imag}
-    ]
+    return [{"re": trace / 2, "im": imag}, {"re": trace / 2, "im": -imag}]
 
 
 def simulation_settings(zeta, wn):
@@ -81,6 +73,58 @@ def simulation_settings(zeta, wn):
     return dt, end_time
 
 
+# Closed-form second-order step response
+def closed_form_response(zeta, wn, gain, step, dt, end_time):
+    final_value = gain * step
+    steps = round(end_time / dt)
+    max_steps = 2500
+
+    if steps > max_steps:
+        steps = max_steps
+        dt = end_time / steps
+
+    time = []
+    position = []
+    velocity = []
+
+    for i in range(steps + 1):
+        t = i * dt
+        time.append(t)
+
+        # Underdamped
+        if zeta < 1 - 1e-9:
+            root = sqrt(1 - zeta ** 2)
+            wd = wn * root
+            decay = exp(-zeta * wn * t)
+
+            y = final_value * (1 - decay * (cos(wd * t) + (zeta / root) * sin(wd * t)))
+            v = final_value * wn / root * decay * sin(wd * t)
+
+        # Critically damped
+        elif abs(zeta - 1) <= 1e-9:
+            decay = exp(-wn * t)
+
+            y = final_value * (1 - decay * (1 + wn * t))
+            v = final_value * wn ** 2 * t * decay
+
+        # Overdamped
+        else:
+            root = wn * sqrt(zeta ** 2 - 1)
+            s1 = -zeta * wn + root
+            s2 = -zeta * wn - root
+            e1 = exp(s1 * t)
+            e2 = exp(s2 * t)
+
+            y = final_value * (1 + (s2 * e1 - s1 * e2) / (s1 - s2))
+            v = final_value * s1 * s2 * (e1 - e2) / (s1 - s2)
+
+        position.append(y)
+        velocity.append(v)
+
+    return time, position, velocity
+
+
+# RK4 numerical solver kept for optional comparison / bonus work
 def rk4(A, B, u, dt, end_time):
     x = [0.0, 0.0]
 
@@ -89,6 +133,11 @@ def rk4(A, B, u, dt, end_time):
     x2 = [0.0]
 
     steps = round(end_time / dt)
+    max_steps = 10000
+
+    if steps > max_steps:
+        steps = max_steps
+        dt = end_time / steps
 
     def f(state):
         return [
@@ -98,21 +147,9 @@ def rk4(A, B, u, dt, end_time):
 
     for n in range(steps):
         k1 = f(x)
-
-        k2 = f([
-            x[0] + dt * k1[0] / 2,
-            x[1] + dt * k1[1] / 2
-        ])
-
-        k3 = f([
-            x[0] + dt * k2[0] / 2,
-            x[1] + dt * k2[1] / 2
-        ])
-
-        k4 = f([
-            x[0] + dt * k3[0],
-            x[1] + dt * k3[1]
-        ])
+        k2 = f([x[0] + dt * k1[0] / 2, x[1] + dt * k1[1] / 2])
+        k3 = f([x[0] + dt * k2[0] / 2, x[1] + dt * k2[1] / 2])
+        k4 = f([x[0] + dt * k3[0], x[1] + dt * k3[1]])
 
         x[0] += dt / 6 * (k1[0] + 2 * k2[0] + 2 * k3[0] + k4[0])
         x[1] += dt / 6 * (k1[1] + 2 * k2[1] + 2 * k3[1] + k4[1])
@@ -187,11 +224,15 @@ def metrics(time, y, final_value):
 
 
 def dashboard_json(zeta, wn, gain=1.0, step=1.0):
+    dt, end_time = simulation_settings(zeta, wn)
+
+    # Required closed-form response
+    time, position, velocity = closed_form_response(zeta, wn, gain, step, dt, end_time)
+
+    # Bonus: RK4 numerical response for comparison
     A = [[0, 1], [-(wn ** 2), -2 * zeta * wn]]
     B = [0, gain * wn ** 2]
-
-    dt, end_time = simulation_settings(zeta, wn)
-    time, position, velocity = rk4(A, B, step, dt, end_time)
+    rk4_time, rk4_position, _ = rk4(A, B, step, dt, end_time)
 
     final_value = gain * step
     response_metrics = metrics(time, position, final_value)
@@ -206,10 +247,13 @@ def dashboard_json(zeta, wn, gain=1.0, step=1.0):
         "time": time,
         "position": position,
         "velocity": velocity,
+        "rk4_time": rk4_time,
+        "rk4_position": rk4_position,
         **response_metrics,
         "final_value": final_value,
         "dt": dt,
-        "end_time": end_time
+        "end_time": end_time,
+        "response_method": "closed-form + RK4 comparison"
     }
 
     return json.dumps(result, allow_nan=False)
@@ -219,7 +263,7 @@ def physical_dashboard_json(mass, b, k, force=1.0):
     wn, zeta, A, B = physical_values(mass, b, k)
 
     dt, end_time = simulation_settings(zeta, wn)
-    time, position, velocity = rk4(A, B, force, dt, end_time)
+    time, position, velocity = closed_form_response(zeta, wn, 1 / k, force, dt, end_time)
 
     final_value = force / k
     response_metrics = metrics(time, position, final_value)
@@ -242,7 +286,8 @@ def physical_dashboard_json(mass, b, k, force=1.0):
         **response_metrics,
         "final_value": final_value,
         "dt": dt,
-        "end_time": end_time
+        "end_time": end_time,
+        "response_method": "closed-form"
     }
 
     return json.dumps(result, allow_nan=False)
