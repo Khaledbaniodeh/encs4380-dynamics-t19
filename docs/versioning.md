@@ -29,12 +29,21 @@ Module 2 lives on `main`, separate from Module 1, in:
 
 Jibreel Haddar is recorded as Module 2 owner and reported successful testing on a physical phone. This is a team report, not a claim of independently repeated device testing. No separate `checkpoint/module-2` branch or `checkpoint-2` tag/release has been created.
 
+## Module 3 implementation — 9 November 2026
+
+Module 3 is implemented on `main` in:
+
+- [`module-3.html`](../module-3.html) — interactive second-order response, pole plots, state-space view, phase plane, prediction exercise and validation.
+- [`python/second_order.py`](../python/second_order.py) — closed-form second-order responses, optional RK4 comparison, curve-based metrics, poles, state-space calculations, eigenvalues and validation.
+
+The state-space view plots poles and eigenvalues together on the same s-plane so their matching locations are visible. The Module 3 update was committed as `0636193` on 9 November 2026. The required Module 3 validation checks pass.
+
 ## Checkpoint 2 and final release
 
 | Milestone | Deadline | Status |
 | --- | --- | --- |
-| Checkpoint 2: Modules 2 and 3 working | **9 November 2026** | **Pending**: Module 2 is implemented; Module 3 still needs to be built and tested |
-| Final delivery: Modules 1–4, version `v1.0` | **12 November 2026** | **Pending**: Modules 3–4 and release/submission requirements remain |
+| Checkpoint 2: Modules 2 and 3 working | **9 November 2026** | **Ready**: Modules 2 and 3 are implemented and tested |
+| Final delivery: Modules 1–4, version `v1.0` | **12 November 2026** | **Pending**: Module 4 and release/submission requirements remain |
 
 The `v1.0` GitHub Release has **not** been published. Preserve existing snapshots and avoid representing an in-progress module as a completed course checkpoint.
 
