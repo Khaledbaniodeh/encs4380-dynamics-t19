@@ -228,6 +228,10 @@ All challenge parameters must be finite and positive; second-order estimates als
 
 See [README_MODULE4.md](README_MODULE4.md) for formulas and [the demo walkthrough](docs/module4_demo.md) for a guided example.
 
+### Optional bonus — draggable Pole Explorer
+
+After submitting a guess in Module 4, open the optional **Pole Explorer** to drag second-order poles on the s-plane (mouse or touch) and watch the unit-step response update live. Supports a conjugate pole pair and two negative real poles. The bonus never changes the hidden challenge or session score. See [README_POLE_EXPLORER.md](README_POLE_EXPLORER.md); math tests: `node tests/test_pole_explorer.js`.
+
 ## Files and technology
 
 | File | Responsibility |

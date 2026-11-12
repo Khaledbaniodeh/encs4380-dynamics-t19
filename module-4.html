@@ -85,11 +85,6 @@
       border-radius: 9px; padding: 10px 14px; font: inherit; font-weight: 650; cursor: pointer; }
     .btn:disabled { opacity: .5; cursor: wait; }
     .status { font-size: 13px; margin: 12px 0 !important; }
-    .load-help { margin-top: 10px; font-size: 12px; }
-    .load-help summary { cursor: pointer; color: var(--teal); }
-    .load-help pre { max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere;
-      padding: 10px; background: var(--bg); border-radius: 8px; }
-    #retry-loading { margin-top: 10px; }
     .info { background: var(--teal-soft); padding: 12px; border-radius: 9px; margin-top: 16px !important; }
     #response-plot { width: 100%; min-height: 360px; }
     .plot-panel { min-width: 0; }
@@ -206,6 +201,58 @@
       .guess-form input { font-size: 16px; }
       .hint-heading { align-items: start; }
     }
+
+    /* BONUS 2: direct pole dragging and live second-order response. */
+    .pole-section { grid-column: 1 / -1; grid-row: 5; }
+    .pole-top { display: flex; justify-content: space-between; align-items: center; gap: 14px; }
+    .pole-top h2 { margin-bottom: 5px; }
+    .pole-kicker { display: inline-block; background: var(--teal-soft); color: #086d62;
+      border-radius: 5px; padding: 2px 8px; font-size: 11px; font-weight: 750;
+      letter-spacing: .65px; margin-bottom: 8px; }
+    .pole-top .btn { flex: none; }
+    .pole-body { margin-top: 20px; }
+    .pole-context { background: #f4faf8; padding: 10px 13px; border-left: 3px solid var(--teal);
+      border-radius: 6px; font-size: 13px; }
+    .pole-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin: 16px 0; }
+    .pole-toolbar label { font-size: 13px; font-weight: 700; }
+    .pole-toolbar select { min-height: 42px; padding: 8px 12px; font: inherit;
+      color: var(--ink); background: #fff; border: 1px solid #b7c5d2; border-radius: 9px; }
+    .pole-outline { background: #fff; border: 1px solid var(--teal); color: var(--teal); }
+    .pole-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+    .pole-visual { min-width: 0; padding: 15px; border-radius: 12px;
+      background: #fff; border: 1px solid var(--line); }
+    .pole-visual h3 { margin: 0 0 5px; font-size: 15px; }
+    .pole-visual p { font-size: 12px; }
+    .pole-plane { width: 100%; height: auto; display: block; margin: 10px auto 0;
+      max-width: 650px; user-select: none; -webkit-user-select: none; }
+    .pole-plane [data-pole] { touch-action: none; }
+    #pole-response-plot { min-height: 305px; width: 100%; }
+    .pole-readout { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 10px; margin: 16px 0; }
+    .pole-stat { min-width: 0; background: var(--teal-soft); border: 1px solid #c7e6dc;
+      padding: 10px 12px; border-radius: 10px; }
+    .pole-stat small { display: block; color: var(--ink); font-weight: 700; font-size: 11px; }
+    .pole-stat strong { display: block; color: var(--teal); font-size: 16px; overflow-wrap: anywhere; }
+    .pole-values { font-size: 13px; overflow-wrap: anywhere; }
+    .pole-sliders { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px;
+      padding: 14px; background: #f7faf9; border: 1px solid var(--line); border-radius: 11px; }
+    .pole-slider-header { display: flex; gap: 10px; justify-content: space-between; align-items: baseline;
+      font-size: 13px; font-weight: 650; }
+    .pole-sliders input[type="range"] { width: 100%; margin-top: 9px; accent-color: var(--teal); min-height: 24px; }
+    .pole-footnote { margin-top: 12px !important; font-size: 12px; }
+    @media (max-width: 900px) {
+      .pole-section { grid-column: 1; grid-row: auto; order: 6; }
+      .pole-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .pole-top { flex-direction: column; align-items: flex-start; }
+      .pole-readout { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .pole-sliders { grid-template-columns: 1fr; gap: 14px; }
+      .pole-toolbar { align-items: stretch; }
+      .pole-toolbar select { width: 100%; }
+      .pole-toolbar .btn { width: 100%; }
+      .pole-visual { padding: 10px; }
+      #pole-response-plot { min-height: 280px; }
+    }
   </style>
 </head>
 <body>
@@ -245,11 +292,6 @@
             <h2 id="controls-title">Challenge Controls</h2>
             <p>Generate a random sensor, inspect its noisy response, then estimate the hidden parameters.</p>
             <p class="status" id="status" role="status">Loading Python...</p>
-            <button class="btn" id="retry-loading" type="button" hidden>Retry loading</button>
-            <details class="load-help" id="load-help" hidden>
-              <summary>Show loading details</summary>
-              <pre id="load-details"></pre>
-            </details>
           </div>
           <div class="controls-actions">
             <button class="btn" id="new-sensor" type="button" disabled>New Sensor</button>
@@ -342,23 +384,76 @@
           </div>
         </div>
       </section>
+      <!-- Optional bonus sandbox: independent of guessing and scoring. -->
+      <section class="panel pole-section" id="pole-section" aria-labelledby="pole-title" hidden>
+        <div class="pole-top">
+          <div>
+            <span class="pole-kicker">BONUS · POLE EXPLORER</span>
+            <h2 id="pole-title">Drag the Poles — Change the Response</h2>
+            <p>Explore second-order dynamics in the s-plane. Move the poles and watch the step response change instantly.</p>
+          </div>
+          <button type="button" class="btn" id="pole-toggle" aria-controls="pole-body"
+                  aria-expanded="false">Open Pole Explorer</button>
+        </div>
+        <div class="pole-body" id="pole-body" hidden>
+          <p class="pole-context" id="pole-context">An independent second-order demonstration.</p>
+          <div class="pole-toolbar">
+            <label for="pole-mode">Pole arrangement</label>
+            <select id="pole-mode">
+              <option value="complex">Complex conjugate pair — oscillation</option>
+              <option value="real">Two negative real poles — no oscillation</option>
+            </select>
+            <button type="button" class="btn pole-outline" id="pole-reset">Reset to start</button>
+          </div>
+          <div class="pole-grid">
+            <div class="pole-visual">
+              <h3>s-Plane — drag either teal pole</h3>
+              <p>Re(p) &lt; 0 keeps this system stable. Drag on desktop or touch and move on your phone.</p>
+              <svg id="pole-plane" class="pole-plane" viewBox="0 0 640 320"
+                   role="group" aria-label="Interactive s-plane. Drag the teal pole handles or use the sliders below."></svg>
+            </div>
+            <div class="pole-visual">
+              <h3>Live Unit-Step Response</h3>
+              <p>Dotted gray = starting response; solid teal = response after moving the poles.</p>
+              <div id="pole-response-plot" role="img" aria-label="Live step response corresponding to the dragged poles"></div>
+            </div>
+          </div>
+          <div class="pole-readout" aria-live="off">
+            <div class="pole-stat"><small>Damping ratio (ζ)</small><strong id="pole-zeta">—</strong></div>
+            <div class="pole-stat"><small>Natural frequency (ωn)</small><strong id="pole-wn">—</strong></div>
+            <div class="pole-stat"><small>Damping case</small><strong id="pole-case">—</strong></div>
+            <div class="pole-stat"><small>Overshoot</small><strong id="pole-overshoot">—</strong></div>
+          </div>
+          <p class="pole-values"><strong>Current poles:</strong> <span id="pole-values">—</span></p>
+          <div class="pole-sliders">
+            <div>
+              <div class="pole-slider-header"><label for="pole-first" id="pole-first-label">Decay rate α</label>
+                <output id="pole-first-number" for="pole-first">1.20</output></div>
+              <input id="pole-first" type="range" min="0.15" max="6" step="0.05" value="1.2">
+            </div>
+            <div>
+              <div class="pole-slider-header"><label for="pole-second" id="pole-second-label">Oscillation frequency β</label>
+                <output id="pole-second-number" for="pole-second">2.30</output></div>
+              <input id="pole-second" type="range" min="0" max="5" step="0.05" value="2.3">
+            </div>
+          </div>
+          <p class="pole-footnote">Model: G(s) = ωn² / (s² + 2ζωn s + ωn²), unit DC gain. 
+            In complex mode, p = −α ± jβ, ωn = √(α² + β²) and ζ = α/ωn.
+            In real mode, p₁ = −a and p₂ = −b, ωn = √(ab) and ζ = (a + b)/(2√(ab)).
+            This experiment does not modify your challenge, hidden parameters, or score.</p>
+        </div>
+      </section>
     </div>
   </main>
   <script src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.js"></script>
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js"></script>
+  <script src="js/pole_explorer.js"></script>
   <script>
     "use strict";
 
     // DOM references (kept together for readability).
     const byId = id => document.getElementById(id);
     const statusElement = byId("status");
-    const retryLoadingButton = byId("retry-loading");
-    const loadHelp = byId("load-help");
-    const loadDetails = byId("load-details");
-    // Keep the loader and its runtime files on the same pinned version.
-    const runtimeURL = "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/";
-    const runtimeMessages = [];
-    let loadingStage = "Loading browser libraries";
     const newSensorButton = byId("new-sensor");
     const sensorTypeElement = byId("sensor-type");
     const plotElement = byId("response-plot");
@@ -397,13 +492,8 @@
 
     function showError(error) {
       console.error(error);
-      const message = error.message || String(error);
-      statusElement.textContent = "Could not load the experiment. Check your connection, then Retry loading. " + message;
+      statusElement.textContent = "Error: " + error.message;
       statusElement.classList.add("error");
-      loadDetails.textContent = ["Stage: " + loadingStage, "Pyodide: 314.0.7",
-        message, ...runtimeMessages].join("\n");
-      loadHelp.hidden = false;
-      retryLoadingButton.hidden = false;
     }
 
     function resetHint() {
@@ -443,6 +533,8 @@
       guessFeedback.dataset.state = "";
       parameterErrorsElement.replaceChildren();
       resultsSection.hidden = true; // Hide the ENTIRE result section until submitted.
+      // Start the next round with the bonus closed; the session score stays intact.
+      window.PoleExplorer.reset();
       resetHint();
 
       const firstOrder = challenge.type === "first_order";
@@ -598,6 +690,12 @@ json.dumps({"reveal": _reveal, "scoring": _scoring})
         if (hintPanel.hidden) hintButton.disabled = true;
         updateSessionScore(scoring);
         resultsSection.hidden = false;
+        // Unlock only now: true second-order poles must never appear before submission.
+        try {
+          window.PoleExplorer.unlock(firstOrder ? null : reveal.parameters);
+        } catch (bonusError) {
+          console.warn("Optional Pole Explorer could not be loaded:", bonusError);
+        }
         guessFeedback.dataset.state = "success";
         guessFeedback.textContent = "Guess submitted. Compare the curves and see your score below.";
       } catch (error) {
@@ -630,8 +728,6 @@ json.dumps({
         drawResponse(challenge);
         statusElement.classList.remove("error");
         statusElement.textContent = "Python ready · New challenge generated";
-        retryLoadingButton.hidden = true;
-        loadHelp.hidden = true;
       } catch (error) {
         showError(error);
       } finally {
@@ -645,21 +741,11 @@ json.dumps({
         if (typeof loadPyodide !== "function" || typeof Plotly === "undefined") {
           throw new Error("Could not load Pyodide or Plotly. Check internet access.");
         }
-        loadingStage = "Starting Python runtime";
-        statusElement.textContent = "Starting Python...";
-        pyodide = await loadPyodide({
-          indexURL: runtimeURL,
-          stderr: message => {
-            console.error(message);
-            runtimeMessages.push(String(message));
-            if (runtimeMessages.length > 8) runtimeMessages.shift();
-          }
-        });
-        loadingStage = "Loading the sensor model";
-        statusElement.textContent = "Loading sensor model...";
-        const response = await fetch("python/guess_sensor.py", { cache: "no-cache" });
+        pyodide = await loadPyodide();
+        const response = await fetch("python/guess_sensor.py");
         if (!response.ok) throw new Error("Cannot load python/guess_sensor.py");
         pyodide.runPython(await response.text());
+        window.PoleExplorer.init();
         guessForm.addEventListener("submit", submitGuess);
         hintButton.addEventListener("click", toggleHint);
         newSensorButton.addEventListener("click", generateSensor);
@@ -669,7 +755,6 @@ json.dumps({
             guessFeedback.dataset.state = "";
           });
         });
-        loadingStage = "Generating a sensor";
         await generateSensor();
       } catch (error) {
         showError(error);
@@ -680,10 +765,9 @@ json.dumps({
       if (typeof Plotly !== "undefined" && currentChallengePlot) {
         Plotly.Plots.resize(plotElement);
       }
+      if (window.PoleExplorer) window.PoleExplorer.resize();
     });
 
-    // A fresh page gives a failed WebAssembly runtime a clean restart.
-    retryLoadingButton.addEventListener("click", () => window.location.reload());
     initialize();
   </script>
 </body>

@@ -94,3 +94,8 @@ It copies Module 4 and its tests/docs, adds Module 4 navigation to the existing 
 ## Submission notes
 
 Before team submission, fill in the owner's name in the project README, capture fresh desktop/mobile screenshots of the working page, run the full site from the local repo, and create GitHub Issue/commit history and release `v1.0` **manually when approved**. Document any AI assistance in the team's README, and be prepared to explain code and equations in the demo.
+
+
+## Optional Pole Explorer Bonus
+
+After submitting a guess, **Open Pole Explorer** lets you drag s-plane poles, switch between underdamped conjugate and negative-real pole configurations, and compare second-order closed-form step responses. The experiment does not change the score. For mathematical derivations and test instructions see [README_POLE_EXPLORER.md](README_POLE_EXPLORER.md).
