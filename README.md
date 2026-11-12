@@ -10,7 +10,7 @@ A static browser toolkit for understanding sensor dynamics through live controls
 
 Module 1's first-order time-response features are implemented and published on GitHub Pages: Step and Ramp, K and τ sliders, response markers, ramp tracking metrics, logarithmic error plot, validation table, a Predict, then check exercise, and the optional Forward Euler comparison.
 
-Module 1 has been checked in a desktop browser and at 320 px and 390 px browser viewports; testing on a physical phone is still pending. **Module 2 v2 (12 November 2026)** is implemented and linked from the home page. Version 2 adds **Superposition of Sine Waves**: a two-frequency interactive experiment using the optional Superposition bonus idea from the homework, in addition to the existing single-sine plots, Bode plots, dynamic-error design calculator, prediction exercise and lecture checks 2–3. The Module 2 formula benchmarks and JavaScript syntax have been reviewed, and phone-friendly layout and navigation rules are in place. A team member (Jibreel Haddar) confirmed that Module 2 interactions work on a physical phone and supplied desktop and phone screenshots of the page header. This is team-reported testing of the earlier Module 2 interface, not an independently reproduced cross-device test. The new v2 Superposition controls still need a separate physical-phone interaction check. Module 3 is implemented, linked from the home page, and tested on desktop and a physical phone; all three required Module 3 validation checks pass. Module 4 remains planned. Instructor collaborator access, Module 3–4 ownership, and any unconfirmed team administration details still need confirmation.
+Module 1 has been checked in a desktop browser and at 320 px and 390 px browser viewports; testing on a physical phone is still pending. **Module 2 v2 (12 November 2026)** is implemented and linked from the home page. Version 2 adds **Superposition of Sine Waves**: a two-frequency interactive experiment using the optional Superposition bonus idea from the homework, in addition to the existing single-sine plots, Bode plots, dynamic-error design calculator, prediction exercise and lecture checks 2–3. The Module 2 formula benchmarks and JavaScript syntax have been reviewed, and phone-friendly layout and navigation rules are in place. A team member (Jibreel Haddar) confirmed that Module 2 interactions work on a physical phone and supplied desktop and phone screenshots of the page header. This is team-reported testing of the earlier Module 2 interface, not an independently reproduced cross-device test. The new v2 Superposition controls still need a separate physical-phone interaction check. Module 3 is implemented, linked from the home page, and tested on desktop and a physical phone; all three required Module 3 validation checks pass. Module 4 code is now included and linked; final physical-phone and deployment checks are still recommended. Instructor collaborator access, Module 3–4 ownership, and any unconfirmed team administration details still need confirmation.
 
 ## Module 1: using the time-response experiment
 
@@ -261,7 +261,7 @@ python -m unittest discover -s tests -v
 | 1 | First-order time response | [#1](../../issues/1) | Implemented; phone check pending | Khaled Bani Oudeh ([@Khaledbaniodeh](https://github.com/Khaledbaniodeh)) |
 | 2 | Frequency response, sines, Bode plots, dynamic error and v2 Superposition | [#2](../../issues/2) | v2 implemented; Python tests passed; v2 phone check pending | Jibreel Haddar |
 | 3 | Second-order response, poles, state space and phase plane | [#3](../../issues/3) | Implemented and tested on desktop and phone | Waad Melhem ([@WaadMelhem05](https://github.com/WaadMelhem05)) |
-| 4 | Guess the sensor: hidden parameters, noise, hints and scoring | [#4](../../issues/4) | Not started | To be assigned by the team |
+| 4 | Guess the sensor: hidden parameters, noise, hints and scoring | [#4](../../issues/4) | Implemented; final mobile QA pending | Mohammad Khaleel ([@mohak430](https://github.com/mohak430)) |
 
 ## Delivery checklist
 
@@ -272,14 +272,14 @@ python -m unittest discover -s tests -v
 - [x] Add a Step prediction exercise and on-page validation check 1.
 - [x] Document Module 1, its live link and an interface screenshot.
 - [ ] Confirm all team members and the instructor have collaborator access.
-- [ ] Confirm owner for Module 4; Modules 1, 2 and 3 have named owners.
+- [x] Confirm owner for Module 4; Modules 1, 2 and 3 have named owners.
 - [ ] Verify on a physical phone: Step/Ramp switching, both sliders, number fields, prediction buttons, table scrolling and both plots.
 - [x] Implement Module 2: sine input/output, magnitude/phase Bode plots, cutoff marker, dynamic-error calculator, prediction, and lecture checks 2–3.
 - [x] Original Module 2 phone functionality confirmed by Jibreel Haddar; desktop/mobile screenshots supplied for README.
 - [x] Implement Module 2 v2 Superposition of Sine Waves and add Python regression tests.
 - [ ] Test the **new v2 Superposition controls, graph and reset** in desktop and physical-phone browsers; add a v2 screenshot after verification.
 - [x] Implement Module 3: second-order response, poles, state space, phase plane, prediction, and validation checks 4–6.
-- [ ] Complete Module 4.
+- [x] Complete Module 4 implementation (step, sine, scoring, hints and reveal).
 - [x] Add desktop and mobile screenshots for Module 3.
 - [ ] Add Module 4 screenshots after implementation, optionally add Module 2 charts/results screenshots, and complete contributor records.
 - [ ] Create the final release tagged `v1.0` and submit the Pages link on the course page.
@@ -335,3 +335,15 @@ See [`docs/versioning.md`](docs/versioning.md) for the saved commit, Git blob ha
 
 ChatGPT was used to explain the homework requirements and equations, help debug and review Module 1's Python/HTML/JavaScript integration and optional Forward Euler comparison, and support documentation. For Module 2, ChatGPT generated the initial Python calculation file and interactive HTML/JavaScript page, then made several layout, navigation and explanatory-text revisions. For **Module 2 v2**, it also helped implement the two-sine Superposition option in Python and the interactive page, write regression tests and a GitHub Actions workflow, and update project documentation. It also helped review mathematical benchmarks, code structure and the README. Team members remain responsible for understanding and independently checking the equations and code, testing the site on real browsers/devices, and explaining their submitted work in the demo.
 
+
+
+## Module 4 — Guess the Sensor
+
+- **Contributor:** Mohammad Khaleel ([@mohak430](https://github.com/mohak430)).
+- **Page:** [Module 4](module-4.html) · **Issue:** [#4](../../issues/4).
+- **Features:** hidden random first-order step or steady-state sine response and underdamped second-order step response; noisy samples; estimation hints; reveal overlays; per-parameter scoring with full credit at relative error ≤10%; session totals and average.
+- **Python:** closed-form calculations run in the browser with Pyodide; Plotly displays the responses. No visitor backend or login required.
+- **Testing:** `python -m unittest discover -s tests -v` (10 tests pass for the Module 4 package); browser/mobile deployment should also be checked after publishing.
+- **AI use:** ChatGPT assisted with Module 4 coding, mathematical checks, documentation, tests, and integration; the contributor should understand and be able to explain the submitted implementation.
+
+See [README_MODULE4.md](README_MODULE4.md) for formula explanations and the demo walkthrough.

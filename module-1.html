@@ -77,6 +77,12 @@ input[type=number]:hover,select:hover{border-color:#9bacbf}input[aria-invalid="t
 .first-visit{padding:20px 23px;margin-bottom:22px;background:#edf6f3;border-color:#d1e5df}.first-visit h2{font-size:17px}.first-visit>p{font-size:13px;color:#49685f;margin:7px 0 15px;max-width:860px}.quick-start{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}.quick-start p{margin:0;font-size:12px;color:#49685f}.quick-start b{display:block;color:#172f29;margin-bottom:4px}.quick-start span{display:inline-grid;place-items:center;width:21px;height:21px;border-radius:50%;background:#d4eae2;color:#086356;font-size:10px;margin-right:6px}
 .reading-guide{font-size:13px;color:var(--muted);line-height:1.8;margin:12px 0}.reading-guide strong{color:var(--ink);font-weight:650}.error-guide{max-width:850px}.error-example{padding:12px 15px;border-left:3px solid #b56425;background:#fbf6ee;border-radius:0 7px 7px 0;color:#715431;font-size:12px}.error-view{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 0 8px}.error-view label{font-size:12px;font-weight:650}.error-view select{width:auto;max-width:100%;font-size:12px}#error-details{font-size:13px}.math-help{font-size:12px;color:var(--muted);line-height:1.8;margin-top:10px}.math-help summary{font-weight:650;color:var(--ink);cursor:pointer;min-height:36px;display:flex;align-items:center}.math-help summary::before{content:'＋';margin-right:8px}.math-help[open] summary::before{content:'−'}.error-note{font-size:12px;color:var(--muted);padding-top:12px;border-top:1px solid var(--line)}
 @media(max-width:760px){.first-visit{padding:17px}.quick-start{grid-template-columns:1fr;gap:13px}.quick-start p,.reading-guide,.error-example,.math-help{font-size:13px}.breadcrumb{margin-bottom:17px}.error-view{align-items:stretch;flex-direction:column;gap:6px}.error-view select{width:100%;font-size:16px}.error-heading .pill{display:none}.section-links{gap:14px;flex-wrap:wrap}}
+
+/* Consistent module navigation, responsive on small screens. */
+.module4-switcher{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 16px}
+.module4-switcher a{display:inline-flex;align-items:center;min-height:40px;padding:8px 12px;border:1px solid #c7d5d6;border-radius:9px;color:#087f72;font-size:12px;font-weight:650}
+.module4-switcher a[aria-current="page"]{background:#e7f5f1;border-color:#087f72}
+@media(max-width:440px){.module4-switcher{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.module4-switcher a{justify-content:center;padding:8px 4px}}
 </style>
  <script src="https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.js"></script>
  <script src="https://cdn.plot.ly/plotly-4.1.1.min.js" charset="utf-8"></script>
@@ -89,6 +95,9 @@ input[type=number]:hover,select:hover{border-color:#9bacbf}input[aria-invalid="t
 </div></header>
 <main class="page">
  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="./">← All modules</a><span aria-hidden="true">/</span><span aria-current="page">01 · First-order response</span></nav>
+<nav class="module4-switcher" aria-label="Switch between modules">
+  <a href="./">Home</a><a href="module-1.html" aria-current="page">Module 1</a><a href="module-2.html">Module 2</a><a href="module-3.html">Module 3</a><a href="module-4.html">Module 4</a>
+</nav>
  <div class="page-heading">
   <div><p class="eyebrow">Sensor dynamics / Time domain</p><h1>First-order response</h1><p class="subtitle">See how a sensor catches up with a changing input.</p></div>
   <div class="heading-actions"><button class="btn" id="open-phone" type="button" aria-label="Open on phone"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 5h4M11 19h2"/></svg><span class="phone-text">Open on phone</span></button></div>

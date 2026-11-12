@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#14243a">
+  <meta name="description" content="Guess the Sensor challenge · ENCS4380 Dynamics Lab">
+  <title>Guess the Sensor · Dynamics Lab</title>
+  <style>
+    :root {
+      --ink: #17263b;
+      --muted: #66758a;
+      --line: #e0e6ed;
+      --paper: #ffffff;
+      --bg: #f4f6f8;
+      --teal: #087f72;
+      --teal-soft: #e7f5f1;
+      --blue: #315dda;
+      --orange: #b56425;
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    a { color: var(--teal); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    a:focus-visible { outline: 3px solid #dfac50; outline-offset: 3px; }
+    .topbar { background: #14243a; color: #fff; }
+    .topbar-inner { max-width: 1380px; margin: auto; padding: 17px 36px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; font-size: 17px; font-weight: 700; letter-spacing: -.4px; }
+    .brand a { color: inherit; }
+    .brand a:hover { color: #b5ead9; text-decoration: none; }
+    .brand-mark { display: grid; place-items: center; width: 33px; height: 33px; flex: none; border: 1px solid #496271; border-radius: 9px; color: #81d5bc; }
+    .brand small { font-size: 12px; font-weight: 500; color: #b7c2d1; letter-spacing: .8px; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .topbar-meta { font-size: 11px; color: #c0cada; letter-spacing: 1.5px; white-space: nowrap; }
+    .topbar-meta b { color: #b5ead9; background: #244b4b; padding: 5px 9px; border-radius: 5px; font-weight: 600; letter-spacing: .6px; }
+    .module-nav { display: flex; align-items: center; gap: 5px; }
+    .module-nav a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 9px 12px; border: 1px solid transparent; border-radius: 9px; color: #c7d5e3; font-size: 12px; font-weight: 600; white-space: nowrap; }
+    .module-nav a:hover { background: #213b4d; color: #fff; text-decoration: none; }
+    .module-nav a[aria-current="page"] { background: #244b4b; border-color: #35665d; color: #b5ead9; }
+    main { max-width: 1380px; margin: auto; padding: 28px 36px 40px; }
+    .section-links { display: flex; gap: 19px; flex-wrap: wrap; font-size: 12px; margin: 0 0 20px; border-bottom: 1px solid var(--line); padding: 0 0 13px; }
+    .section-links a { color: var(--muted); padding: 4px 0; }
+    .section-links a:first-child { font-weight: 700; color: var(--ink); }
+    .eyebrow { font-size: 10px; letter-spacing: 1.8px; font-weight: 750; color: var(--teal); text-transform: uppercase; margin: 0 0 7px; }
+    h1 { font-size: clamp(28px, 3vw, 38px); letter-spacing: -1.3px; line-height: 1.2; margin: 0 0 9px; }
+    .subtitle { color: var(--muted); margin: 0; font-size: 14px; max-width: 650px; }
+    .panel { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
+    .intro { margin-bottom: 24px; }
+    .workspace { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(320px, 1fr); gap: 18px; align-items: start; }
+    .controls-panel { grid-column: 1 / -1; }
+    .plot-panel { grid-column: 1; grid-row: 2; }
+    .guess-panel { grid-column: 2; grid-row: 2; }
+    .results-section { grid-column: 1 / -1; grid-row: 4; }
+    .results-section .result-slot { margin-top: 0; min-height: 0; }
+    .results-section .result-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; }
+    .results-section .result-grid > div + div { border-top: 0; border-left: 1px solid var(--line); padding-top: 0; padding-left: 24px; }
+
+    .workspace > [hidden] { display: none !important; }
+    .controls-row { display: flex; gap: 18px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+    .controls-copy { flex: 1 1 280px; }
+    .controls-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .controls-actions .info { margin: 0 !important; }
+    .controls-copy .status { margin: 4px 0 0 !important; }
+    .guess-panel .guess-form { border-top: 0; padding-top: 0; margin-top: 0; }
+    .guess-panel .guess-form h2 { font-size: 18px; margin: 0 0 8px; }
+
+
+
+    .result-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    .result-grid > div { min-width: 0; }
+    .result-grid > div + div { border-top: 1px solid var(--line); padding-top: 10px; }
+    .result-grid h3 { font-size: 14px; margin: 0 0 8px; }
+    .result-grid p { margin: 6px 0; overflow-wrap: anywhere; }
+    .result-number { font-size: 25px; font-weight: 750; color: var(--teal); }
+    .parameter-detail { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin-top: 12px; }
+    .parameter-detail > div { border: 1px solid var(--line); background: #f7faf9; border-radius: 9px; padding: 10px; font-size: 13px; }
+    .parameter-detail strong { display: block; }
+
+    #response-plot { min-height: 360px; }
+    .panel h2 { margin: 0 0 8px; font-size: 18px; }
+    .panel p { margin: 0; color: var(--muted); }
+    .btn { border: 1px solid var(--teal); background: var(--teal); color: white;
+      border-radius: 9px; padding: 10px 14px; font: inherit; font-weight: 650; cursor: pointer; }
+    .btn:disabled { opacity: .5; cursor: wait; }
+    .status { font-size: 13px; margin: 12px 0 !important; }
+    .info { background: var(--teal-soft); padding: 12px; border-radius: 9px; margin-top: 16px !important; }
+    #response-plot { width: 100%; min-height: 360px; }
+    .plot-panel { min-width: 0; }
+    .error { color: #a12d2d !important; }
+    .test-note { font-size: 12px; margin-top: 12px !important; }
+    .guess-form { margin: 0; }
+    .guess-form h3 { font-size: 16px; margin: 0 0 6px; }
+    .guess-form label { display: block; margin: 12px 0 5px; font-weight: 650; font-size: 13px; }
+    .guess-form input { width: 100%; min-height: 44px; padding: 10px 12px; font: inherit;
+      border: 1px solid #b7c5d2; border-radius: 9px; background: white; color: var(--ink); }
+    .guess-form input:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
+    .guess-form input:disabled { background: var(--bg); }
+    .guess-form .btn { margin-top: 14px; }
+    .guess-feedback { margin-top: 10px !important; font-size: 13px; }
+    .guess-feedback[data-state="error"] { color: #a12d2d; }
+    .guess-feedback[data-state="success"] { color: #087f72; }
+    .hint-text { font-size: 12px; color: var(--muted); margin-top: 5px !important; }
+    .session-chip { display: flex; flex-direction: column; justify-content: center; gap: 1px;
+      background: var(--teal-soft); border: 1px solid #c7e6dc; padding: 7px 12px;
+      border-radius: 9px; min-width: 155px; }
+    .session-chip .session-heading { font-size: 11px; font-weight: 700; color: var(--ink); }
+    .session-chip .session-numbers { display: flex; gap: 7px; align-items: baseline; flex-wrap: wrap; }
+    .session-chip .score-number { font-size: 17px; color: var(--teal); font-weight: 750; }
+    .session-chip .session-rounds { font-size: 11px; color: var(--muted); }
+    .session-metrics { display: grid; grid-template-columns: repeat(3, max-content); gap: 13px; align-items: center; }
+    .session-metric { display: flex; flex-direction: column; gap: 2px; }
+    .session-metric + .session-metric { border-left: 1px solid #badbd2; padding-left: 13px; }
+    .session-metric-label { font-size: 10px; color: var(--ink); font-weight: 700; }
+    .session-metric-value { font-size: 15px; color: var(--teal); font-weight: 750; white-space: nowrap; }
+    @media (max-width: 620px) {
+      .session-chip { flex: 1 1 100%; }
+      .session-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+      .session-metric + .session-metric { padding-left: 8px; }
+      .session-metric-value { font-size: 13px; }
+    }
+    .hint-section { grid-column: 1 / -1; grid-row: 3; }
+    .hint-heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+    .hint-heading h2 { margin: 0 0 8px; }
+    .hint-heading p { margin: 0; }
+    .hint-heading .btn { flex: none; background: #fff; color: var(--teal); border-color: var(--teal); }
+    .hint-heading .btn:hover:not(:disabled) { background: var(--teal-soft); }
+    .hint-panel { margin-top: 16px; padding: 13px; background: #f4faf8;
+      border: 1px solid #c7e6dc; border-radius: 10px; }
+    .hint-panel h3 { font-size: 15px; margin: 0 0 8px; }
+    .hint-panel p { margin: 7px 0 !important; font-size: 13px; line-height: 1.6; }
+    .hint-panel [hidden] { display: none !important; }
+    .result-slot { margin-top: 18px; padding: 13px; border: 1px solid var(--line);
+      border-radius: 10px; background: #f7faf9; min-height: 130px; }
+    .result-slot h3 { margin: 0 0 8px; font-size: 15px; }
+    .result-slot .result-waiting { color: var(--muted); font-size: 13px; }
+    .result-slot .result-number { font-size: 23px; }
+    .result-slot .parameter-detail { grid-template-columns: 1fr 1fr; }
+    .result-slot .parameter-detail > div { padding: 8px; font-size: 12px; }
+    .result-slot p { margin: 5px 0; font-size: 13px; }
+    .result-slot .hint-text { font-size: 11px; }
+    .result-slot [hidden] { display: none !important; }
+    @media (max-width: 900px) {
+      .workspace { grid-template-columns: minmax(0, 1fr); }
+      .controls-panel, .plot-panel, .guess-panel, .results-section, .hint-section { grid-column: 1; grid-row: auto; }
+      .controls-panel { order: 1; }
+      .plot-panel { order: 2; }
+      .hint-section { order: 3; }
+      .guess-panel { order: 4; }
+      .results-section { order: 5; }
+      .results-section .result-grid { grid-template-columns: 1fr; }
+      .results-section .result-grid > div + div { border-left: 0; border-top: 1px solid var(--line); padding-left: 0; padding-top: 12px; }
+
+      .result-grid { grid-template-columns: 1fr; }
+
+      #response-plot { min-height: 310px; }
+    }
+    @media (max-width: 1050px) {
+      .topbar-inner { flex-wrap: wrap; }
+      .topbar-right { width: 100%; justify-content: space-between; }
+      .module-nav { flex-wrap: wrap; }
+    }
+    @media (max-width: 700px) {
+      .topbar-inner { padding: 14px 16px; gap: 12px; }
+      .brand { font-size: 15px; }
+      .brand small { display: none; }
+      .topbar-right { display: block; }
+      .topbar-meta { margin-bottom: 8px; }
+      .module-nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+      .module-nav a { padding: 8px 4px; min-height: 40px; font-size: 11px; }
+      main { padding: 20px 16px 32px; }
+      .workspace { gap: 14px; }
+      .panel { padding: 18px; }
+      .controls-row { display: block; }
+      .hint-heading { align-items: stretch; flex-direction: column; gap: 12px; }
+      .hint-heading .btn { align-self: flex-start; }
+      .controls-actions { margin-top: 12px; }
+      .controls-actions .info { flex: 1 1 160px; }
+      #response-plot { min-height: 290px; }
+      .session-chip { flex: 1 1 145px; }
+      .result-slot .parameter-detail { grid-template-columns: 1fr; }
+      .parameter-detail { grid-template-columns: 1fr; }
+    }
+    /* Stage 9: clear guidance, minimal hidden sections, phone-friendly plot. */
+    [hidden] { display: none !important; }
+    .challenge-details { margin: 8px 0 0 !important; font-size: 12px; color: var(--muted); }
+    .predict-note { margin: 12px 0 9px; background: var(--teal-soft);
+      padding: 10px 12px; border-left: 3px solid var(--teal);
+      border-radius: 7px; font-size: 13px; color: var(--ink); }
+    .results-section .result-slot { background: #f7faf9; }
+    .plot-panel { min-width: 0; overflow: hidden; }
+    .score-explanation { font-size: 12px; color: var(--muted); margin-top: 6px !important; }
+    .btn:disabled { opacity: 0.55; cursor: default; }
+    @media (max-width: 700px) {
+      .session-metric-value { font-size: 12px; }
+      .session-chip { min-width: 0; }
+      .controls-actions { align-items: stretch; }
+      .controls-actions .btn { flex: none; }
+      #response-plot { min-height: 320px; }
+      .guess-form input { font-size: 16px; }
+      .hint-heading { align-items: start; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">◈</span>
+        <a href="index.html">Dynamics Lab</a>
+        <small>ENCS4380 · TEAM T19</small>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-meta"><b>MODULE 04</b></div>
+        <nav class="module-nav" aria-label="Module navigation">
+          <a href="index.html">Home</a>
+          <a href="module-1.html">Module 1</a>
+          <a href="module-2.html">Module 2</a>
+          <a href="module-3.html">Module 3</a>
+          <a href="module-4.html" aria-current="page">Module 4</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+  <main>
+    <nav class="section-links" aria-label="Breadcrumb">
+      <a href="index.html">← All modules</a>
+      <a href="module-4.html" aria-current="page">Guess the Sensor</a>
+    </nav>
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow">Module 04 · Interactive Challenge</p>
+      <h1 id="page-title">Guess the Sensor</h1>
+      <p class="subtitle">Study a hidden sensor's response, estimate its parameters, and check how close your prediction is.</p>
+    </section>
+    <div class="workspace">
+      <section class="panel controls-panel" aria-labelledby="controls-title">
+        <div class="controls-row">
+          <div class="controls-copy">
+            <h2 id="controls-title">Challenge Controls</h2>
+            <p>Generate a random sensor, inspect its noisy response, then estimate the hidden parameters.</p>
+            <p class="status" id="status" role="status">Loading Python...</p>
+          </div>
+          <div class="controls-actions">
+            <button class="btn" id="new-sensor" type="button" disabled>New Sensor</button>
+            <p class="info" id="sensor-type">Sensor type: waiting for Python</p>
+            <div class="session-chip" aria-label="Session score">
+              <div class="session-metrics">
+                <div class="session-metric">
+                  <span class="session-metric-label">Total Points</span>
+                  <span class="session-metric-value" id="session-score">0.00 / 0</span>
+                </div>
+                <div class="session-metric">
+                  <span class="session-metric-label">Average Score</span>
+                  <span class="session-metric-value" id="session-average">— / 100</span>
+                </div>
+                <div class="session-metric">
+                  <span class="session-metric-label">Rounds</span>
+                  <span class="session-metric-value" id="session-rounds">0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="panel plot-panel" aria-labelledby="response-title">
+        <h2 id="response-title">Sensor Response</h2>
+        <p id="response-description">Unit-step response with small simulated measurement noise.</p>
+        <p class="challenge-details" id="challenge-details">Unit step amplitude A = 1.</p>
+        <div id="response-plot" role="img" aria-label="Plot of noisy sensor output versus time"></div>
+      </section>
+      <section class="panel guess-panel" aria-labelledby="guess-title">
+        <form id="guess-form" class="guess-form" novalidate>
+          <h2 id="guess-title">Guess Parameters</h2>
+          <p>Estimate the sensor parameters from the response curve.</p>
+          <div class="predict-note"><strong>Predict, then check:</strong> Enter your two estimates, then submit to compare your predicted curve with the hidden sensor.</div>
+          <label for="guess-first" id="first-label">Gain (K)</label>
+          <input id="guess-first" type="number" inputmode="decimal" step="any"
+                 min="0" placeholder="Enter K" required disabled>
+          <label for="guess-second" id="second-label">Time Constant (τ)</label>
+          <input id="guess-second" type="number" inputmode="decimal" step="any"
+                 min="0" placeholder="Enter τ in seconds" required disabled>
+          <p class="hint-text" id="parameter-units">K &gt; 0 and τ &gt; 0.</p>
+          <button class="btn" id="check-input" type="submit" disabled>Submit Guess</button>
+          <p class="guess-feedback" id="guess-feedback" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+        <section class="panel hint-section" aria-labelledby="hint-section-title">
+          <div class="hint-heading"><div><h2 id="hint-section-title">Estimation Guide &amp; Hints</h2><p>Need help reading the response? Open a guide for this sensor type.</p></div>
+          <button class="btn" id="get-hint" type="button" aria-controls="hint-panel"
+                  aria-expanded="false" disabled>Get Hint</button></div>
+          <div class="hint-panel" id="hint-panel" hidden role="status" aria-live="polite">
+            <h3>How to estimate the parameters</h3>
+            <div id="hint-first" hidden>
+              <p><strong>1. Gain (K):</strong> Read the final steady-state value of the step response. For a unit step, that value estimates K.</p>
+              <p><strong>2. Time constant (τ):</strong> Find 63.2% of that final value on the vertical axis. The time when the response first reaches that level estimates τ.</p>
+              <p><strong>Alternative:</strong> Plot ln|K − y(t)| against time. Its slope is approximately −1/τ.</p>
+            </div>
+            <div id="hint-sine" hidden>
+              <p><strong>1. Frequency:</strong> ω is displayed above the plot in rad/s. The gray line is the unit input sine (amplitude A = 1).</p>
+              <p><strong>2. Find τ:</strong> Compare the peaks of the input and output to measure the phase lag |φ| in radians. Then τ ≈ tan(|φ|) / ω.</p>
+              <p><strong>3. Find K:</strong> Estimate the sensor's output amplitude B. The amplitude ratio is B/A = K / √(1 + (ωτ)²), so K ≈ (B/A) √(1 + (ωτ)²).</p>
+              <p>Use several cycles for a better estimate. The plot shows the steady-state sine response.</p>
+            </div>
+            <div id="hint-second" hidden>
+              <p><strong>1. Overshoot:</strong> Estimate the first peak yₚ and final value y∞. Calculate Mₚ = (yₚ − y∞) / y∞.</p>
+              <p><strong>2. Damping ratio (ζ):</strong> Use ζ = −ln(Mₚ) / √(π² + [ln(Mₚ)]²).</p>
+              <p><strong>3. Natural frequency (ωn):</strong> Read the time to the first peak, Tₚ. Then ωn = π / (Tₚ √(1 − ζ²)).</p>
+              <p>Use the overall trend rather than a single noisy dot when reading the peak.</p>
+            </div>
+          </div>
+      </section>
+      <section class="panel results-section" id="results-section" aria-labelledby="results-section-title" hidden>
+        <h2 id="results-section-title">Challenge Result</h2>
+        <div class="result-slot" aria-labelledby="reveal-title">
+          <h3 id="reveal-title">Reveal &amp; Comparison</h3>
+          <div id="reveal-panel">
+            <div class="result-grid">
+              <div>
+
+                <p id="true-values"></p>
+                <p id="guessed-values"></p>
+                <p class="hint-text">Blue: true response · Orange: prediction · Teal: measurements.</p>
+              </div>
+              <div>
+                <p><strong>Current Round Score</strong></p>
+                <p><span class="result-number" id="round-score">0.00</span> / 100</p>
+                <div class="parameter-detail" id="parameter-errors" aria-label="Parameter error and score"></div>
+                <p class="score-explanation">Each parameter earns full points within 10% error. The round score is the average of the two parameter scores.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+  <script src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js"></script>
+  <script>
+    "use strict";
+
+    // DOM references (kept together for readability).
+    const byId = id => document.getElementById(id);
+    const statusElement = byId("status");
+    const newSensorButton = byId("new-sensor");
+    const sensorTypeElement = byId("sensor-type");
+    const plotElement = byId("response-plot");
+    const responseDescription = byId("response-description");
+    const challengeDetails = byId("challenge-details");
+    const guessForm = byId("guess-form");
+    const firstInput = byId("guess-first");
+    const secondInput = byId("guess-second");
+    const firstLabel = byId("first-label");
+    const secondLabel = byId("second-label");
+    const submitButton = byId("check-input");
+    const guessFeedback = byId("guess-feedback");
+    const parameterUnits = byId("parameter-units");
+    const resultsSection = byId("results-section");
+    const trueValuesElement = byId("true-values");
+    const guessedValuesElement = byId("guessed-values");
+    const roundScoreElement = byId("round-score");
+    const parameterErrorsElement = byId("parameter-errors");
+    const sessionScoreElement = byId("session-score");
+    const sessionAverageElement = byId("session-average");
+    const sessionRoundsElement = byId("session-rounds");
+    const hintButton = byId("get-hint");
+    const hintPanel = byId("hint-panel");
+    const firstOrderHint = byId("hint-first");
+    const sineHint = byId("hint-sine");
+    const secondOrderHint = byId("hint-second");
+
+    let pyodide = null;
+    let isGenerating = false;
+    let currentChallengePlot = null;  // Public plot data only (no secret parameters).
+    let currentSensorType = null;
+    let currentResponseKind = null;
+    let roundSubmitted = false;
+    let completedRounds = 0;
+    let totalPoints = 0;
+
+    function showError(error) {
+      console.error(error);
+      statusElement.textContent = "Error: " + error.message;
+      statusElement.classList.add("error");
+    }
+
+    function resetHint() {
+      hintPanel.hidden = true;
+      firstOrderHint.hidden = true;
+      sineHint.hidden = true;
+      secondOrderHint.hidden = true;
+      hintButton.disabled = false;
+      hintButton.textContent = "Get Hint";
+      hintButton.setAttribute("aria-expanded", "false");
+    }
+
+    function toggleHint() {
+      if (!currentSensorType || hintButton.disabled) return;
+      if (!hintPanel.hidden) {
+        hintPanel.hidden = true;
+        hintButton.textContent = "Get Hint";
+        hintButton.setAttribute("aria-expanded", "false");
+        if (roundSubmitted) hintButton.disabled = true;
+        return;
+      }
+      if (roundSubmitted) return; // No new hint after submitting the answer.
+      firstOrderHint.hidden = !(currentSensorType === "first_order" && currentResponseKind === "step");
+      sineHint.hidden = !(currentSensorType === "first_order" && currentResponseKind === "sine");
+      secondOrderHint.hidden = currentSensorType !== "second_order";
+      hintPanel.hidden = false;
+      hintButton.textContent = "Hide Hint";
+      hintButton.setAttribute("aria-expanded", "true");
+    }
+
+    function configureGuessForm(challenge) {
+      currentSensorType = challenge.type;
+      currentResponseKind = challenge.response_kind;
+      roundSubmitted = false;
+      guessForm.reset();
+      guessFeedback.textContent = "";
+      guessFeedback.dataset.state = "";
+      parameterErrorsElement.replaceChildren();
+      resultsSection.hidden = true; // Hide the ENTIRE result section until submitted.
+      resetHint();
+
+      const firstOrder = challenge.type === "first_order";
+      firstLabel.textContent = firstOrder ? "Gain (K)" : "Damping Ratio (ζ)";
+      secondLabel.textContent = firstOrder ? "Time Constant (τ)" : "Natural Frequency (ωn)";
+      firstInput.placeholder = firstOrder ? "Enter K" : "Enter ζ (0 to 1)";
+      secondInput.placeholder = firstOrder ? "Enter τ in seconds" : "Enter ωn in rad/s";
+      parameterUnits.textContent = firstOrder ? "K > 0 and τ > 0." : "0 < ζ < 1 and ωn > 0.";
+      firstInput.disabled = false;
+      secondInput.disabled = false;
+      submitButton.disabled = false;
+
+      const sine = challenge.response_kind === "sine";
+      sensorTypeElement.textContent = "Sensor type: " + (firstOrder ? "First Order" : "Second Order");
+      responseDescription.textContent = sine
+        ? "Steady-state sine: gray input and noisy teal sensor output."
+        : "Unit-step response with small simulated measurement noise.";
+      challengeDetails.textContent = sine
+        ? `Input x(t) = sin(ωt), amplitude 1 · frequency ω = ${challenge.frequency.toFixed(3)} rad/s`
+        : "Input: unit step (amplitude A = 1)";
+    }
+
+    // Plot functions: the real curve is never sent to the visible graph before Submit.
+    function plotLayout(revealed) {
+      return {
+        margin: { l: 50, r: 14, t: 16, b: revealed ? 84 : 56 },
+        autosize: true,
+        paper_bgcolor: "#ffffff",
+        plot_bgcolor: "#ffffff",
+        xaxis: { title: "Time (s)", gridcolor: "#edf0f4", zeroline: false },
+        yaxis: { title: "Sensor output", gridcolor: "#edf0f4", zeroline: false, automargin: true },
+        font: { family: "Segoe UI, sans-serif", size: 12, color: "#17263b" },
+        showlegend: true,
+        legend: { orientation: "h", x: 0, y: -0.23, font: { size: 10 } },
+      };
+    }
+
+    function inputTrace(challenge) {
+      return {
+        x: challenge.time, y: challenge.input_signal,
+        type: "scatter", mode: "lines", name: "Unit input sine",
+        line: { color: "#748398", width: 2, dash: "dot" },
+      };
+    }
+
+    function measurementTrace(challenge) {
+      return {
+        x: challenge.time, y: challenge.noisy_response,
+        type: "scatter", mode: "markers", name: "Noisy sensor output",
+        marker: { color: "#087f72", size: 4.5, opacity: 0.76 },
+      };
+    }
+
+    function drawResponse(challenge) {
+      currentChallengePlot = challenge;
+      const traces = [];
+      if (challenge.input_signal) traces.push(inputTrace(challenge));
+      traces.push(measurementTrace(challenge));
+      Plotly.react(plotElement, traces, plotLayout(false), {
+        responsive: true, displaylogo: false, displayModeBar: false, scrollZoom: false,
+      });
+    }
+
+    function drawReveal(revealed) {
+      const challenge = currentChallengePlot;
+      if (!challenge) throw new Error("No challenge plot available.");
+      const traces = [];
+      if (challenge.input_signal) traces.push(inputTrace(challenge));
+      traces.push(measurementTrace(challenge));
+      traces.push({
+        x: challenge.time, y: revealed.clean_response,
+        type: "scatter", mode: "lines", name: "True response",
+        line: { color: "#315dda", width: 3 },
+      });
+      traces.push({
+        x: challenge.time, y: revealed.predicted_response,
+        type: "scatter", mode: "lines", name: "Your prediction",
+        line: { color: "#b56425", width: 3, dash: "dash" },
+      });
+      Plotly.react(plotElement, traces, plotLayout(true), {
+        responsive: true, displaylogo: false, displayModeBar: false, scrollZoom: false,
+      });
+    }
+
+    function updateSessionScore(scoring) {
+      // Called only once for each round, after validating and revealing a guess.
+      completedRounds += 1;
+      totalPoints = Math.round((totalPoints + scoring.round_score) * 100) / 100;
+      sessionScoreElement.textContent = `${totalPoints.toFixed(2)} / ${completedRounds * 100}`;
+      sessionAverageElement.textContent = `${(totalPoints / completedRounds).toFixed(2)} / 100`;
+      sessionRoundsElement.textContent = String(completedRounds);
+      roundScoreElement.textContent = scoring.round_score.toFixed(2);
+
+      const keys = currentSensorType === "first_order"
+        ? [["K", "K"], ["tau", "τ"]]
+        : [["zeta", "ζ"], ["omega_n", "ωn"]];
+      parameterErrorsElement.replaceChildren();
+      for (const [key, label] of keys) {
+        const result = scoring.parameters[key];
+        const card = document.createElement("div");
+        const title = document.createElement("strong");
+        title.textContent = label;
+        const detail = document.createElement("span");
+        detail.textContent = `${result.error_percent.toFixed(2)}% error · ${result.score.toFixed(2)}/100`;
+        card.append(title, detail);
+        parameterErrorsElement.append(card);
+      }
+    }
+
+    function submitGuess(event) {
+      event.preventDefault();
+      if (!pyodide || !currentSensorType || roundSubmitted || isGenerating) return;
+
+      const a = firstInput.valueAsNumber;
+      const b = secondInput.valueAsNumber;
+      const firstValid = Number.isFinite(a) && a > 0 &&
+        (currentSensorType === "first_order" || a < 1);
+      const secondValid = Number.isFinite(b) && b > 0;
+      if (!firstValid || !secondValid) {
+        guessFeedback.dataset.state = "error";
+        guessFeedback.textContent = currentSensorType === "first_order"
+          ? "Enter valid values: K > 0 and τ > 0."
+          : "Enter valid values: 0 < ζ < 1 and ωn > 0.";
+        return;
+      }
+
+      const guess = currentSensorType === "first_order"
+        ? { K: a, tau: b }
+        : { zeta: a, omega_n: b };
+      try {
+        // A plain dictionary of finite numeric inputs is safe to put in Python.
+        const value = JSON.stringify(guess);
+        const resultJSON = pyodide.runPython(`
+import json
+_reveal = reveal_guess(_challenge, ${value})
+_scoring = score_guess(_challenge, ${value})
+json.dumps({"reveal": _reveal, "scoring": _scoring})
+`);
+        const { reveal, scoring } = JSON.parse(resultJSON);
+        drawReveal(reveal);
+        const firstOrder = currentSensorType === "first_order";
+        trueValuesElement.textContent = firstOrder
+          ? `True: K = ${reveal.parameters.K}, τ = ${reveal.parameters.tau} s`
+          : `True: ζ = ${reveal.parameters.zeta}, ωn = ${reveal.parameters.omega_n} rad/s`;
+        guessedValuesElement.textContent = firstOrder
+          ? `Your guess: K = ${a}, τ = ${b} s`
+          : `Your guess: ζ = ${a}, ωn = ${b} rad/s`;
+
+        roundSubmitted = true; // Prevent duplicate submissions from counting twice.
+        firstInput.disabled = true;
+        secondInput.disabled = true;
+        submitButton.disabled = true;
+        if (hintPanel.hidden) hintButton.disabled = true;
+        updateSessionScore(scoring);
+        resultsSection.hidden = false;
+        guessFeedback.dataset.state = "success";
+        guessFeedback.textContent = "Guess submitted. Compare the curves and see your score below.";
+      } catch (error) {
+        console.error(error);
+        guessFeedback.dataset.state = "error";
+        guessFeedback.textContent = "Could not score this guess. Please try again.";
+      }
+    }
+
+    async function generateSensor() {
+      if (!pyodide || isGenerating) return;
+      isGenerating = true;
+      newSensorButton.disabled = true;
+      try {
+        // Pass PUBLIC samples only. Hidden parameters remain in _challenge.
+        const challengeJSON = pyodide.runPython(`
+import json
+_challenge = new_sensor()
+json.dumps({
+    "type": _challenge["type"],
+    "response_kind": _challenge["response_kind"],
+    "frequency": _challenge["frequency"],
+    "time": _challenge["time"],
+    "input_signal": _challenge["input_signal"],
+    "noisy_response": _challenge["noisy_response"],
+})
+`);
+        const challenge = JSON.parse(challengeJSON);
+        configureGuessForm(challenge);
+        drawResponse(challenge);
+        statusElement.classList.remove("error");
+        statusElement.textContent = "Python ready · New challenge generated";
+      } catch (error) {
+        showError(error);
+      } finally {
+        isGenerating = false;
+        newSensorButton.disabled = false;
+      }
+    }
+
+    async function initialize() {
+      try {
+        if (typeof loadPyodide !== "function" || typeof Plotly === "undefined") {
+          throw new Error("Could not load Pyodide or Plotly. Check internet access.");
+        }
+        pyodide = await loadPyodide();
+        const response = await fetch("python/guess_sensor.py");
+        if (!response.ok) throw new Error("Cannot load python/guess_sensor.py");
+        pyodide.runPython(await response.text());
+        guessForm.addEventListener("submit", submitGuess);
+        hintButton.addEventListener("click", toggleHint);
+        newSensorButton.addEventListener("click", generateSensor);
+        [firstInput, secondInput].forEach(input => {
+          input.addEventListener("input", () => {
+            guessFeedback.textContent = "";
+            guessFeedback.dataset.state = "";
+          });
+        });
+        await generateSensor();
+      } catch (error) {
+        showError(error);
+      }
+    }
+
+    window.addEventListener("resize", () => {
+      if (typeof Plotly !== "undefined" && currentChallengePlot) {
+        Plotly.Plots.resize(plotElement);
+      }
+    });
+
+    initialize();
+  </script>
+</body>
+</html>

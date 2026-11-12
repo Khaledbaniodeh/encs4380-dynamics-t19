@@ -454,7 +454,7 @@ a.irow:hover{padding-left:12px}
      <li><a class="irow" href="module-1.html"><span class="n">01</span><span class="t">First-order time response</span><span class="d">See how a reading catches up after a sudden change or a steady climb, and how a single setting, the time constant, decides how fast it gets there.</span><span class="go">Open<svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></a></li>
      <li><a class="irow" href="module-2.html"><span class="n">02</span><span class="t">First-order frequency response</span><span class="d">Make the input rise and fall over and over. As the changes get faster, watch the reading shrink and slip further behind.</span><span class="go">Open<svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></a></li>
      <li><a class="irow" href="module-3.html"><span class="n">03</span><span class="t">Second-order response</span><span class="d">Some sensors overshoot and wobble before settling, like a needle swinging past its mark. Explore how damping calms that motion.</span><span class="go">Open<svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></a></li>
-     <li><span class="irow is-soon" data-m4><span class="n">04</span><span class="t">Guess the sensor</span><span class="d">A challenge: study the response of an unknown sensor and estimate how it behaves. Not available yet.</span><span class="go"><span class="soon" data-m4-status="Open">Coming soon</span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></span></li>
+     <li><span class="irow is-soon" data-m4><span class="n">04</span><span class="t">Guess the sensor</span><span class="d">A challenge: study a noisy step or sine response, estimate hidden sensor parameters, and score your guess.</span><span class="go"><span class="soon" data-m4-status="Open">Coming soon</span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></span></li>
     </ol>
    </div>
   </div>
@@ -494,7 +494,7 @@ a.irow:hover{padding-left:12px}
    When module-4.html exists and has been tested, set ready: true.
    Every element marked data-m4 then becomes a link to href, and every
    data-m4-status label swaps "Coming soon" for its attribute value. */
-var MODULE_4 = { ready: false, href: "module-4.html" };
+var MODULE_4 = { ready: true, href: "module-4.html" };
 
 var root = document.documentElement;
 function $(s, r) { return (r || document).querySelector(s); }
