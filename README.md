@@ -247,7 +247,7 @@ See [README_MODULE4.md](README_MODULE4.md) for formulas and [the demo walkthroug
 | `tests/test_integration.py` | Three local integration-helper tests using temporary fixtures |
 | `README.md` | Live link, model assumptions, usage, validation and project status |
 
-Python executes in the visitor's browser through **Pyodide**: Modules 1–3 pin v314.0.7, while Module 4 pins v0.27.7. **Plotly.js 4.1.1** renders the curves. The CDN versions are pinned in the interactive module pages; the home page loads no Python or plotting runtime. Each module loads its own Python source through Pyodide and passes calculated values to Plotly. Internet access is needed to load CDN libraries.
+Python executes in the visitor's browser through **Pyodide v314.0.7** in all four modules. **Plotly.js 4.1.1** renders the curves. The CDN versions are pinned in the interactive module pages; the home page loads no Python or plotting runtime. Each module loads its own Python source through Pyodide and passes calculated values to Plotly. Internet access is needed to load CDN libraries.
 
 GitHub Pages publishes the repository root from `main`. The deployed site needs no backend server, Binder or login. Numerical models remain in Python; Flask and Django are not used.
 
@@ -293,7 +293,7 @@ The [GitHub Actions workflow](.github/workflows/python-regression.yml) runs test
 | Module 1 | Desktop interaction and 320/390 px browser-width checks; physical-phone check remains pending. |
 | Module 2 | Formula review and Superposition unit tests pass. Original physical-phone testing was reported by Jibreel; the new v2 UI needs a separate interaction check. |
 | Module 3 | Desktop and physical-phone testing were recorded by the team; lecture validations are documented above. |
-| Module 4 | Independently exercised the published First-order Step, First-order Sine and Second-order Step flows, hints, invalid values, reveal curves, session totals and round locking. A 390 px browser-width submission also worked. Independent mathematical checks covered 1,000 seeded rounds, noise, exact-guess overlays, peak values and the 10% score boundary. Physical-phone testing remains pending. A teammate subsequently reported `Program terminated with exit(1)` during Python startup; this environment-specific startup failure is under investigation. |
+| Module 4 | Independently exercised the published First-order Step, First-order Sine and Second-order Step flows, hints, invalid values, reveal curves, session totals and round locking. A 390 px browser-width submission also worked. Independent mathematical checks covered 1,000 seeded rounds, noise, exact-guess overlays, peak values and the 10% score boundary. Physical-phone testing remains pending. A teammate subsequently reported `Program terminated with exit(1)` during Python startup; the loader has been aligned with the other modules and now offers retry and diagnostic details. The affected device still needs to be retested before calling that report resolved. |
 | Home page | Published guide and all four module links verified; 320/390 px browser-width checks showed no horizontal page overflow. Hero, module-flight JavaScript and module files were preserved during the guide update. |
 
 Browser-width checks are not physical-device tests. Python tests do not replace browser or device checks. The successful Pages deployment was verified after the homepage guide update in commit [`1852f22`](https://github.com/Khaledbaniodeh/encs4380-dynamics-t19/commit/1852f22380b0cab7990aa0dc0325b07fd4972e31).
