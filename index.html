@@ -140,56 +140,73 @@ a.irow:hover{padding-left:12px}
 .irow .soon{margin:0;color:#9a5414}
 .note{margin:28px 0 0;max-width:60em;color:var(--muted);font-size:14px;line-height:1.6}
 
-/* Guide for newcomers (added section — all rules scoped to .guide) */
-.guide{position:relative;z-index:1;background:var(--paper);color:var(--text);padding:clamp(96px,15vh,170px) var(--g) clamp(72px,10vh,120px)}
-.guide .g-head,.guide .g-row{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:14px clamp(20px,5vw,80px);border-top:1px solid var(--line)}
-.guide .g-head{padding-top:20px}
-.guide .g-head .big{margin-bottom:clamp(16px,2.4vh,26px)}
-.guide .g-lead{margin:0;max-width:32em;color:var(--muted);font-size:clamp(17px,1.4vw,20px);line-height:1.6}
-.guide .g-row{padding:clamp(30px,5vh,48px) 0}
-.guide .g-head+.g-row{margin-top:clamp(56px,9vh,100px)}
-.guide .g-q{margin:0;font:500 clamp(20px,1.8vw,26px)/1.25 var(--body);letter-spacing:-.015em}
-.guide .g-a{max-width:40em;color:#34373d;font-size:17px;line-height:1.7}
-.guide .g-a>p{margin:0 0 1em}
-.guide .g-a>:last-child{margin-bottom:0}
-.guide strong{font-weight:600;color:var(--text)}
-.guide .g-terms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px;margin:0 0 28px}
-.guide .g-terms dt{margin-bottom:10px;color:var(--text);font:700 clamp(28px,2.6vw,36px)/1 var(--display);text-transform:uppercase}
-.guide .g-terms dd{margin:0}
-.guide .g-fig{margin:0 0 1.2em;padding:clamp(16px,2.4vw,28px);background:#e5e3dc;border-radius:3px}
-.guide .g-fig svg{display:block;width:100%;max-width:520px;height:auto}
-.guide .g-fig text{font:600 12.5px var(--body);fill:#5b5f67}
-.guide .g-fig figcaption{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:14px;color:var(--muted);font-size:14px;line-height:1.5}
-.guide .key{display:inline-flex;align-items:center;gap:10px}
-.guide .key::before{content:"";width:24px;border-top:2px dashed rgba(21,23,27,.7)}
-.guide .key-out::before{border-top:3px solid #c8641a}
-.guide .g-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px;margin:6px 0 26px}
-.guide .g-pair h4{display:flex;align-items:center;gap:10px;margin:0 0 6px;color:var(--text);font:600 16px/1.3 var(--body)}
-.guide .g-pair h4::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--c)}
-.guide .g-pair p{margin:0;font-size:16px;line-height:1.65}
-.guide .index{margin:0;border-top:0}
-.guide .irow{grid-template-columns:36px minmax(0,1fr) auto;align-items:start;gap:6px 18px;min-height:0;padding:20px 0}
-.guide .index li:first-child .irow{padding-top:4px}
-.guide .irow .n{padding-top:6px}
-.guide .irow .d{grid-column:2;grid-row:2;font-size:15px;line-height:1.55}
-.guide .irow .go{grid-column:3;grid-row:1;padding-top:6px}
-.guide .g-steps{margin:0 0 32px;padding:0;list-style:none;counter-reset:s}
-.guide .g-steps li{position:relative;padding:0 0 20px 58px;counter-increment:s}
-.guide .g-steps li::before{content:counter(s,decimal-leading-zero);position:absolute;left:0;top:0;color:var(--text);font:700 30px/1 var(--display)}
-.guide .g-steps b{display:block;color:var(--text);font-weight:600}
-.guide .note{margin-top:clamp(40px,7vh,72px);padding-top:22px;border-top:1px solid var(--line)}
-@media (max-width:820px){
- .guide .g-head,.guide .g-row{grid-template-columns:1fr}
- .guide .g-terms,.guide .g-pair{grid-template-columns:1fr;gap:20px}
- .guide .g-a{font-size:16.5px}
- .guide .cta{display:flex}
+/* Beginner guide — scoped to preserve the existing hero and module flight. */
+.guide{position:relative;z-index:1;background:var(--paper);color:var(--text);padding:clamp(80px,11vw,150px) var(--g) clamp(72px,9vw,120px)}
+.guide .g-topline{display:flex;justify-content:space-between;gap:20px;padding-top:20px;border-top:1px solid var(--line)}
+.guide .g-meta{color:var(--muted);font:500 11px/1.4 var(--body);letter-spacing:.12em;text-transform:uppercase}
+.guide .g-head{display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:end;margin:50px 0 56px}
+.guide .g-title{margin:0;font:700 clamp(62px,7.4vw,114px)/.97 var(--display);letter-spacing:-.015em;text-transform:uppercase}
+.guide .g-title span{display:block;color:#6f746f}
+.guide .g-lead{margin:0 0 6px;max-width:35em;color:#4c5157;font-size:clamp(17px,1.5vw,21px);line-height:1.65}
+.guide .g-example{display:grid;grid-template-columns:1fr 1.15fr;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.guide .g-copy{padding:40px 44px 40px 0}
+.guide .g-kicker{margin:0 0 18px;color:var(--muted);font:600 11px/1.4 var(--body);letter-spacing:.14em;text-transform:uppercase}
+.guide h3{margin:0 0 16px;font:500 clamp(26px,2.5vw,36px)/1.15 var(--body);letter-spacing:-.025em}
+.guide .g-copy>p:not(.g-kicker){max-width:34em;margin:0 0 22px;color:var(--muted);line-height:1.65}
+.guide .g-terms{margin:28px 0 0;display:grid;gap:20px}
+.guide .g-terms div{display:grid;grid-template-columns:76px 1fr;gap:18px}
+.guide dt{font-weight:600}.guide dd{margin:0;color:var(--muted);font-size:15px;line-height:1.6}
+.guide .g-diagram{margin:0;align-self:stretch;display:flex;flex-direction:column;justify-content:center;gap:26px;padding:36px clamp(20px,3vw,44px);background:#10171f;color:var(--light)}
+.guide .g-legend{display:flex;flex-wrap:wrap;gap:12px 24px;font-size:13px;color:#c4cbd3}
+.guide .g-key{display:inline-flex;align-items:center;gap:9px}
+.guide .g-key::before{content:'';width:20px;border-top:2px dashed #abb5c1}
+.guide .g-key.output::before{border-top:3px solid var(--amber)}
+.guide .g-diagram svg{width:100%;height:auto;overflow:visible}
+.guide .g-diagram figcaption{font-size:12px;line-height:1.6;color:#9ba8b7;max-width:36em}
+.guide .g-method{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:36px;list-style:none;padding:38px 0 52px;margin:0;border-bottom:1px solid var(--line);counter-reset:method}
+.guide .g-method li{counter-increment:method;position:relative;padding-left:42px}
+.guide .g-method li::before{content:counter(method,decimal-leading-zero);position:absolute;left:0;top:3px;font:600 12px/1 var(--body);color:var(--muted)}
+.guide .g-method h3{font-size:19px;margin-bottom:9px;letter-spacing:-.01em}
+.guide .g-method p{margin:0;color:var(--muted);font-size:15px;line-height:1.65}
+.guide .g-gap{display:grid;grid-template-columns:1fr 1fr 1fr;gap:36px;padding:48px 0;border-bottom:1px solid var(--line)}
+.guide .g-gap h3{font-size:28px;max-width:9em}
+.guide .g-gap h4{margin:0 0 12px;font:600 17px/1.3 var(--body)}
+.guide .g-gap p{margin:0;color:var(--muted);font-size:15px;line-height:1.65}
+.guide .g-unit{display:block;margin-bottom:14px;color:#9a5414;font:600 11px/1 var(--body);letter-spacing:.13em;text-transform:uppercase}
+.guide .g-lag .g-unit{color:#236780}
+.guide .g-path-head{display:flex;justify-content:space-between;align-items:end;gap:24px;margin:60px 0 24px}
+.guide .g-path-head h3{margin:0;font-size:32px}
+.guide .g-path-head p{margin:0;max-width:28em;color:var(--muted);font-size:15px;line-height:1.6}
+.guide .g-path{display:grid;grid-template-columns:1fr 1fr;column-gap:48px;list-style:none;padding:0;margin:0}
+.guide .g-path a{display:grid;grid-template-columns:48px minmax(0,1fr) 18px;gap:14px;padding:26px 0;border-top:1px solid var(--line);text-decoration:none;align-items:start}
+.guide .g-path a:hover .g-name{text-decoration:underline;text-underline-offset:5px}
+.guide .g-num{font:700 40px/1 var(--display);color:var(--module-color)}
+.guide .g-name{display:block;font:500 20px/1.3 var(--body);letter-spacing:-.02em}
+.guide .g-desc{display:block;margin-top:9px;max-width:31em;color:var(--muted);font-size:14px;line-height:1.65}
+.guide .g-path .arrow{margin-top:8px}
+.guide .g-start{display:flex;align-items:center;justify-content:space-between;gap:28px;margin-top:44px;padding:28px 32px;background:#dedfd7}
+.guide .g-start h3{margin:0 0 6px;font-size:24px}.guide .g-start p{margin:0;color:var(--muted);font-size:14px}
+.guide .g-start .cta{flex:none}
+.guide .g-note{margin:22px 0 0;color:var(--muted);font-size:12px;line-height:1.7}
+@media(max-width:820px){
+ .guide .g-head{gap:28px}.guide .g-example{grid-template-columns:1fr 1fr}
+ .guide .g-copy{padding-right:28px}.guide .g-terms div{grid-template-columns:1fr;gap:3px}
+ .guide .g-method{gap:22px}.guide .g-method li{padding-left:0}.guide .g-method li::before{position:static;display:block;margin-bottom:16px}
+ .guide .g-gap{grid-template-columns:1fr 1fr;gap:26px}.guide .g-gap>h3{grid-column:1/-1;max-width:none;margin:0}
+ .guide .g-path{column-gap:28px}.guide .g-path a{grid-template-columns:36px minmax(0,1fr) 14px;gap:10px}
+ .guide .g-num{font-size:32px}.guide .g-name{font-size:18px}
 }
-@media (max-width:560px){
- .guide .irow{grid-template-columns:30px minmax(0,1fr)}
- .guide .irow .go{grid-column:2;grid-row:3;justify-content:flex-start;padding-top:4px}
- .guide .g-steps li{padding-left:50px}
- .guide .g-fig{padding:14px 12px}
- .guide .g-fig text{font-size:14px}
+@media(max-width:560px){
+ .guide .g-meta{display:none}.guide .g-head{grid-template-columns:1fr;gap:24px;margin:34px 0}
+ .guide .g-title{font-size:clamp(56px,13vw,74px)}.guide .g-lead{font-size:17px}
+ .guide .g-example{grid-template-columns:1fr}.guide .g-copy{padding:28px 0}.guide .g-terms{grid-template-columns:1fr 1fr;gap:24px}
+ .guide .g-diagram{padding:28px 22px;gap:22px}.guide .g-method{grid-template-columns:1fr;gap:26px;padding:32px 0}
+ .guide .g-method li{padding-left:40px}.guide .g-method li::before{position:absolute;margin:0}
+ .guide .g-gap{grid-template-columns:1fr;gap:26px;padding:34px 0}.guide .g-gap>h3{grid-column:auto;font-size:26px}
+ .guide .g-path-head{display:block;margin-top:40px}.guide .g-path-head p{margin-top:14px}
+ .guide .g-path{grid-template-columns:1fr}.guide .g-path a{padding:23px 0;grid-template-columns:38px minmax(0,1fr) 16px;gap:14px}
+ .guide .g-name{font-size:20px}.guide .g-start{display:block;padding:24px;margin-top:24px}
+ .guide .g-start .cta{display:flex;margin-top:22px;white-space:normal}.guide .g-note{font-size:13px}
 }
 
 /* Footer */
@@ -376,102 +393,58 @@ a.irow:hover{padding-left:12px}
 <!-- ── Guide for newcomers (added section) ───────────────────── -->
 <section class="guide" id="learn" data-tone="light" aria-labelledby="learn-title">
  <div class="wrap">
+  <div class="g-topline"><p class="label">The field guide</p><span class="g-meta">Understand it. Then explore it.</span></div>
   <header class="g-head">
-   <p class="label">A short guide</p>
-   <div>
-    <h2 class="big" id="learn-title">New here?</h2>
-    <p class="g-lead">No technical background needed. In a couple of minutes you’ll know what Dynamics Lab is, why it matters and how to get started.</p>
-   </div>
+   <h2 class="g-title" id="learn-title">A change.<span>A response.</span></h2>
+   <p class="g-lead">The world changes. A sensor takes time to follow. Dynamics Lab makes that response visible through four browser-based experiments. Start here — no sensor hardware or prior experience needed.</p>
   </header>
 
-  <div class="g-row">
-   <h3 class="g-q">What is Dynamics Lab?</h3>
-   <div class="g-a">
-    <p>Dynamics Lab is an interactive learning tool for exploring how sensors respond when the quantity they measure changes, such as a temperature that rises or a pressure that drops.</p>
-    <p>Every experiment is a <strong>mathematical simulation</strong> that runs in your web browser. You don’t need any sensor hardware: you choose the settings, and the page calculates and draws how a sensor would respond.</p>
-   </div>
-  </div>
-
-  <div class="g-row">
-   <h3 class="g-q">Why does this matter?</h3>
-   <div class="g-a">
-    <p>Picture carrying a thermometer from a cool hallway into a warm kitchen. The kitchen is warm the moment you walk in, but the reading doesn’t jump there. It climbs gradually and only settles after a while.</p>
-    <p>Until it settles, the number on the display isn’t yet the true temperature. Many sensors need time to respond; the exact response depends on their dynamics. Knowing how quickly it catches up tells you when a reading can be trusted, and when it’s worth waiting a moment longer.</p>
-   </div>
-  </div>
-
-  <div class="g-row">
-   <h3 class="g-q">What do “input” and “output” mean?</h3>
-   <div class="g-a">
+  <div class="g-example">
+   <div class="g-copy">
+    <p class="g-kicker">The idea, in one example</p>
+    <h3>A warmer room.<br>A reading that catches up.</h3>
+    <p>Move a thermometer from a cool room to a warm one. The temperature changes, but its reading rises gradually. Understanding that response helps you judge how closely a reading follows a changing measurement.</p>
     <dl class="g-terms">
-     <div><dt>Input</dt><dd>The real quantity being measured, such as the actual temperature of the kitchen. In the experiments you decide how it changes: all at once, at a steady pace, or up and down again and again.</dd></div>
-     <div><dt>Output</dt><dd>What the sensor reports: its output or displayed reading. In these dynamic models, the output responds over time rather than following a change instantly.</dd></div>
+     <div><dt>Input</dt><dd>The quantity being measured — here, the room’s actual temperature.</dd></div>
+     <div><dt>Output</dt><dd>The sensor’s response — here, the temperature it reports.</dd></div>
     </dl>
-    <p>The temperature illustrations below assume a calibrated sensor whose input and displayed reading use the same units. In the general module model, compare the output with the ideal reading for the selected gain.</p>
-    <figure class="g-fig">
-     <svg viewBox="0 0 360 190" role="img" aria-label="Graph over time. The input jumps up at once; the sensor’s output rises gradually and levels off at the same value.">
-      <path d="M20 160H340" stroke="#15171b" stroke-opacity=".18"/>
-      <path d="M20 160H80V44H340" fill="none" stroke="#15171b" stroke-opacity=".7" stroke-width="1.6" stroke-dasharray="4 5"/>
-      <path d="M20 160 L80 160 L84 150.3 L92 133.4 L100 119.1 L108 107.1 L116 97 L124 88.6 L132 81.5 L140 75.5 L148 70.5 L156 66.2 L164 62.7 L172 59.7 L180 57.2 L188 55.1 L196 53.3 L204 51.8 L212 50.6 L220 49.5 L228 48.6 L236 47.9 L244 47.3 L252 46.8 L260 46.3 L268 45.9 L276 45.6 L284 45.4 L292 45.2 L300 45 L308 44.8 L316 44.7 L324 44.6 L332 44.5 L340 44.4" fill="none" stroke="#c8641a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-      <text x="88" y="34">the change happens</text>
-      <text x="340" y="180" text-anchor="end">time →</text>
-     </svg>
-     <figcaption><span class="key">Input: the real temperature</span><span class="key key-out">Output: the sensor’s reading</span></figcaption>
-    </figure>
    </div>
+   <figure class="g-diagram">
+    <div class="g-legend"><span class="g-key">Input · actual temperature</span><span class="g-key output">Output · sensor reading</span></div>
+    <svg viewBox="0 0 480 250" role="img" aria-label="Illustrative first-order response: temperature jumps to a new level, while the sensor reading gradually approaches it.">
+     <g stroke="#b9c4d0" stroke-opacity=".1"><path d="M30 50H458M30 100H458M30 150H458M30 200H458M100 30V218M200 30V218M300 30V218M400 30V218"/></g>
+     <path d="M30 218H458" stroke="#8996a6" stroke-opacity=".4"/>
+     <path d="M30 200H90V50H458" fill="none" stroke="#b5bfcb" stroke-width="2" stroke-dasharray="5 6"/>
+     <path d="M30 200H90 L93.07 191.50 L96.13 183.48 L99.20 175.92 L102.27 168.78 L105.33 162.05 L108.40 155.70 L111.47 149.71 L114.53 144.06 L117.60 138.73 L120.67 133.71 L123.73 128.96 L126.80 124.49 L129.87 120.27 L132.93 116.29 L136.00 112.53 L139.07 108.99 L142.13 105.64 L145.20 102.49 L148.27 99.52 L151.33 96.71 L154.40 94.06 L157.47 91.57 L160.53 89.21 L163.60 86.99 L166.67 84.89 L169.73 82.92 L172.80 81.05 L175.87 79.29 L178.93 77.63 L182.00 76.07 L185.07 74.59 L188.13 73.20 L191.20 71.88 L194.27 70.64 L197.33 69.47 L200.40 68.37 L203.47 67.33 L206.53 66.35 L209.60 65.42 L212.67 64.55 L215.73 63.72 L218.80 62.94 L221.87 62.21 L224.93 61.52 L228.00 60.87 L231.07 60.25 L234.13 59.67 L237.20 59.12 L240.27 58.60 L243.33 58.12 L246.40 57.66 L249.47 57.22 L252.53 56.81 L255.60 56.43 L258.67 56.06 L261.73 55.72 L264.80 55.40 L267.87 55.09 L270.93 54.80 L274.00 54.53 L277.07 54.27 L280.13 54.03 L283.20 53.80 L286.27 53.59 L289.33 53.38 L292.40 53.19 L295.47 53.01 L298.53 52.84 L301.60 52.68 L304.67 52.53 L307.73 52.38 L310.80 52.25 L313.87 52.12 L316.93 52.00 L320.00 51.89 L323.07 51.78 L326.13 51.68 L329.20 51.59 L332.27 51.50 L335.33 51.41 L338.40 51.33 L341.47 51.26 L344.53 51.18 L347.60 51.12 L350.67 51.05 L353.73 50.99 L356.80 50.94 L359.87 50.88 L362.93 50.83 L366.00 50.79 L369.07 50.74 L372.13 50.70 L375.20 50.66 L378.27 50.62 L381.33 50.59 L384.40 50.55 L387.47 50.52 L390.53 50.49 L393.60 50.47 L396.67 50.44 L399.73 50.41 L402.80 50.39 L405.87 50.37 L408.93 50.35 L412.00 50.33 L415.07 50.31 L418.13 50.29 L421.20 50.28 L424.27 50.26 L427.33 50.25 L430.40 50.23 L433.47 50.22 L436.53 50.21 L439.60 50.19 L442.67 50.18 L445.73 50.17 L448.80 50.16 L451.87 50.15 L454.93 50.14 L458.00 50.14" fill="none" stroke="#ffb36b" stroke-width="3.5" stroke-linecap="round"/>
+     <circle cx="90" cy="50" r="4" fill="#b5bfcb"/><path d="M90 38V18" stroke="#b5bfcb" stroke-opacity=".5"/>
+     <g fill="#aab6c4" font-family="Inter Tight,Arial,sans-serif" font-size="13"><text x="102" y="23">The temperature changes</text><text x="458" y="244" text-anchor="end">Time →</text></g>
+    </svg>
+    <figcaption>Illustrative first-order step response. Input and reading use the same units, with unit gain. The experiments calculate the response for your chosen settings.</figcaption>
+   </figure>
   </div>
 
-  <div class="g-row">
-   <h3 class="g-q">What does the gap mean?</h3>
-   <div class="g-a">
-    <p>In the calibrated temperature example, there is a gap between the actual temperature and the reading. During a steady climb, you can examine that gap vertically as a reading error or horizontally as a ramp time lag:</p>
-    <div class="g-pair">
-     <div style="--c:#a3402a"><h4>Reading error</h4><p>How far the reading is from the true value <em>at the same moment</em>. It is measured in the units of the quantity, for example “the display shows 2 °C less than the kitchen”.</p></div>
-     <div style="--c:#1d6fa5"><h4>Ramp time lag</h4><p>How far <em>behind in time</em> the reading tracks a steady climb, measured in seconds. After the initial response, compare when the input and output reach the same value. This is not a fixed waiting time before the sensor starts responding.</p></div>
-    </div>
-    <figure class="g-fig">
-     <svg viewBox="0 0 360 210" role="img" aria-label="Graph over time. The input climbs at a steady pace; the output climbs at the same pace but lower and later. A vertical bracket marks the reading error, a horizontal bracket marks the ramp time lag.">
-      <path d="M20 190H340" stroke="#15171b" stroke-opacity=".18"/>
-      <path d="M20 190H60L340 30.1" fill="none" stroke="#15171b" stroke-opacity=".7" stroke-width="1.6" stroke-dasharray="4 5"/>
-      <path d="M20 190 L60 190 L66 189.8 L74 189 L82 187.6 L90 185.8 L98 183.5 L106 180.9 L114 178 L122 174.9 L130 171.5 L138 168 L146 164.3 L154 160.5 L162 156.6 L170 152.6 L178 148.5 L186 144.3 L194 140.1 L202 135.8 L210 131.5 L218 127.1 L226 122.7 L234 118.3 L242 113.9 L250 109.4 L258 104.9 L266 100.5 L274 96 L282 91.5 L290 86.9 L298 82.4 L306 77.9 L314 73.3 L322 68.8 L330 64.3 L338 59.7" fill="none" stroke="#c8641a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M250 81.5V109.4M245 81.5h10M245 109.4h10" stroke="#a3402a" stroke-width="1.6"/>
-      <text x="241" y="73" text-anchor="end" fill="#a3402a">reading error</text>
-      <path d="M201.2 109.4H250M201.2 109.4V150M250 109.4V150" stroke="#1d6fa5" stroke-opacity=".5" stroke-dasharray="2 3"/>
-      <path d="M201.2 150H250M201.2 145v10M250 145v10" stroke="#1d6fa5" stroke-width="1.6"/>
-      <text x="225.6" y="170" text-anchor="middle" fill="#1d6fa5">ramp time lag</text>
-      <text x="340" y="206" text-anchor="end">time →</text>
-     </svg>
-     <figcaption><span class="key">Input climbing steadily</span><span class="key key-out">Output following behind</span></figcaption>
-    </figure>
-    <p>For the first-order example shown, once steady ramp tracking is reached, a faster climb makes the reading error larger while the ramp lag stays the same, provided the sensor settings are unchanged. Module 1 compares the output with its ideal reading and shows both quantities.</p>
-   </div>
+  <ol class="g-method" aria-label="How to use the experiments">
+   <li><h3>Choose a change</h3><p>A sudden step, a steady ramp, or a repeating wave. Each asks the sensor to follow in a different way.</p></li>
+   <li><h3>Watch the response</h3><p>Adjust one setting at a time. See how quickly the output follows, settles, or overshoots.</p></li>
+   <li><h3>Predict. Then check.</h3><p>Make a prediction before changing a setting. Compare it with the result to test your understanding.</p></li>
+  </ol>
+
+  <div class="g-gap">
+   <h3>Two ways to read the gap.</h3>
+   <div><span class="g-unit">Reading error · output units</span><h4>How far away?</h4><p>The difference between the ideal reading and the actual output <strong>at the same instant</strong>. For a calibrated thermometer, that might be a reading 2 °C below the room temperature.</p></div>
+   <div class="g-lag"><span class="g-unit">Ramp time lag · seconds</span><h4>How far behind?</h4><p>During steady ramp tracking, compare when the ideal reading and the output reach the same value. This time gap describes the response after its initial transient; the sensor starts responding immediately.</p></div>
   </div>
 
-  <div class="g-row">
-   <h3 class="g-q">What will I learn?</h3>
-   <div class="g-a">
-    <ol class="index" aria-label="All modules">
-     <li><a class="irow" href="module-1.html"><span class="n">01</span><span class="t">First-order time response</span><span class="d">See how a reading catches up after a sudden change or a steady climb, and how a single setting, the time constant, decides how fast it gets there.</span><span class="go">Open<svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></a></li>
-     <li><a class="irow" href="module-2.html"><span class="n">02</span><span class="t">First-order frequency response</span><span class="d">Make the input rise and fall over and over. As the changes get faster, watch the reading shrink and slip further behind.</span><span class="go">Open<svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></a></li>
-     <li><a class="irow" href="module-3.html"><span class="n">03</span><span class="t">Second-order response</span><span class="d">Some sensors overshoot and wobble before settling, like a needle swinging past its mark. Explore how damping calms that motion.</span><span class="go">Open<svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></a></li>
-     <li><span class="irow is-soon" data-m4><span class="n">04</span><span class="t">Guess the sensor</span><span class="d">A challenge: study a noisy step or sine response, estimate hidden sensor parameters, and score your guess.</span><span class="go"><span class="soon" data-m4-status="Open">Coming soon</span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></span></li>
-    </ol>
-   </div>
-  </div>
+  <div class="g-path-head"><h3>Four experiments.<br>One learning path.</h3><p>Build your intuition in Modules 1–3, then put it to the test with an unknown sensor in Module 4.</p></div>
+  <ol class="g-path" aria-label="All modules">
+   <li style="--module-color:#9a5414"><a href="module-1.html"><span class="g-num">01</span><span><span class="g-name">First-order time response</span><span class="g-desc">Step and ramp inputs. Explore gain, time constant, remaining error and how a reading catches up.</span></span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></a></li>
+   <li style="--module-color:#236780"><a href="module-2.html"><span class="g-num">02</span><span><span class="g-name">First-order frequency response</span><span class="g-desc">Repeating inputs. Discover why faster changes reduce the output amplitude and increase its phase lag.</span></span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></a></li>
+   <li style="--module-color:#725591"><a href="module-3.html"><span class="g-num">03</span><span><span class="g-name">Second-order response</span><span class="g-desc">Damping and natural frequency. See why a response can overshoot, oscillate and eventually settle.</span></span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></a></li>
+   <li style="--module-color:#4f6562"><a href="module-4.html"><span class="g-num">04</span><span><span class="g-name">Guess the sensor</span><span class="g-desc">A noisy response, hidden parameters. Estimate them, reveal the true curve and build your session score.</span></span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></a></li>
+  </ol>
 
-  <div class="g-row">
-   <h3 class="g-q">How do I start?</h3>
-   <div class="g-a">
-    <ol class="g-steps">
-     <li><b>Open Module 1</b>It begins with the simplest case: an input that changes all at once.</li>
-     <li><b>Change an input or a setting</b>Choose a different kind of change, or adjust a setting such as how quickly the sensor reacts.</li>
-     <li><b>Observe and compare</b>Watch the output next to the input on the graph. Change one thing at a time and notice what moves.</li>
-    </ol>
-    <a class="cta dark" href="module-1.html">Open Module 1<span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></a>
-   </div>
-  </div>
-
-  <p class="note">Works in any modern browser, on a computer or a phone — no account needed. The experiments load their Python and plotting libraries over the internet, so the first visit can take a moment.</p>
+  <div class="g-start"><div><h3>Your first experiment starts here.</h3><p>Open Module 1, choose Step, and change the time constant.</p></div><a class="cta dark" href="module-1.html">Start experimenting<span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></a></div>
+  <p class="g-note">Mathematical simulations, running in your browser. No account needed. An internet connection is required to load Python and the plotting libraries; the first load may take a moment.</p>
  </div>
 </section>
 <!-- ── End of guide ──────────────────────────────────────────── -->
@@ -890,3 +863,4 @@ setMode();
 </script>
 </body>
 </html>
+
