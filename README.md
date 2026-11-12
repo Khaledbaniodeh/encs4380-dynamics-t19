@@ -357,9 +357,13 @@ Browser-width checks are not physical-device tests. Python tests do not replace 
 - [ ] Test the **new v2 Superposition controls, graph and reset** in desktop and physical-phone browsers; add a v2 screenshot after verification.
 - [x] Implement Module 3: second-order response, poles, state space, phase plane, prediction, and validation checks 4–6.
 - [x] Complete and browser-check Module 4: Step/Sine challenges, scoring, hints, reveal and session totals.
+- [x] Implement and browser-check the optional Module 4 Pole Explorer bonus, including pole dragging, response updates, reset and score isolation.
+- [x] Close Module 4 GitHub Issue #4 after implementation.
 - [ ] Test Module 4 on a physical phone; a browser-width submission has been checked.
 - [x] Add desktop and mobile screenshots for Module 3.
-- [ ] Add a Module 4 screenshot and a v2 Superposition screenshot after the corresponding checks; complete any remaining contributor records.
+- [x] Add Module 4 desktop and Pole Explorer PNG screenshots to this README.
+- [ ] Add a Module 2 v2 Superposition screenshot after testing the new controls on desktop and a physical phone.
+- [ ] Confirm any remaining contributor records before final submission.
 - [ ] Create the final release tagged `v1.0` and submit the Pages link on the course page.
 
 Instructor invitation: repository Settings → Collaborators → Add people → `ghanem@staff.birzeit.edu`.
