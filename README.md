@@ -6,11 +6,20 @@ ENCS4380 Interfacing Techniques, Birzeit University. Instructor: Dr. Wasel Ghane
 
 A static browser toolkit for understanding sensor dynamics through live controls, response plots, and parameter-estimation challenges.
 
-## Current status
+## Modules and team
 
-Module 1's first-order time-response features are implemented and published on GitHub Pages: Step and Ramp, K and τ sliders, response markers, ramp tracking metrics, logarithmic error plot, validation table, a Predict, then check exercise, and the optional Forward Euler comparison.
+All four modules are implemented, linked from the home page and published on GitHub Pages. The home page includes an animated module overview and a beginner guide explaining inputs, outputs, reading error and ramp time lag.
 
-Module 1 has been checked in a desktop browser and at 320 px and 390 px browser viewports; testing on a physical phone is still pending. **Module 2 v2 (12 November 2026)** is implemented and linked from the home page. Version 2 adds **Superposition of Sine Waves**: a two-frequency interactive experiment using the optional Superposition bonus idea from the homework, in addition to the existing single-sine plots, Bode plots, dynamic-error design calculator, prediction exercise and lecture checks 2–3. The Module 2 formula benchmarks and JavaScript syntax have been reviewed, and phone-friendly layout and navigation rules are in place. A team member (Jibreel Haddar) confirmed that Module 2 interactions work on a physical phone and supplied desktop and phone screenshots of the page header. This is team-reported testing of the earlier Module 2 interface, not an independently reproduced cross-device test. The new v2 Superposition controls still need a separate physical-phone interaction check. Module 3 is implemented, linked from the home page, and tested on desktop and a physical phone; all three required Module 3 validation checks pass. Module 4 code is now included and linked; final physical-phone and deployment checks are still recommended. Instructor collaborator access, Module 3–4 ownership, and any unconfirmed team administration details still need confirmation.
+| Module | Experiment | Owner | Tracking |
+| --- | --- | --- | --- |
+| [1](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/module-1.html) | First-order time response: Step, Ramp and optional Euler comparison | Khaled Bani Oudeh ([@Khaledbaniodeh](https://github.com/Khaledbaniodeh)) | [#1](../../issues/1) |
+| [2](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/module-2.html) | First-order frequency response and v2 Superposition | Jibreel Haddar | [#2](../../issues/2) |
+| [3](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/module-3.html) | Second-order response, poles and state space | Waad Melhem ([@WaadMelhem05](https://github.com/WaadMelhem05)) | [#3](../../issues/3) |
+| [4](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/module-4.html) | Guess the sensor: hidden parameters, noise, hints and scoring | Mohammad Khaleel ([@mohak430](https://github.com/mohak430)) | [#4](../../issues/4) |
+
+Open the live toolkit, choose a module and wait for **Python ready**. Calculations run in your browser; no hardware, installation or account is required. An internet connection is needed to load the Python and plotting libraries.
+
+Implementation and browser checks are separate from instructor acceptance and final submission. The remaining delivery checks are listed below.
 
 ## Module 1: using the time-response experiment
 
@@ -83,7 +92,7 @@ Module 1 experiment dashboard with its parameter panel, live summary and respons
 
 ### How to use Module 2
 
-1. From the home page, choose **Open Module 2**, or use **Home / Module 1 / Module 2 / Module 3** in the right-side header navigation of the module page (four touch-friendly links on mobile). **← All modules** also returns to the home page.
+1. From the home page, choose **Open Module 2**, or use **Home / Module 1 / Module 2 / Module 3 / Module 4** in the header navigation of the module page. **← All modules** also returns to the home page.
 2. Wait for **Python ready**, then change the time constant **τ** (seconds) and angular frequency **ω** (rad/s) using the linked sliders or number fields. **Reset example** restores τ = 0.2 s and ω = 2 rad/s.
 3. Compare the blue input sine with the green steady-state output. Read amplitude ratio **M**, phase lag **φ**, signed amplitude-based dynamic error **δ**, and cutoff angular frequency **ωc** in the metric cards.
 4. Scroll to the two **Bode plots**. Their logarithmic frequency axes show magnitude in dB and phase in degrees. The orange cutoff marker is at ωc = 1/τ, and the point at your selected ω is highlighted.
@@ -92,16 +101,9 @@ Module 1 experiment dashboard with its parameter panel, live summary and respons
 7. For **Predict, then check**, first choose and save a prediction for M. Increase **ω** while keeping **τ** fixed, then press **Check**. Use **New prediction** to try again. The expandable explanation provides a worked example.
 8. Review **Validation checks 2 and 3**: expected, computed, tolerance and Pass/Fail are shown for fixed lecture cases. They do not change with your sliders.
 
-### Module 2 phone / browser verification checklist
+### Module 2 browser and phone checks
 
-- [x] Team member Jibreel Haddar opened Module 2 on a physical phone and confirmed its features work (team report, 5 November 2026).
-- [x] **Python ready** appears on the phone and desktop screenshots. The team reports that the remaining interactions work; individual slider and plot states were not separately captured.
-- [x] Team confirmed Module 2 works on the phone, including its interactive controls; dedicated plot/table screenshots are still useful as additional evidence.
-- [x] Team reports the dynamic-error calculator works on the phone; a saved pass/fail comparison screenshot is optional additional evidence.
-- [x] Team reports the prediction exercise works on the phone.
-- [x] Desktop and mobile page-header screenshots uploaded to `docs/screenshots/` and linked below. Screenshots of lower-page charts and validation results can be added later if desired.
-
-The responsive rules and static JavaScript checks are in place. The original Module 2 phone test above was confirmed by the team; **the v2 Superposition section has not yet been verified on a physical phone**. Run the new controls and reset button on both desktop and mobile before the demo.
+Jibreel Haddar reported that the original Module 2 controls, prediction exercise and dynamic-error calculator work on a physical phone, and supplied the screenshots below. This is a team report. Those screenshots predate **v2 Superposition**; the new controls, combined plot and reset still need a separate desktop and physical-phone interaction check.
 
 ### Module 2 screenshots
 
@@ -133,15 +135,15 @@ Module 2 reuses the first-order sensor, now with a sinusoidal input. This implem
 
 This addition **does not replace** the required Module 2 plots, design calculator, prediction exercise, or lecture validation checks.
 
-- **Input:** \`x(t) = sin(ω₁t) + A₂ sin(ω₂t)\`, with first-wave amplitude \`A₁ = 1\`. Sliders and number fields let the user change both angular frequencies from **0.5 to 24 rad/s**, and A₂ from **0 to 2**.
-- **Sensor:** the original unit-gain first-order model \`G(s) = 1/(τs + 1)\`. Both components use **the current τ from the main Parameters panel**; the original single-wave ω control remains independent.
-- **Linear superposition:** compute \`Mᵢ = 1/sqrt(1+(ωᵢτ)²)\` and \`φᵢ = -atan(ωᵢτ)\` for each frequency, then add the steady-state outputs:
-  \`yss(t) = M₁ sin(ω₁t + φ₁) + A₂ M₂ sin(ω₂t + φ₂)\`.
+- **Input:** `x(t) = sin(ω₁t) + A₂ sin(ω₂t)`, with first-wave amplitude `A₁ = 1`. Sliders and number fields let the user change both angular frequencies from **0.5 to 24 rad/s**, and A₂ from **0 to 2**.
+- **Sensor:** the original unit-gain first-order model `G(s) = 1/(τs + 1)`. Both components use **the current τ from the main Parameters panel**; the original single-wave ω control remains independent.
+- **Linear superposition:** compute `Mᵢ = 1/sqrt(1+(ωᵢτ)²)` and `φᵢ = -atan(ωᵢτ)` for each frequency, then add the steady-state outputs:
+  `yss(t) = M₁ sin(ω₁t + φ₁) + A₂ M₂ sin(ω₂t + φ₂)`.
 - **Live visualization:** one Plotly chart overlays the **blue combined input** and **green combined output**. Two metric cards report M₁ and M₂; a note reports both phase shifts and the component output amplitudes. The input is sampled over **two periods of the slower wave**, with bounded adaptive samples to keep the faster wave visible and limit work on phones.
 - **Reset / edge cases:** Reset restores ω₁ = 2, ω₂ = 12, A₂ = 0.6 (not τ). A₂ = 0 removes the second wave; equal frequencies remain mathematically valid, with a prompt to separate them for comparison. Invalid or out-of-range values show an error message.
-- **Example:** τ = 0.2 s gives \`M₁ ≈ 0.9285\` for ω₁ = 2 rad/s and \`M₂ ≈ 0.3846\` for ω₂ = 12 rad/s. So the 12 rad/s component loses a larger fraction of its amplitude.
-- **Assumptions:** no phase offsets at the input, \`K = 1\`, first amplitude fixed at 1, and **steady-state only**. This plot intentionally omits the start-up transient. M₁ and M₂ should not be interpreted as a single amplitude ratio for the combined waveform.
-- **Testing:** \`tests/test_superposition.py\` adds seven Python regression tests (component ratios, waveform sum, zero/equal-frequency cases, attenuation, sampling bounds and invalid inputs), alongside the existing Euler tests. The [Python regression GitHub Actions workflow](.github/workflows/python-regression.yml) passed on 12 November 2026. HTML/JavaScript syntax and markup were inspected, and the GitHub Pages deployment succeeded; this does **not** establish full real-browser or physical-phone testing of the new controls.
+- **Example:** τ = 0.2 s gives `M₁ ≈ 0.9285` for ω₁ = 2 rad/s and `M₂ ≈ 0.3846` for ω₂ = 12 rad/s. So the 12 rad/s component loses a larger fraction of its amplitude.
+- **Assumptions:** no phase offsets at the input, `K = 1`, first amplitude fixed at 1, and **steady-state only**. This plot intentionally omits the start-up transient. M₁ and M₂ should not be interpreted as a single amplitude ratio for the combined waveform.
+- **Testing:** `tests/test_superposition.py` adds seven Python regression tests (component ratios, waveform sum, zero/equal-frequency cases, attenuation, sampling bounds and invalid inputs), alongside the existing Euler tests. The [Python regression GitHub Actions workflow](.github/workflows/python-regression.yml) passed on 12 November 2026. HTML/JavaScript syntax and markup were inspected, and the GitHub Pages deployment succeeded; this does **not** establish full real-browser or physical-phone testing of the new controls.
 
 **Bonus-grading note:** the assignment offers up to 10 additional points for *any one* optional bonus choice. Module 1 already contains the optional Forward Euler comparison. Adding Superposition in Module 2 does not guarantee more points beyond the rubric's bonus cap.
 
@@ -210,6 +212,22 @@ Module 3 was tested with underdamped, critically damped and overdamped examples 
 
 The screenshots were captured after testing Module 3 on desktop and a physical phone.
 
+## Module 4: guess the sensor
+
+**[Open Module 4](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/module-4.html)**
+
+1. Wait for **Python ready**. A random sensor is generated automatically; **New Sensor** starts another round.
+2. Inspect its noisy response. First-order rounds use a unit Step or a steady-state unit Sine; second-order rounds use an underdamped unit Step. A Sine round states its angular frequency in **rad/s** and shows the input wave.
+3. Estimate **K and τ** for a first-order sensor, or **ζ and ωn** for a second-order sensor. True parameter values remain hidden until submission. **Get Hint** explains the relevant estimation method.
+4. Press **Submit Guess** to reveal the true values and overlay the true response and your predicted curve on the noisy measurements.
+5. Compare parameter errors and the round score. Session points, average and completed rounds remain when generating a new sensor; refreshing the page starts a new session.
+
+Each parameter receives **100/100 within 10% relative error**, including exactly 10%. Above that, its score decreases linearly to zero at 100% error. The round score is the average of the two parameter scores. This partial-credit rule is an implementation choice; the full-credit boundary follows the brief. A submitted round is locked to prevent duplicate scoring.
+
+All challenge parameters must be finite and positive; second-order estimates also require **0 < ζ < 1**, matching the underdamped challenge family. The model uses small simulated Gaussian measurement noise. Step responses start from zero; Sine responses show steady state after the start-up transient has decayed.
+
+See [README_MODULE4.md](README_MODULE4.md) for formulas and [the demo walkthrough](docs/module4_demo.md) for a guided example.
+
 ## Files and technology
 
 | File | Responsibility |
@@ -223,11 +241,17 @@ The screenshots were captured after testing Module 3 on desktop and a physical p
 | `module-3.html` | Interactive second-order response page with damping controls, poles, state space, phase plane, prediction and validation |
 | `index.html` | Lightweight home page: introduction, learning path, module navigation and beginner help |
 | `module-1.html` | First-order experiment, guided explanations, responsive controls, Pyodide bridge and Plotly rendering |
+| `module-4.html` | Challenge controls, guessing, reveal overlays and session-score interface |
+| `python/guess_sensor.py` | Random challenge generation, closed-form responses and scoring |
+| `tests/test_guess_sensor.py` | Seven numerical, random-challenge and scoring tests |
+| `tests/test_integration.py` | Three local integration-helper tests using temporary fixtures |
 | `README.md` | Live link, model assumptions, usage, validation and project status |
 
-Python executes in the visitor's browser through **Pyodide v314.0.7**. **Plotly.js 4.1.1** renders the curves. The CDN versions are pinned in the interactive module pages; the home page loads no Python or plotting runtime. Each module loads its own Python source through Pyodide and passes calculated values to Plotly. Internet access is needed to load CDN libraries.
+Python executes in the visitor's browser through **Pyodide**: Modules 1–3 pin v314.0.7, while Module 4 pins v0.27.7. **Plotly.js 4.1.1** renders the curves. The CDN versions are pinned in the interactive module pages; the home page loads no Python or plotting runtime. Each module loads its own Python source through Pyodide and passes calculated values to Plotly. Internet access is needed to load CDN libraries.
 
 GitHub Pages publishes the repository root from `main`. The deployed site needs no backend server, Binder or login. Numerical models remain in Python; Flask and Django are not used.
+
+## Optional Forward Euler comparison
 
 Required plots use the lecture's closed-form formulas. An optional **Forward Euler comparison** is implemented in Module 1. The default comparison is enabled with Δt = 0.5 s. It can be switched off without changing the exact response.
 
@@ -254,14 +278,25 @@ Run the numerical regression checks from the repository root with standard Pytho
 python -m unittest discover -s tests -v
 ```
 
-## Modules and ownership
+## Verification record — 12 November 2026
 
-| Module | Scope | Tracking issue | Implementation | Owner |
-| --- | --- | --- | --- | --- |
-| 1 | First-order time response | [#1](../../issues/1) | Implemented; phone check pending | Khaled Bani Oudeh ([@Khaledbaniodeh](https://github.com/Khaledbaniodeh)) |
-| 2 | Frequency response, sines, Bode plots, dynamic error and v2 Superposition | [#2](../../issues/2) | v2 implemented; Python tests passed; v2 phone check pending | Jibreel Haddar |
-| 3 | Second-order response, poles, state space and phase plane | [#3](../../issues/3) | Implemented and tested on desktop and phone | Waad Melhem ([@WaadMelhem05](https://github.com/WaadMelhem05)) |
-| 4 | Guess the sensor: hidden parameters, noise, hints and scoring | [#4](../../issues/4) | Implemented; final mobile QA pending | Mohammad Khaleel ([@mohak430](https://github.com/mohak430)) |
+The Python suite contains **25 passing tests**: 8 Euler, 7 Superposition, 7 Module 4 model/scoring, and 3 integration-helper tests. Run it from the repository root:
+
+```sh
+python -m unittest discover -s tests -v
+```
+
+The [GitHub Actions workflow](.github/workflows/python-regression.yml) runs test discovery on relevant Python/test/workflow pushes and pull requests, and on manual dispatch. Integration-helper tests exercise temporary fixture pages; they do not prove that the live homepage or every browser interaction works.
+
+| Area | Verification and remaining limits |
+| --- | --- |
+| Module 1 | Desktop interaction and 320/390 px browser-width checks; physical-phone check remains pending. |
+| Module 2 | Formula review and Superposition unit tests pass. Original physical-phone testing was reported by Jibreel; the new v2 UI needs a separate interaction check. |
+| Module 3 | Desktop and physical-phone testing were recorded by the team; lecture validations are documented above. |
+| Module 4 | Independently exercised the published First-order Step, First-order Sine and Second-order Step flows, hints, invalid values, reveal curves, session totals and round locking. A 390 px browser-width submission also worked. Independent mathematical checks covered 1,000 seeded rounds, noise, exact-guess overlays, peak values and the 10% score boundary. Physical-phone testing remains pending. A teammate subsequently reported `Program terminated with exit(1)` during Python startup; this environment-specific startup failure is under investigation. |
+| Home page | Published guide and all four module links verified; 320/390 px browser-width checks showed no horizontal page overflow. Hero, module-flight JavaScript and module files were preserved during the guide update. |
+
+Browser-width checks are not physical-device tests. Python tests do not replace browser or device checks. The successful Pages deployment was verified after the homepage guide update in commit [`1852f22`](https://github.com/Khaledbaniodeh/encs4380-dynamics-t19/commit/1852f22380b0cab7990aa0dc0325b07fd4972e31).
 
 ## Delivery checklist
 
@@ -272,16 +307,17 @@ python -m unittest discover -s tests -v
 - [x] Add a Step prediction exercise and on-page validation check 1.
 - [x] Document Module 1, its live link and an interface screenshot.
 - [ ] Confirm all team members and the instructor have collaborator access.
-- [x] Confirm owner for Module 4; Modules 1, 2 and 3 have named owners.
+- [x] Record an owner for each of the four modules.
 - [ ] Verify on a physical phone: Step/Ramp switching, both sliders, number fields, prediction buttons, table scrolling and both plots.
 - [x] Implement Module 2: sine input/output, magnitude/phase Bode plots, cutoff marker, dynamic-error calculator, prediction, and lecture checks 2–3.
 - [x] Original Module 2 phone functionality confirmed by Jibreel Haddar; desktop/mobile screenshots supplied for README.
 - [x] Implement Module 2 v2 Superposition of Sine Waves and add Python regression tests.
 - [ ] Test the **new v2 Superposition controls, graph and reset** in desktop and physical-phone browsers; add a v2 screenshot after verification.
 - [x] Implement Module 3: second-order response, poles, state space, phase plane, prediction, and validation checks 4–6.
-- [x] Complete Module 4 implementation (step, sine, scoring, hints and reveal).
+- [x] Complete and browser-check Module 4: Step/Sine challenges, scoring, hints, reveal and session totals.
+- [ ] Test Module 4 on a physical phone; a browser-width submission has been checked.
 - [x] Add desktop and mobile screenshots for Module 3.
-- [ ] Add Module 4 screenshots after implementation, optionally add Module 2 charts/results screenshots, and complete contributor records.
+- [ ] Add a Module 4 screenshot and a v2 Superposition screenshot after the corresponding checks; complete any remaining contributor records.
 - [ ] Create the final release tagged `v1.0` and submit the Pages link on the course page.
 
 Instructor invitation: repository Settings → Collaborators → Add people → `ghanem@staff.birzeit.edu`.
@@ -325,25 +361,14 @@ Module 3 checks are calculated by the page and shown with expected, calculated a
 | Checkpoint 2 — Modules 2 **and** 3 | 9 November 2026 | **Ready for presentation.** Modules 2 and 3 are implemented; Module 3 has been tested on desktop and phone and all three required validation checks pass. |
 | Final submission — All four modules | 12 November 2026 | **Pending.** Create the `v1.0` release only after Modules 1–4 and the final submission checks are ready. |
 
-**Branches and releases:** `main` contains the ongoing work, while [`checkpoint/module-1`](https://github.com/Khaledbaniodeh/encs4380-dynamics-t19/tree/checkpoint/module-1) preserves the Module 1 baseline. As checked on 5 November, the `checkpoint-1` tag/release and `v1.0` release have not been created. There is no separate Module 2 or Checkpoint 2 snapshot yet.
+**Branches and releases:** `main` contains the current four-module site. [`checkpoint/module-1`](https://github.com/Khaledbaniodeh/encs4380-dynamics-t19/tree/checkpoint/module-1) preserves the original Module 1 source at `20847b4`. No GitHub Release was listed at this review on 12 November; the final published `v1.0` release and course-page submission remain pending. A snapshot branch is not a release.
 
-**Protecting earlier work:** Module 1's Python model and Euler tests still match the stored checkpoint hashes, but `module-1.html` has three explanation/default-view edits compared with the saved branch. The checkpoint copy is unchanged. The previously documented **Module 1 checkpoint guard** is **not currently installed** under `.github/workflows/` on `main`, so no active automated guard should be assumed. Keep future modules in separate pages and Python files; review any Module 1 change against the saved snapshot.
+**Protecting earlier work:** Module 1's Python model and Euler tests still match the saved snapshot. Compared with that snapshot, current `module-1.html` includes three explanation/default-view edits in the Step error section, plus module-navigation markup and styles added during Module 4 integration. Its current blob is `f50b2502b267ea84c2fb285a77b70589229a0714`; the saved HTML blob remains `20ce7df8bd2a7087499af983430b7aefcfe9bd33`. The original checkpoint branch is unchanged. The previously described **Module 1 checkpoint guard is not installed**; the Python regression workflow is not a snapshot guard, branch protection or a deployment gate. Review any future Module 1 edit separately and preserve the saved reference.
 
-See [`docs/versioning.md`](docs/versioning.md) for the saved commit, Git blob hashes, differences from the snapshot, and release/guard status.
+See [`docs/versioning.md`](docs/versioning.md) for the historical checkpoint record. Its current-main comparison predates Module 4 integration; the current differences are recorded above.
 
-## AI Assistance
+## AI assistance
 
-ChatGPT was used to explain the homework requirements and equations, help debug and review Module 1's Python/HTML/JavaScript integration and optional Forward Euler comparison, and support documentation. For Module 2, ChatGPT generated the initial Python calculation file and interactive HTML/JavaScript page, then made several layout, navigation and explanatory-text revisions. For **Module 2 v2**, it also helped implement the two-sine Superposition option in Python and the interactive page, write regression tests and a GitHub Actions workflow, and update project documentation. It also helped review mathematical benchmarks, code structure and the README. Team members remain responsible for understanding and independently checking the equations and code, testing the site on real browsers/devices, and explaining their submitted work in the demo.
+ChatGPT assisted with interpreting requirements, explaining and reviewing equations, implementing and debugging browser/Python integration, numerical comparisons, tests, and documentation. This included the Module 1 Euler comparison, Module 2 v2 Superposition, and Module 4 challenge/scoring integration. Claude assisted with the home-page design; ChatGPT subsequently refined its beginner guide and reviewed navigation and deployment. Module 4's contribution notes are also recorded in [README_MODULE4.md](README_MODULE4.md).
 
-
-
-## Module 4 — Guess the Sensor
-
-- **Contributor:** Mohammad Khaleel ([@mohak430](https://github.com/mohak430)).
-- **Page:** [Module 4](module-4.html) · **Issue:** [#4](../../issues/4).
-- **Features:** hidden random first-order step or steady-state sine response and underdamped second-order step response; noisy samples; estimation hints; reveal overlays; per-parameter scoring with full credit at relative error ≤10%; session totals and average.
-- **Python:** closed-form calculations run in the browser with Pyodide; Plotly displays the responses. No visitor backend or login required.
-- **Testing:** `python -m unittest discover -s tests -v` (10 tests pass for the Module 4 package); browser/mobile deployment should also be checked after publishing.
-- **AI use:** ChatGPT assisted with Module 4 coding, mathematical checks, documentation, tests, and integration; the contributor should understand and be able to explain the submitted implementation.
-
-See [README_MODULE4.md](README_MODULE4.md) for formula explanations and the demo walkthrough.
+Team members remain responsible for understanding and checking the submitted equations and code, completing device tests, and explaining their work during the demo. AI assistance and passing tests do not establish instructor acceptance.
