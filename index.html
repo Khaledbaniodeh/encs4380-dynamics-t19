@@ -1,86 +1,892 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#14243a"><meta name="description" content="Discover how sensors respond to change. Start with guided experiments in first-order dynamics. ENCS4380, Birzeit University, Team T19."><title>Dynamics Lab · Explore how sensors respond</title><style>
-:root{--ink:#17263b;--muted:#66758a;--line:#e0e6ed;--paper:#fff;--bg:#f4f6f8;--teal:#087f72;--teal-soft:#e7f5f1;--blue:#315dda;--orange:#b56425;--radius:16px}
-*{box-sizing:border-box} [hidden]{display:none!important}
-html{scroll-behavior:smooth;scroll-padding-top:24px}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-button,input,select{font:inherit}button,a,input,select,summary{-webkit-tap-highlight-color:transparent}
-button,a,summary{touch-action:manipulation}button{cursor:pointer}button:disabled,input:disabled,select:disabled{opacity:.46;cursor:default}
-:focus-visible{outline:3px solid #e9a848;outline-offset:4px}
-a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
-button svg,a svg{width:17px;height:17px;flex:none}.icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-.topbar{background:#14243a;color:#fff}.topbar-inner{max-width:1440px;margin:auto;padding:17px 40px;display:flex;align-items:center;justify-content:space-between;gap:20px}
-.brand{display:flex;align-items:center;gap:12px;font-size:17px;font-weight:700;letter-spacing:-.4px}.brand-mark{width:33px;height:33px;display:grid;place-items:center;border:1px solid #496271;border-radius:9px;color:#81d5bc}
-.brand small{font-size:12px;font-weight:500;color:#b7c2d1;letter-spacing:.8px;margin-left:10px}
-.topbar-meta{font-size:11px;color:#c0cada;letter-spacing:1.5px;display:flex;align-items:center;gap:12px}.topbar-meta b{color:#b5ead9;background:#244b4b;padding:5px 9px;border-radius:5px;font-weight:600;letter-spacing:.6px}
-.page{max-width:1440px;margin:0 auto;padding:30px 40px 40px}
-.page-heading{display:flex;justify-content:space-between;align-items:center;gap:24px;margin-bottom:24px}
-.eyebrow{font-size:10px;letter-spacing:1.8px;font-weight:750;color:var(--teal);text-transform:uppercase;margin:0 0 7px}
-h1{font-size:clamp(28px,3vw,38px);letter-spacing:-1.3px;font-weight:680;line-height:1.2;margin:0 0 9px}h2{font-size:19px;line-height:1.35;letter-spacing:-.45px;margin:0}h3{font-size:14px;margin:0}
-.subtitle{color:var(--muted);margin:0;font-size:14px;max-width:650px}
-.heading-actions{display:flex;align-items:center;gap:12px;flex-shrink:0}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;border:1px solid var(--line);border-radius:9px;padding:9px 13px;background:#fff;color:var(--ink);font-size:12px;font-weight:650;transition:background .15s,border-color .15s}
-.btn:hover:enabled{background:#f6f8fa;border-color:#aebbc8}.btn.primary{background:var(--teal);color:#fff;border-color:var(--teal)}.btn.primary:hover:enabled{background:#066a60}
-.section-links{display:flex;gap:19px;font-size:12px;margin:0 0 18px;border-bottom:1px solid var(--line);padding-bottom:12px}.section-links a{color:var(--muted)}.section-links a:first-child{font-weight:700;color:var(--ink)}
-.workspace{display:grid;grid-template-columns:300px minmax(0,1fr);gap:22px;align-items:start}
-.panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 2px 3px #14243a02;min-width:0}
-.parameters{position:sticky;top:20px}.parameters>summary{padding:20px 20px 14px;list-style:none;display:flex;align-items:center;justify-content:space-between;font-size:15px;font-weight:700;cursor:pointer}.parameters>summary::-webkit-details-marker{display:none}.summary-meta{font:11px ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--muted);font-weight:400}
-fieldset{border:0;padding:0;min-width:0;margin:0}#controls{padding:0 20px 20px}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-.control-label{font-size:10px;letter-spacing:1.5px;color:var(--muted);font-weight:700;margin:0 0 9px}.signal-switch{display:grid;grid-template-columns:1fr 1fr;padding:4px;background:#f1f4f7;border-radius:10px;gap:4px}
-.mode-btn{display:flex;flex-direction:column;align-items:flex-start;gap:2px;background:transparent;border:1px solid transparent;border-radius:7px;padding:10px 11px;color:var(--muted);min-height:63px}
-.mode-btn strong{font-size:13px;font-weight:700;display:flex;align-items:center;gap:7px}.mode-btn span{font-size:10px}.mode-btn[aria-pressed="true"]{background:#fff;color:var(--teal);border-color:#d8e5e1;box-shadow:0 2px 4px #17263b07}
-.parameter{padding:17px 0;border-bottom:1px solid #edf0f4}.field-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}.field-head label{font-size:12px;font-weight:650}.field-symbol{display:inline-grid;place-items:center;min-width:24px;min-height:24px;background:#f0f4f7;border-radius:5px;font:13px ui-monospace,SFMono-Regular,Consolas,monospace;color:#557087;margin-right:7px}
-.unit{color:var(--muted);font-size:10px;font-weight:400}.field-row{display:grid;grid-template-columns:minmax(0,1fr) 78px;gap:13px;align-items:center}
-input[type=number],select{border:1px solid #d6dee8;border-radius:7px;background:#fff;color:var(--ink);min-width:0;width:100%;min-height:42px;padding:8px 10px;transition:border-color .15s}
-input[type=number]{font:13px ui-monospace,SFMono-Regular,Consolas,monospace;font-variant-numeric:tabular-nums}
-input[type=number]:hover,select:hover{border-color:#9bacbf}input[aria-invalid="true"]{border-color:#bd492e;background:#fff7f4;box-shadow:0 0 0 2px #bd492e15}input[type=range]{width:100%;min-width:0;height:36px;margin:0;accent-color:var(--teal);cursor:ew-resize}
-.field-note{font-size:11px;color:var(--muted);margin:6px 0 0}.range-endpoints{display:flex;justify-content:space-between;color:#8390a1;font-size:9px;font-family:ui-monospace,monospace;margin-top:2px}
-.reset-btn{width:100%;margin-top:17px;background:#f8fafb;font-weight:550}.model-note{margin-top:16px;padding:12px 13px;border-radius:8px;background:#f7f9fb}.model-note p{font-size:10px;color:var(--muted);margin:5px 0 0}.equation{font:14px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:-.3px}
-.mobile-view{display:none}.results{min-width:0}.metric-grid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:12px;margin-bottom:16px}
-.metric{padding:18px 19px}.metric.primary-metric{background:#eef8f5;border-color:#d7eae3}.metric-label{font-size:11px;color:var(--muted);margin-bottom:8px;display:block}.metric-number{font-size:27px;font-weight:650;letter-spacing:-.9px;line-height:1.2;font-variant-numeric:tabular-nums}.metric-number small{font-size:10px;font-weight:500;letter-spacing:0;color:var(--muted);margin-left:5px}
-.metric-foot{font-size:10px;color:var(--muted);margin:7px 0 0}.primary-metric .metric-number{color:#09695f}
-.chart-panel{padding:21px 23px 18px}.panel-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:15px}.panel-heading p{font-size:11px;color:var(--muted);margin:6px 0 0}.pill{display:inline-flex;align-items:center;gap:6px;border-radius:99px;background:#f1f4f7;color:#52647b;padding:5px 9px;font-size:10px;font-weight:600;white-space:nowrap}.pill.ready{background:var(--teal-soft);color:#076c5e}.pill.error{background:#fff0ec;color:#b4442c}.status-dot{width:6px;height:6px;border-radius:50%;background:currentColor}.legend{display:flex;gap:17px;flex-wrap:wrap;margin:18px 0 0;color:var(--muted);font-size:10px}.legend span{display:inline-flex;align-items:center;gap:6px}.legend i{width:17px;height:3px;border-radius:3px;background:var(--blue)}
-#response-chart{width:100%;height:330px;min-width:0}.chart-loading{height:330px;display:grid;place-items:center;color:var(--muted);font-size:12px;background:repeating-linear-gradient(0deg,transparent,transparent 65px,#f1f4f8 66px);margin:12px 0}
-#status{font-size:11px;color:var(--muted);margin:3px 0 0;min-height:18px}#status[data-state=error]{color:#b4442c}
-.chart-caption{padding-top:11px;border-top:1px solid #edf0f4;margin-top:8px;color:var(--muted);font-size:10px;line-height:1.7}.chart-caption p{margin:0}
-.ramp-summary{margin-top:15px;padding-top:14px;border-top:1px solid var(--line)}.ramp-summary h3{font-size:12px}.ramp-summary>p{color:var(--muted);font-size:10px}.ramp-summary dl{display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:14px;margin:12px 0}.ramp-summary dt{font-size:10px;color:var(--muted)}.ramp-summary dd{margin:6px 0 0;font-size:14px;font-weight:650;font-variant-numeric:tabular-nums}
-.learning{margin-top:30px}.section-heading{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:16px}.section-heading p{margin:0;font-size:11px;color:var(--muted)}.learning-grid{display:grid;grid-template-columns:360px minmax(0,1fr);gap:22px;align-items:start}
-.prediction-panel{padding:22px}.card-kicker{font-size:9px;letter-spacing:1.5px;color:var(--teal);text-transform:uppercase;font-weight:750;margin:0 0 8px}.prediction-panel h2{font-size:18px}.prediction-description{font-size:12px;color:var(--muted);line-height:1.8;margin:12px 0 17px}.prediction-choice label{display:block;font-size:11px;font-weight:600;margin-bottom:7px}.prediction-choice select{font-size:12px;min-height:43px}
-.prediction-buttons{display:grid;grid-template-columns:1fr;gap:8px;margin-top:12px}.prediction-buttons .btn{font-size:11px}#reset-prediction{background:transparent;color:var(--muted);border-color:transparent;min-height:35px}
-#prediction-feedback{font-size:11px;line-height:1.7;margin:12px 0 0;color:var(--muted);padding:10px 12px;background:#f5f7fa;border-radius:7px}
-.validation-panel{padding:22px;overflow:hidden}.validation-intro{font-size:11px;color:var(--muted);margin:7px 0 16px}.table-scroll{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin}table{border-collapse:collapse;width:100%;min-width:540px;text-align:left;font-size:11px}caption{font-size:10px;text-align:left;color:var(--muted);padding-bottom:10px}thead{background:#f5f7fa}th{font-size:9px;font-weight:650;color:#617189;letter-spacing:.2px}th,td{padding:12px 9px;border-bottom:1px solid #e8edf2}td{font-variant-numeric:tabular-nums}td:first-child{white-space:nowrap}
-.result-tag{display:inline-flex;align-items:center;padding:3px 7px;background:#e7f5ee;color:#0c7554;border-radius:5px;font-size:9px;font-weight:700}tr[data-result=fail] .result-tag{background:#fff0ed;color:#b4442c}tr[data-result=na] .result-tag{background:#eff2f6;color:#607086}
-.validation-note{font-size:10px;line-height:1.7;color:var(--muted);margin:13px 0 0}.scroll-hint{display:none;font-size:9px;color:var(--muted);margin:8px 0}
-.error-panel{padding:22px;margin-top:22px}.error-heading{display:flex;justify-content:space-between;align-items:start;gap:16px}#error-details{font-size:11px;color:var(--muted);line-height:1.8;max-width:810px}#error-chart{width:100%;height:280px;min-width:0}
-.footer{margin-top:27px;border-top:1px solid var(--line);padding-top:17px;display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;color:#8190a2;font-size:10px}.footer-authors{flex-basis:100%;font-size:12px;line-height:1.9;color:#66758a}.footer-authors b{display:inline-block;color:var(--ink);font-weight:600}.footer b{font-weight:600;color:#5c6f84}
-.phone-dialog{border:0;border-radius:20px;padding:28px;width:min(92vw,390px);color:var(--ink);box-shadow:0 20px 90px #0f203c30}.phone-dialog::backdrop{background:#10233d70;backdrop-filter:blur(3px)}.dialog-head{display:flex;align-items:center;justify-content:space-between}.close-dialog{border:0;background:#f1f4f7;border-radius:7px;width:34px;height:34px;font-size:20px;color:var(--muted);cursor:pointer}
-.phone-dialog h2{font-size:20px}.phone-dialog p{font-size:12px;color:var(--muted);line-height:1.8}.qr-code{display:flex;justify-content:center;background:#fff;margin:14px auto;width:230px;max-width:100%;aspect-ratio:1}.qr-code svg{width:100%;height:100%}.phone-url{display:block;font-size:11px;word-break:break-word;margin:14px 0}.phone-dialog .btn{width:100%}.phone-feedback{min-height:18px;margin-bottom:0}
-.mobile-nav{display:none}
-@media(min-width:1600px){.page{padding-top:42px}.chart-panel{padding:26px}#response-chart{height:380px}}
-@media(max-width:1100px){.workspace{grid-template-columns:275px minmax(0,1fr);gap:16px}.page{padding:26px 25px}.topbar-inner{padding:16px 25px}.learning-grid{grid-template-columns:315px minmax(0,1fr);gap:16px}.metric{padding:16px 13px}.metric-number{font-size:24px}.chart-panel{padding:20px 15px}.heading-actions .desktop-label{display:none}}
-@media(max-width:850px){.learning-grid{grid-template-columns:1fr}.prediction-buttons{grid-template-columns:1fr 1fr}.prediction-buttons #reset-prediction{grid-column:1/-1}.prediction-panel{padding:20px}.brand small{display:none}}
-@media(max-width:760px){.page{padding:24px 16px 90px}.topbar-inner{padding:14px 16px}.topbar-meta{letter-spacing:.5px}.topbar-meta>span{display:none}.page-heading{align-items:flex-start;gap:12px;margin-bottom:21px}.page-heading h1{font-size:29px;letter-spacing:-1px}.subtitle{font-size:12px}.heading-actions .btn{padding:9px 10px;min-height:39px}.heading-actions .phone-text{display:none}.workspace{grid-template-columns:minmax(0,1fr);gap:18px}.parameters{position:static}.parameters>summary{padding:17px 18px}.parameter{padding:13px 0}#controls{padding:0 18px 18px}.field-row{grid-template-columns:minmax(0,1fr) 95px}.mode-btn{min-height:58px}.mode-btn strong{font-size:14px}.mode-btn span,.field-note{font-size:11px}.parameter label{font-size:13px}.unit{font-size:11px}input[type=number],select{min-height:44px;font-size:16px}.metric-grid{gap:8px}.metric{padding:14px 10px}.metric-number{font-size:23px}.metric-label,.metric-foot{font-size:9px}.chart-panel{padding:18px 13px}.panel-heading h2{font-size:18px}.panel-heading p{font-size:10px}.legend{gap:10px;margin-top:16px;font-size:9px}#response-chart{height:310px}.chart-loading{height:310px}.mobile-view{display:flex;justify-content:center;margin-top:12px;font-size:12px;min-height:38px}.section-heading{align-items:start}.section-heading>p{display:none}.learning{margin-top:25px}.validation-panel,.error-panel{padding:18px 14px}.error-heading .pill{display:none}.scroll-hint{display:block}#error-chart{height:260px}.ramp-summary dl{grid-template-columns:1fr}.ramp-summary dd{font-size:15px}.footer{font-size:9px;flex-wrap:wrap;gap:6px}.mobile-nav{display:grid;position:fixed;bottom:0;left:0;right:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom));grid-template-columns:1fr 1fr;gap:10px;background:#ffffffed;border-top:1px solid var(--line);backdrop-filter:blur(12px);z-index:10}.mobile-nav a{font-size:12px;min-height:40px}.metric.primary-metric{grid-column:1/-1;display:grid;grid-template-columns:1fr auto;align-items:center;padding:13px 16px}.primary-metric .metric-label{font-size:10px;margin:0}.primary-metric .metric-number{font-size:29px;grid-column:2;grid-row:1/3}.primary-metric .metric-foot{margin-top:2px}.metric-grid{grid-template-columns:1fr 1fr}.prediction-buttons{grid-template-columns:1fr}.prediction-buttons #reset-prediction{grid-column:auto}.prediction-choice select{font-size:16px}.prediction-description{font-size:13px}#prediction-feedback{font-size:12px}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Dynamics Lab — How sensors respond to change</title>
+<meta name="description" content="Dynamics Lab: interactive experiments on how sensors respond to changing inputs. An ENCS4380 project by Team T19, Birzeit University.">
+<meta name="theme-color" content="#06080b">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Antonio:wght@600;700&family=Inter+Tight:wght@400;500;600&display=swap">
+<script>if(window.matchMedia&&!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("motion")</script>
+<style>
+:root{--ink:#06080b;--paper:#efeee9;--text:#15171b;--muted:#5b5f67;--light:#f3f1ec;--dim:#9ba2ad;--line:rgba(21,23,27,.16);--cyan:#7fe0ff;--amber:#ffb36b;--display:"Antonio","Arial Narrow","Roboto Condensed",Impact,sans-serif;--body:"Inter Tight",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--g:clamp(16px,4vw,56px);--ease:cubic-bezier(.22,.8,.2,1)}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:80px}
+body{margin:0;background:var(--ink);color:var(--light);font:400 16px/1.55 var(--body);-webkit-font-smoothing:antialiased}
+a{color:inherit}svg,canvas{display:block}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:4px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.skip{position:fixed;left:16px;top:-80px;z-index:100;padding:12px 18px;background:var(--light);color:var(--ink);font-weight:600;text-decoration:none}.skip:focus{top:12px}
+.label{margin:0;font:600 11px/1.4 var(--body);letter-spacing:.16em;text-transform:uppercase}
+.label::before{content:"";display:inline-block;width:5px;height:5px;margin-right:12px;border-radius:50%;background:currentColor;vertical-align:2px}
+.arrow{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.6;flex:none}
+.defs{position:absolute;width:0;height:0;overflow:hidden}
 
-.euler-panel{padding:22px;margin-top:18px}.euler-toggle{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:600;margin:17px 0 13px;cursor:pointer}.euler-toggle input{width:17px;height:17px;accent-color:var(--teal)}.euler-settings{padding:14px;background:#f7f9fb;border-radius:9px}.euler-settings .field-head label{font-size:12px;font-weight:600}.euler-settings .field-row{grid-template-columns:minmax(0,1fr) 100px}.legend .euler-line{height:0;background:transparent;border-top:2px dashed #d07928}.euler-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:17px 0 8px}.euler-stats>div{padding:12px;background:#faf6ef;border:1px solid #f0e7d9;border-radius:8px;min-width:0}.euler-stats dt{font-size:10px;color:var(--muted)}.euler-stats dd{margin:5px 0 0;font-size:19px;font-weight:650;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.euler-small{font-size:10px;line-height:1.7;color:var(--muted)}.euler-feedback{font-size:11px;line-height:1.8;padding:10px 12px;background:#edf6f3;border-radius:7px;color:#176957}.euler-panel[data-state="coarse"] .euler-feedback,.euler-panel[data-state="boundary"] .euler-feedback{background:#fff5df;color:#885517}.euler-panel[data-state="unstable"] .euler-feedback,.euler-panel[data-state="error"] .euler-feedback{background:#fff0ec;color:#a03d27}.euler-explanation{font-size:11px;color:var(--muted);line-height:1.8;margin-top:12px}.euler-explanation summary{cursor:pointer;font-weight:650;color:var(--ink);padding:5px 0}.euler-formula{font:12px/1.8 ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--ink);overflow-wrap:anywhere}
-@media(max-width:760px){.euler-panel{padding:18px 14px}.euler-stats{grid-template-columns:1fr 1fr;gap:8px}.euler-stats>div:last-child{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between}.euler-stats dd{font-size:18px}.euler-settings .field-row{grid-template-columns:minmax(0,1fr) 85px}.euler-settings input[type=number]{font-size:16px}.euler-feedback,.euler-explanation{font-size:12px}.euler-toggle{min-height:44px;font-size:13px}}
+/* Header */
+.hdr{position:fixed;inset:0 0 auto;z-index:60;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px var(--g);color:var(--light);transition:color .45s var(--ease)}
+.hdr[data-tone=light]{color:var(--text)}
+.brand{display:flex;align-items:center;gap:12px;min-height:44px;text-decoration:none;font:600 15px/1 var(--body);letter-spacing:-.01em}
+.brand svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:1.6}
+.brand small{display:block;margin-top:5px;font:600 9px/1 var(--body);letter-spacing:.16em;opacity:.6}
+.nav{display:flex;align-items:center;gap:clamp(18px,2.6vw,36px)}
+.nav-btn,.nav>a{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0;border:0;background:none;color:inherit;font:600 11px/1 var(--body);letter-spacing:.16em;text-transform:uppercase;text-decoration:none;cursor:pointer}
+.nav-btn svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.6;transition:transform .3s var(--ease)}
+.nav-btn[aria-expanded=true] svg{transform:rotate(180deg)}
+.menu{position:absolute;top:64px;right:var(--g);width:min(380px,calc(100vw - 32px));margin:0;padding:4px 22px;list-style:none;background:rgba(12,15,21,.95);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);color:var(--light);border-radius:3px;box-shadow:0 24px 60px rgba(0,0,0,.35);animation:drop .35s var(--ease)}
+.menu[hidden]{display:none}
+.mrow{display:flex;align-items:baseline;gap:16px;padding:17px 0;border-bottom:1px solid rgba(255,255,255,.09);font-size:15px;line-height:1.3;text-decoration:none}
+.menu li:last-child .mrow{border-bottom:0}
+.mrow b{min-width:22px;font:600 11px/1 var(--body);letter-spacing:.1em;color:var(--dim)}
+a.mrow:hover{color:var(--cyan)}
+.soon{margin-left:auto;font:600 10px/1 var(--body);letter-spacing:.16em;text-transform:uppercase;color:var(--amber);white-space:nowrap}
+.is-soon{cursor:default}.is-soon .arrow{display:none}
+@keyframes drop{from{opacity:0;transform:translateY(-6px)}}
 
-.brand-home{color:inherit}.brand-home:hover{text-decoration:none;color:#b5ead9}
-.breadcrumb{display:flex;gap:10px;align-items:center;font-size:12px;color:var(--muted);margin:0 0 20px;flex-wrap:wrap}.breadcrumb a{font-weight:650}
-.first-visit{padding:20px 23px;margin-bottom:22px;background:#edf6f3;border-color:#d1e5df}.first-visit h2{font-size:17px}.first-visit>p{font-size:13px;color:#49685f;margin:7px 0 15px;max-width:860px}.quick-start{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}.quick-start p{margin:0;font-size:12px;color:#49685f}.quick-start b{display:block;color:#172f29;margin-bottom:4px}.quick-start span{display:inline-grid;place-items:center;width:21px;height:21px;border-radius:50%;background:#d4eae2;color:#086356;font-size:10px;margin-right:6px}
-.reading-guide{font-size:13px;color:var(--muted);line-height:1.8;margin:12px 0}.reading-guide strong{color:var(--ink);font-weight:650}.error-guide{max-width:850px}.error-example{padding:12px 15px;border-left:3px solid #b56425;background:#fbf6ee;border-radius:0 7px 7px 0;color:#715431;font-size:12px}.error-view{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 0 8px}.error-view label{font-size:12px;font-weight:650}.error-view select{width:auto;max-width:100%;font-size:12px}#error-details{font-size:13px}.math-help{font-size:12px;color:var(--muted);line-height:1.8;margin-top:10px}.math-help summary{font-weight:650;color:var(--ink);cursor:pointer;min-height:36px;display:flex;align-items:center}.math-help summary::before{content:'＋';margin-right:8px}.math-help[open] summary::before{content:'−'}.error-note{font-size:12px;color:var(--muted);padding-top:12px;border-top:1px solid var(--line)}
-@media(max-width:760px){.first-visit{padding:17px}.quick-start{grid-template-columns:1fr;gap:13px}.quick-start p,.reading-guide,.error-example,.math-help{font-size:13px}.breadcrumb{margin-bottom:17px}.error-view{align-items:stretch;flex-direction:column;gap:6px}.error-view select{width:100%;font-size:16px}.error-heading .pill{display:none}.section-links{gap:14px;flex-wrap:wrap}}
+/* Hero */
+.hero{position:relative;height:100vh;height:100svh;min-height:560px;overflow:hidden;isolation:isolate;background:radial-gradient(130% 90% at 50% -10%,#1b2331 0%,#0b0f15 48%,var(--ink) 100%)}
+.hero-art{position:absolute;inset:0;width:100%;height:100%;z-index:-1;overflow:visible}
+.hero-art path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.hero-fx{position:absolute;inset:0;width:100%;height:100%;z-index:-2;display:none;pointer-events:none}
+.fx .hero-fx{display:block}.fx .ghost{display:none}
+.hero-in{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:90px var(--g) 160px;text-align:center;background:radial-gradient(46% 34% at 50% 50%,rgba(6,8,11,.42),rgba(6,8,11,0) 72%)}
+.hero h1{margin:0;font-weight:400}
+.kicker{display:block;margin-bottom:clamp(16px,3vh,30px);color:#c9ced6}
+.display{display:block;font:700 clamp(76px,14.5vw,232px)/.86 var(--display);letter-spacing:-.005em;text-transform:uppercase}
+.display>span{display:block;overflow:hidden;padding-top:.03em}
+.display i{display:block;font-style:normal}
+.hero-foot{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:24px;padding:0 var(--g) clamp(22px,4vh,40px)}
+.hero-foot p{margin:0;max-width:36ch;font-size:15px;line-height:1.6;color:#c3c8d0}
+.cue{display:flex;flex-direction:column;align-items:center;gap:12px;min-height:44px;color:var(--dim);font:600 10px/1 var(--body);letter-spacing:.2em;text-transform:uppercase;text-decoration:none}
+.cue i{width:1px;height:40px;background:currentColor;transform-origin:top}
+.cta{justify-self:end;display:inline-flex;align-items:center;gap:16px;min-height:48px;padding:0 6px 0 20px;background:var(--light);color:var(--ink);border-radius:2px;font:600 12px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;text-decoration:none;white-space:nowrap}
+.cta span{display:grid;place-items:center;width:36px;height:36px;background:var(--ink);color:var(--light);border-radius:1px}
+.cta .arrow{transition:transform .35s var(--ease)}.cta:hover .arrow{transform:translateX(3px)}
+.cta.dark{background:var(--text);color:var(--light)}.cta.dark span{background:var(--light);color:var(--text)}
+.wipe{display:none;position:absolute;inset:-12% -30%;z-index:4;pointer-events:none}
+.wipe i{position:absolute;left:0;width:100%;height:26%;background:var(--paper);transform:translate3d(120%,0,0) skewX(-16deg)}
+.wipe i:nth-child(2){top:24%}.wipe i:nth-child(3){top:48%}.wipe i:nth-child(4){top:72%}
+.motion .wipe{display:block}
+.motion .display i{animation:rise 1.25s var(--ease) both}
+.motion .display>span+span i{animation-delay:.12s}
+.motion .kicker,.motion .hero-foot{animation:fade 1.2s .55s var(--ease) both}
+.motion .draw{stroke-dasharray:2000;stroke-dashoffset:2000;animation:draw 2.8s .35s cubic-bezier(.45,.05,.2,1) forwards}
+.motion .draw.d2{animation-delay:.65s}.motion .draw.d3{animation-delay:.85s}
+.motion .head{opacity:0;animation:show 1s 2.7s forwards}
+.motion .cue i{animation:cue 2.4s var(--ease) infinite}
+@keyframes rise{from{transform:translateY(102%)}}
+@keyframes fade{from{opacity:0}}
+@keyframes show{to{opacity:1}}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes cue{0%{transform:scaleY(0)}50%{transform:scaleY(1);transform-origin:top}50.1%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
 
-.home-page{max-width:1240px;margin:auto;padding:46px 40px 32px}.home-top{max-width:1240px}.home-nav{display:flex;gap:24px;font-size:12px}.home-nav a{color:#d9e3ec}.home-hero{display:grid;grid-template-columns:1.1fr 1fr;gap:65px;align-items:center;padding:22px 0 48px}.home-hero h1{font-size:clamp(38px,4.5vw,58px);line-height:1.08;letter-spacing:-2.2px;max-width:570px;margin-top:17px}.home-lead{font-size:16px;color:var(--muted);line-height:1.85;max-width:510px;margin:22px 0}.hero-actions{display:flex;align-items:center;gap:19px;flex-wrap:wrap}.hero-actions .btn{min-height:48px;padding:12px 19px;font-size:13px}.hero-note{font-size:11px;color:var(--muted);margin:15px 0 0}.hero-art{background:#14243a;border-radius:22px;color:#fff;padding:27px 27px 21px;box-shadow:0 17px 40px #14243a12;transform:rotate(-1deg)}.hero-art svg{display:block;width:100%;height:auto}.art-top{display:flex;justify-content:space-between;gap:10px;font-size:10px;color:#a8bacd;letter-spacing:.6px}.art-top b{color:#9ce3ce;font-weight:550}.art-labels{display:flex;gap:19px;font-size:11px;color:#b4c5d5;margin:12px 0}.art-labels span{display:flex;gap:7px;align-items:center}.art-labels i{width:18px;height:3px;background:#82d9c1;border-radius:3px}.art-labels .input-line{background:#92a3b8}.art-footer{font-size:12px;color:#c7d4df;line-height:1.8;margin:16px 0 0;border-top:1px solid #32445b;padding-top:15px}.art-footer b{color:#9ce3ce}.home-section{padding:28px 0}.home-section .section-heading{margin-bottom:22px}.home-section h2{font-size:25px}.start-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}.start-step{display:flex;gap:13px}.step-number{width:30px;height:30px;display:grid;place-items:center;background:#e2efe9;color:#087364;border-radius:8px;flex:none;font-size:12px;font-weight:700}.start-step h3{font-size:14px;margin:2px 0 7px}.start-step p{color:var(--muted);font-size:12px;line-height:1.8;margin:0}.module-feature{display:grid;grid-template-columns:110px 1fr auto;align-items:center;gap:25px;padding:28px 30px;border-color:#c7ddd5;background:linear-gradient(110deg,#eef7f3,#fff 60%)}.module-number{font-size:65px;line-height:1;letter-spacing:-4px;color:#c0d9cf;font-weight:700}.module-feature h3{font-size:24px;letter-spacing:-.7px;margin:7px 0 9px}.module-feature p{font-size:13px;color:var(--muted);max-width:620px;line-height:1.8;margin:0}.module-tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:17px}.module-tags span{border:1px solid #dbe8e2;background:#ffffffb0;color:#466c60;padding:4px 9px;border-radius:5px;font-size:10px}.module-feature .btn{min-height:46px;white-space:nowrap}.roadmap-label{font-size:11px;color:var(--muted);margin:24px 0 12px}.roadmap{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.roadmap article{padding:20px;border-radius:12px;border:1px solid var(--line);background:#f9fafb}.roadmap .card-kicker{color:#7b8798}.roadmap h3{font-size:15px;margin:8px 0}.roadmap p{color:var(--muted);font-size:12px;line-height:1.8;margin:0}.home-help{border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:45px;margin-top:17px;padding-top:30px}.home-help h2{font-size:18px}.home-help p{font-size:13px;line-height:1.8;color:var(--muted)}.home-help details{padding:13px 0;border-bottom:1px solid var(--line);font-size:12px}.home-help summary{cursor:pointer;font-weight:650;min-height:30px}.home-help details p{font-size:12px;margin:8px 0}.home-page .footer{margin-top:35px}.home-page .footer-authors{font-size:11px}
-@media(max-width:900px){.home-hero{gap:30px}.home-hero h1{font-size:42px}.module-feature{grid-template-columns:70px 1fr;gap:18px}.module-number{font-size:55px}.module-feature>.btn{grid-column:2;justify-self:start}.hero-art{padding:20px}.home-nav{gap:16px}}
-@media(max-width:650px){.home-page{padding:27px 20px}.home-hero{grid-template-columns:1fr;gap:32px;padding:12px 0 20px}.home-hero h1{font-size:42px;letter-spacing:-1.6px}.home-lead{font-size:15px;margin:19px 0}.hero-art{transform:none;padding:22px}.home-nav{gap:14px;font-size:11px}.home-nav a:last-child{display:none}.home-section{padding:25px 0}.start-steps{grid-template-columns:1fr;gap:21px}.start-step p{font-size:13px}.home-section h2{font-size:23px}.module-feature{padding:23px 20px;grid-template-columns:1fr;gap:15px}.module-number{font-size:39px;letter-spacing:-2px}.module-feature h3{font-size:24px}.module-feature>.btn{grid-column:1;justify-self:stretch}.module-feature p{font-size:13px}.roadmap{grid-template-columns:1fr;gap:11px}.roadmap article{padding:18px 20px}.roadmap p{font-size:13px}.home-help{grid-template-columns:1fr;gap:18px}.home-help details,.home-help details p{font-size:13px}.home-page .footer{font-size:11px;gap:12px}.home-top .brand{font-size:16px}.hero-actions{gap:16px}.hero-note{font-size:12px}}
-</style></head><body><header class="topbar"><div class="topbar-inner home-top"><a class="brand brand-home" href="./" aria-label="Dynamics Lab home"><span class="brand-mark"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 19h18M3 19V5M5 17c2-1 2-8 5-8s5 1 10 0"/></svg></span>Dynamics Lab <small>ENCS4380</small></a><nav class="home-nav" aria-label="Main navigation"><a href="#modules">Modules</a><a href="#how-it-works">How it works</a></nav></div></header>
-<main class="home-page">
- <section class="home-hero" aria-labelledby="home-title">
-  <div><p class="eyebrow">An interactive guide to sensor dynamics</p><h1 id="home-title">The world changes.<br>Sensors take time.</h1><p class="home-lead">Why does a sensor’s reading lag behind a sudden change? Explore it yourself: change an input, watch the response, and learn what the curve is telling you.</p><div class="hero-actions"><a class="btn primary" href="module-1.html">Start with Module 1 <span aria-hidden="true">→</span></a><a href="#how-it-works">How does it work?</a></div><p class="hero-note">Start in your browser · Works on mobile · No installation</p></div>
-  <figure class="hero-art" style="margin:0" aria-labelledby="art-caption"><div class="art-top"><span>THE IDEA / STEP RESPONSE</span><b>Input → Sensor → Reading</b></div><svg viewBox="0 0 420 260" role="img" aria-label="Conceptual plot: a sudden input jumps up, while the sensor reading gradually approaches its final value."><defs><pattern id="grid" width="60" height="45" patternUnits="userSpaceOnUse"><path d="M60 0H0V45" fill="none" stroke="#2b3d54" stroke-width="0.7"/></pattern></defs><rect x="35" y="25" width="360" height="190" fill="url(#grid)"/><path d="M35 25V215H395" fill="none" stroke="#6d8097"/><path d="M35 215V45H395" fill="none" stroke="#92a3b8" stroke-width="2" stroke-dasharray="6 6"/><path d="M35 215C58 125 82 85 120 65S235 46 395 45" fill="none" stroke="#82d9c1" stroke-width="3.5"/><text x="45" y="246" fill="#a8bacd" font-size="11">Time →</text><text x="47" y="20" fill="#a8bacd" font-size="11">Signal</text><text x="225" y="195" fill="#9ce3ce" font-size="12">The reading catches up.</text></svg><div class="art-labels"><span><i class="input-line"></i>Sudden input</span><span><i></i>Sensor reading</span></div><figcaption class="art-footer" id="art-caption"><b>The gap matters.</b> A correctly calibrated sensor can still give a misleading reading if you read it too early. Conceptual illustration.</figcaption></figure>
- </section>
- <section class="home-section" id="how-it-works" aria-labelledby="how-title"><div class="section-heading"><div><p class="eyebrow">No prior experience needed</p><h2 id="how-title">One experiment. Three small steps.</h2></div></div><div class="start-steps"><div class="start-step"><span class="step-number">1</span><div><h3>Choose an input</h3><p>Try a sudden jump (Step) or a steady increase (Ramp). Think of a changing quantity a sensor needs to measure.</p></div></div><div class="start-step"><span class="step-number">2</span><div><h3>Watch the response</h3><p>Move a slider and follow the reading over time. The graph and key values update with your settings.</p></div></div><div class="start-step"><span class="step-number">3</span><div><h3>Predict, then check</h3><p>Make a prediction before changing a parameter. Test your intuition, then compare the calculations with the lecture.</p></div></div></div></section>
- <section class="home-section" id="modules" aria-labelledby="modules-title"><div class="section-heading"><div><p class="eyebrow">Your learning path</p><h2 id="modules-title">Choose a module.</h2></div><span class="pill ready">Modules 1–3 available</span></div><article class="panel module-feature"><div class="module-number" aria-hidden="true">01</div><div><span class="pill ready">Ready to explore</span><h3>First-order time response</h3><p>Find out how fast a sensor follows a change. Explore the time constant τ, the final reading, and the gap that remains while the sensor catches up.</p><div class="module-tags"><span>Step &amp; Ramp</span><span>Guided explanations</span><span>Live validation</span><span>Optional Euler comparison</span></div></div><a class="btn primary" href="module-1.html">Open module <span aria-hidden="true">→</span></a></article><p class="roadmap-label">Continue with Modules 2 and 3 · Module 4 coming next</p><div class="roadmap"><article><p class="card-kicker">02 / Available · v2</p><h3>Frequency response</h3><p>Explore input/output sines, Bode plots, cutoff and dynamic error. Now with a two-sine <strong>Superposition</strong> experiment that shows how a sensor filters different frequencies.</p><p><a class="btn primary" href="module-2.html">Open Module 2 <span aria-hidden="true">→</span></a></p></article><article><p class="card-kicker">03 / Available</p><h3>Second-order response</h3><p>Explore damping, overshoot, poles, state space and phase-plane behavior with a mass–spring–damper model.</p><p><a class="btn primary" href="module-3.html">Open Module 3 <span aria-hidden="true">→</span></a></p></article><article><p class="card-kicker">04 / Planned</p><h3>Guess the sensor</h3><p>Read an unfamiliar response curve and estimate the hidden sensor’s characteristics.</p></article></div></section>
- <section class="home-help" aria-labelledby="about-title"><div><p class="eyebrow">About the toolkit</p><h2 id="about-title">Learn the response, not just the equation.</h2><p>Dynamics Lab is a course project for ENCS4380 Interfacing Techniques at Birzeit University, created by Team T19. It turns the lecture’s sensor models into experiments you can change and inspect.</p><p>These are mathematical simulations. Real sensors fit these models only when the models’ assumptions apply.</p></div><div><details><summary>What does “first order” mean?</summary><p>A first-order model describes a response with one time constant, τ. In Module 1, the sensor approaches a new reading gradually; a larger τ means it takes longer.</p></details><details><summary>What do input, output and error mean?</summary><p>The input is the quantity being measured. The output is the sensor’s reported reading. During a change, a gap can remain between the reading and its ideal value. Each experiment explains how that gap is measured.</p></details><details><summary>Can I use it on my phone?</summary><p>Open this same website in your phone’s browser. No app or login is needed. Inside Module 1, Open on phone provides a QR code and a copyable link. Internet access is needed to load the calculation and plotting libraries.</p></details></div></section>
- <footer class="footer"><span><b>Dynamics Lab</b> · Team T19 · Birzeit University</span><span>ENCS4380 · Interfacing Techniques</span><span class="footer-authors">Created by <b>Khaled Bani Oudeh</b> · <b>Jibreel Haddar</b> · <b>Mohammad Khaleel</b> · <b>Waad Melhem</b></span></footer></main></body></html>
+/* Intro */
+.intro{position:relative;z-index:1;background:var(--paper);color:var(--text);padding:clamp(96px,15vh,170px) var(--g) clamp(80px,12vh,150px)}
+.wrap{max-width:1320px;margin:0 auto}
+.rule{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:clamp(20px,5vw,80px);padding-top:20px;border-top:1px solid var(--line)}
+.lead{margin:0;max-width:25em;font:500 clamp(24px,2.6vw,40px)/1.2 var(--body);letter-spacing:-.022em}
+.to-guide{display:inline-flex;align-items:center;gap:10px;min-height:44px;margin-top:clamp(28px,4vh,40px);border-bottom:1px solid var(--line);font:600 12px/1 var(--body);letter-spacing:.14em;text-transform:uppercase;text-decoration:none}
+.to-guide svg{transform:rotate(90deg)}
+
+/* Module flight */
+.tunnel{position:relative;background:var(--paper)}
+.stage{position:relative;overflow:hidden;color:var(--light);padding:clamp(96px,14vh,140px) var(--g) clamp(64px,10vh,110px);background:radial-gradient(90% 60% at 52% 0%,#1a2130,transparent 70%),linear-gradient(#0a0d13,var(--ink) 55%,#0b1214)}
+.bg{display:none}
+.stage-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;max-width:1320px;margin:0 auto clamp(40px,7vh,72px)}
+.hint{margin:0;color:var(--dim);font:500 12px/1.4 var(--body);letter-spacing:.08em}
+.plates{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:56px 32px;max-width:1320px;margin:0 auto;padding:0;list-style:none}
+.plate-img{position:relative;display:block;aspect-ratio:4/5;overflow:hidden;border-radius:3px;background:#101318;box-shadow:0 40px 80px -24px rgba(0,0,0,.65);text-decoration:none;transform-origin:50% 50%}
+.plate-img svg{width:100%;height:100%}
+.plate-img::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 1px 0 rgba(255,255,255,.14),inset 0 0 0 1px rgba(255,255,255,.06);pointer-events:none}
+.fog{position:absolute;inset:0;background:var(--ink);opacity:0;pointer-events:none}
+.cap{margin-top:20px}
+.cap-meta{margin:0 0 8px;color:var(--dim);font:600 11px/1.4 var(--body);letter-spacing:.16em;text-transform:uppercase}
+.cap-meta span{margin-right:12px;color:var(--light)}
+.cap h3{margin:0 0 4px;font:500 clamp(19px,1.6vw,24px)/1.25 var(--body);letter-spacing:-.015em}
+.cap-d{margin:0;color:#b5bbc5;font-size:14px;line-height:1.5}
+.cap-link{display:inline-flex;align-items:center;gap:10px;min-height:44px;color:var(--accent,var(--cyan));font:600 12px/1 var(--body);letter-spacing:.14em;text-transform:uppercase;text-decoration:none}
+.cap-link .arrow{transition:transform .35s var(--ease)}.cap-link:hover .arrow{transform:translateX(4px)}
+span.cap-link{color:var(--amber)}
+.rail,.count{display:none}
+.motion .tunnel{height:calc(var(--h,540)*1vh);height:calc(var(--h,540)*1svh)}
+.motion .stage{position:sticky;top:0;height:100vh;height:100dvh;padding:0;background:var(--ink)}
+.motion .bg{display:block;position:absolute;inset:0;width:100%;height:100%}
+.motion .stage-head{position:absolute;z-index:200;top:clamp(76px,11vh,104px);left:var(--g);right:var(--g);margin:0}
+.motion .plates{position:absolute;inset:0;display:block;max-width:none;margin:0}
+.motion .plate{position:absolute;inset:0;pointer-events:none}
+.motion .plate-img{position:absolute;left:0;top:0;width:var(--pw,360px);opacity:0;pointer-events:none;backface-visibility:hidden}
+.motion .moving .plate-img{will-change:transform,opacity}
+.motion .cap{position:absolute;z-index:200;left:50%;bottom:calc(74px + env(safe-area-inset-bottom));width:min(560px,calc(100% - 32px));margin:0;text-align:center;opacity:0;pointer-events:none;transform:translateX(-50%)}
+.motion .cap.on{pointer-events:auto}
+.motion .rail{display:block;position:absolute;z-index:200;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));width:min(520px,calc(100% - 2*var(--g) - 24px));height:48px;transform:translateX(-50%)}
+.rail-line{position:absolute;left:0;right:0;top:14px;height:1px;background:rgba(255,255,255,.18)}
+.rail-dot{position:absolute;left:0;top:14px;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:#fff;box-shadow:0 0 14px 3px var(--glow,rgba(127,224,255,.55))}
+.rail button{position:absolute;top:0;display:flex;flex-direction:column;align-items:center;gap:10px;width:48px;height:48px;margin-left:-24px;padding:10px 0 0;border:0;background:none;color:var(--dim);font:600 10px/1 var(--body);letter-spacing:.12em;cursor:pointer}
+.rail button::before{content:"";width:1px;height:9px;background:currentColor}
+.rail button[aria-current=true]{color:var(--light)}
+.motion .count{display:block;margin:0;color:var(--dim);font:600 11px/1 var(--body);letter-spacing:.16em}
+
+/* Display heading + module index (used by the guide) */
+.big{margin:0 0 clamp(20px,3vh,32px);font:700 clamp(64px,10vw,160px)/.88 var(--display);text-transform:uppercase}
+.index{margin:clamp(72px,12vh,128px) 0 0;padding:0;list-style:none;border-top:1px solid var(--line)}
+.irow{display:grid;grid-template-columns:56px minmax(0,1.2fr) minmax(0,1.5fr) 150px;align-items:center;gap:20px;min-height:80px;padding:18px 0;border-bottom:1px solid var(--line);text-decoration:none;transition:padding .45s var(--ease)}
+.irow .n{font:600 12px/1 var(--body);letter-spacing:.12em;color:var(--muted)}
+.irow .t{font:500 clamp(18px,1.7vw,24px)/1.25 var(--body);letter-spacing:-.015em}
+.irow .d{color:var(--muted);font-size:15px;line-height:1.45}
+.irow .go{display:inline-flex;align-items:center;justify-content:flex-end;gap:10px;font:600 11px/1 var(--body);letter-spacing:.16em;text-transform:uppercase}
+a.irow:hover{padding-left:12px}
+.irow.is-soon .t{color:#6f737a}
+.irow .soon{margin:0;color:#9a5414}
+.note{margin:28px 0 0;max-width:60em;color:var(--muted);font-size:14px;line-height:1.6}
+
+/* Guide for newcomers (added section — all rules scoped to .guide) */
+.guide{position:relative;z-index:1;background:var(--paper);color:var(--text);padding:clamp(96px,15vh,170px) var(--g) clamp(72px,10vh,120px)}
+.guide .g-head,.guide .g-row{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:14px clamp(20px,5vw,80px);border-top:1px solid var(--line)}
+.guide .g-head{padding-top:20px}
+.guide .g-head .big{margin-bottom:clamp(16px,2.4vh,26px)}
+.guide .g-lead{margin:0;max-width:32em;color:var(--muted);font-size:clamp(17px,1.4vw,20px);line-height:1.6}
+.guide .g-row{padding:clamp(30px,5vh,48px) 0}
+.guide .g-head+.g-row{margin-top:clamp(56px,9vh,100px)}
+.guide .g-q{margin:0;font:500 clamp(20px,1.8vw,26px)/1.25 var(--body);letter-spacing:-.015em}
+.guide .g-a{max-width:40em;color:#34373d;font-size:17px;line-height:1.7}
+.guide .g-a>p{margin:0 0 1em}
+.guide .g-a>:last-child{margin-bottom:0}
+.guide strong{font-weight:600;color:var(--text)}
+.guide .g-terms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px;margin:0 0 28px}
+.guide .g-terms dt{margin-bottom:10px;color:var(--text);font:700 clamp(28px,2.6vw,36px)/1 var(--display);text-transform:uppercase}
+.guide .g-terms dd{margin:0}
+.guide .g-fig{margin:0 0 1.2em;padding:clamp(16px,2.4vw,28px);background:#e5e3dc;border-radius:3px}
+.guide .g-fig svg{display:block;width:100%;max-width:520px;height:auto}
+.guide .g-fig text{font:600 12.5px var(--body);fill:#5b5f67}
+.guide .g-fig figcaption{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:14px;color:var(--muted);font-size:14px;line-height:1.5}
+.guide .key{display:inline-flex;align-items:center;gap:10px}
+.guide .key::before{content:"";width:24px;border-top:2px dashed rgba(21,23,27,.7)}
+.guide .key-out::before{border-top:3px solid #c8641a}
+.guide .g-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px;margin:6px 0 26px}
+.guide .g-pair h4{display:flex;align-items:center;gap:10px;margin:0 0 6px;color:var(--text);font:600 16px/1.3 var(--body)}
+.guide .g-pair h4::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--c)}
+.guide .g-pair p{margin:0;font-size:16px;line-height:1.65}
+.guide .index{margin:0;border-top:0}
+.guide .irow{grid-template-columns:36px minmax(0,1fr) auto;align-items:start;gap:6px 18px;min-height:0;padding:20px 0}
+.guide .index li:first-child .irow{padding-top:4px}
+.guide .irow .n{padding-top:6px}
+.guide .irow .d{grid-column:2;grid-row:2;font-size:15px;line-height:1.55}
+.guide .irow .go{grid-column:3;grid-row:1;padding-top:6px}
+.guide .g-steps{margin:0 0 32px;padding:0;list-style:none;counter-reset:s}
+.guide .g-steps li{position:relative;padding:0 0 20px 58px;counter-increment:s}
+.guide .g-steps li::before{content:counter(s,decimal-leading-zero);position:absolute;left:0;top:0;color:var(--text);font:700 30px/1 var(--display)}
+.guide .g-steps b{display:block;color:var(--text);font-weight:600}
+.guide .note{margin-top:clamp(40px,7vh,72px);padding-top:22px;border-top:1px solid var(--line)}
+@media (max-width:820px){
+ .guide .g-head,.guide .g-row{grid-template-columns:1fr}
+ .guide .g-terms,.guide .g-pair{grid-template-columns:1fr;gap:20px}
+ .guide .g-a{font-size:16.5px}
+ .guide .cta{display:flex}
+}
+@media (max-width:560px){
+ .guide .irow{grid-template-columns:30px minmax(0,1fr)}
+ .guide .irow .go{grid-column:2;grid-row:3;justify-content:flex-start;padding-top:4px}
+ .guide .g-steps li{padding-left:50px}
+ .guide .g-fig{padding:14px 12px}
+ .guide .g-fig text{font-size:14px}
+}
+
+/* Footer */
+.foot{background:var(--ink);color:var(--light);padding:clamp(64px,10vh,110px) var(--g) calc(28px + env(safe-area-inset-bottom))}
+.foot-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:24px;padding-bottom:clamp(40px,7vh,72px)}
+.foot-big{margin:0;font:700 clamp(56px,8vw,128px)/.9 var(--display);text-transform:uppercase}
+.foot-top a{display:inline-flex;align-items:center;min-height:44px;font:600 11px/1 var(--body);letter-spacing:.16em;text-transform:uppercase;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.3)}
+.foot-bottom{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px 32px;padding-top:22px;border-top:1px solid rgba(255,255,255,.14);color:#aab0ba;font-size:14px;line-height:1.6}
+.foot-bottom p{margin:0}
+
+/* Responsive */
+@media (max-width:820px){
+ .rule{grid-template-columns:1fr}
+ .irow{grid-template-columns:36px 1fr auto;gap:6px 14px}
+ .irow .d{grid-column:2/4;grid-row:2;font-size:14px}
+ .hero-foot{grid-template-columns:1fr;justify-items:start;gap:18px}
+ .cue,.hint{display:none}
+ .cta{justify-self:stretch;justify-content:space-between}
+}
+@media (max-width:560px){.nav>a,.brand small,.k2{display:none}.display{font-size:17.5vw}.hero-in{padding-bottom:210px}}
+@media (max-height:700px){.cap-d{display:none}}
+@media (max-aspect-ratio:4/5){.hero-art{transform:translateX(26vh)}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<svg class="defs" aria-hidden="true" focusable="false"><filter id="glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="7"/></filter><symbol id="arw" viewBox="0 0 16 16"><path d="M2 8h11M9 4l4 4-4 4"/></symbol></svg>
+
+<header class="hdr" id="hdr" data-tone="dark">
+ <a class="brand" href="#top" aria-label="Dynamics Lab, back to top"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3 26h7V6"/><path d="M10 26c4-16 9-20 19-20" opacity=".55"/></svg><span>Dynamics Lab<small>ENCS4380 · TEAM T19</small></span></a>
+ <nav class="nav" aria-label="Main">
+  <button class="nav-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="menu">Modules<svg viewBox="0 0 12 12" aria-hidden="true"><path d="m2.5 4.5 3.5 3.5 3.5-3.5"/></svg></button>
+  <ul class="menu" id="menu" hidden>
+   <li><a class="mrow" href="module-1.html"><b>01</b>First-order time response</a></li>
+   <li><a class="mrow" href="module-2.html"><b>02</b>First-order frequency response</a></li>
+   <li><a class="mrow" href="module-3.html"><b>03</b>Second-order response</a></li>
+   <li><span class="mrow is-soon" data-m4><b>04</b>Guess the sensor<em class="soon" data-m4-status="New">Coming soon</em></span></li>
+  </ul>
+  <a href="#about">About</a>
+ </nav>
+</header>
+
+<main id="main">
+<section class="hero" id="top" data-tone="dark" aria-labelledby="hero-title">
+ <canvas class="hero-fx" aria-hidden="true"></canvas>
+ <svg class="hero-art" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <defs>
+   <radialGradient id="hl" cx=".5" cy="0" r=".65"><stop offset="0" stop-color="#cfe6ff" stop-opacity=".2"/><stop offset="1" stop-color="#cfe6ff" stop-opacity="0"/></radialGradient>
+   <linearGradient id="hf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fe0ff" stop-opacity="0"/><stop offset="1" stop-color="#7fe0ff" stop-opacity=".09"/></linearGradient>
+   <radialGradient id="hh"><stop offset="0" stop-color="#fff"/><stop offset=".22" stop-color="#bfefff" stop-opacity=".55"/><stop offset="1" stop-color="#7fe0ff" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#hl)"/>
+  <rect y="700" width="1600" height="200" fill="url(#hf)"/>
+  <path d="M0 760H1600M0 840H1600" stroke="#fff" stroke-opacity=".05"/>
+  <path d="M0 700H430V180H1600" stroke="#fff" stroke-opacity=".2" stroke-width="1.2" stroke-dasharray="3 10"/>
+  <g class="ghost" stroke="#9fdcff" stroke-width="1.4" stroke-opacity=".26"><path class="draw d2" d="M0 700 L430 700 L436 662.4 L458 546.4 L480 458.3 L502 391.4 L524 340.6 L546 302 L568 272.6 L590 250.4 L612 233.5 L634 220.6 L656 210.8 L678 203.4 L700 197.8 L722 193.5 L744 190.3 L766 187.8 L788 185.9 L810 184.5 L832 183.4 L854 182.6 L876 182 L898 181.5 L920 181.1 L942 180.9 L964 180.7 L986 180.5 L1008 180.4 L1030 180.3 L1052 180.2 L1074 180.2 L1096 180.1 L1118 180.1 L1140 180.1 L1162 180.1 L1184 180H1580"/><path class="draw d3" d="M0 700 L430 700 L436 691.9 L458 663.1 L480 635.9 L502 610.2 L524 586 L546 563.2 L568 541.6 L590 521.3 L612 502.1 L634 484 L656 466.9 L678 450.8 L700 435.5 L722 421.1 L744 407.6 L766 394.8 L788 382.7 L810 371.3 L832 360.5 L854 350.4 L876 340.8 L898 331.8 L920 323.2 L942 315.2 L964 307.6 L986 300.4 L1008 293.6 L1030 287.2 L1052 281.2 L1074 275.5 L1096 270.1 L1118 265.1 L1140 260.3 L1162 255.8 L1184 251.5 L1206 247.5 L1228 243.7 L1250 240.1 L1272 236.7 L1294 233.5 L1316 230.5 L1338 227.7 L1360 225 L1382 222.5 L1404 220.1 L1426 217.8 L1448 215.7 L1470 213.7 L1492 211.8 L1514 210 L1536 208.3 L1558 206.7 L1580 205.2"/></g>
+  <path class="draw" d="M0 700 L430 700 L436 683.8 L458 628.7 L480 579.7 L502 536 L524 497.1 L546 462.4 L568 431.5 L590 404 L612 379.5 L634 357.7 L656 338.3 L678 321 L700 305.6 L722 291.8 L744 279.6 L766 268.7 L788 259 L810 250.4 L832 242.7 L854 235.8 L876 229.7 L898 224.3 L920 219.4 L942 215.1 L964 211.3 L986 207.9 L1008 204.8 L1030 202.1 L1052 199.7 L1074 197.5 L1096 195.6 L1118 193.9 L1140 192.4 L1162 191 L1184 189.8 L1206 188.8 L1228 187.8 L1250 186.9 L1272 186.2 L1294 185.5 L1316 184.9 L1338 184.4 L1360 183.9 L1382 183.5 L1404 183.1 L1426 182.8 L1448 182.4 L1470 182.2 L1492 181.9 L1514 181.7 L1536 181.5 L1558 181.4 L1580 181.2" stroke="#59c8ff" stroke-width="16" stroke-opacity=".45" filter="url(#glow)"/>
+  <path class="draw" d="M0 700 L430 700 L436 683.8 L458 628.7 L480 579.7 L502 536 L524 497.1 L546 462.4 L568 431.5 L590 404 L612 379.5 L634 357.7 L656 338.3 L678 321 L700 305.6 L722 291.8 L744 279.6 L766 268.7 L788 259 L810 250.4 L832 242.7 L854 235.8 L876 229.7 L898 224.3 L920 219.4 L942 215.1 L964 211.3 L986 207.9 L1008 204.8 L1030 202.1 L1052 199.7 L1074 197.5 L1096 195.6 L1118 193.9 L1140 192.4 L1162 191 L1184 189.8 L1206 188.8 L1228 187.8 L1250 186.9 L1272 186.2 L1294 185.5 L1316 184.9 L1338 184.4 L1360 183.9 L1382 183.5 L1404 183.1 L1426 182.8 L1448 182.4 L1470 182.2 L1492 181.9 L1514 181.7 L1536 181.5 L1558 181.4 L1580 181.2" stroke="#f1fbff" stroke-width="2.6"/>
+  <circle class="head" cx="1580" cy="181" r="64" fill="url(#hh)"/>
+ </svg>
+ <div class="hero-in">
+  <h1 id="hero-title"><span class="kicker label">Dynamics Lab<span class="k2"> · Sensor dynamics, made visible</span></span><span class="display"><span><i>Nothing is</i></span><span><i>instant.</i></span></span></h1>
+ </div>
+ <div class="hero-foot">
+  <p>Interactive experiments that show how a sensor follows a changing input — and why its reading lags, settles or overshoots.</p>
+  <a class="cue" href="#about">Scroll to explore<i></i></a>
+  <a class="cta" href="module-1.html">Start with Module 1<span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></a>
+ </div>
+ <div class="wipe" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+</section>
+
+<section class="intro" id="about" data-tone="light" aria-labelledby="about-title">
+ <div class="wrap rule">
+  <h2 class="label" id="about-title">What this is</h2>
+  <div>
+   <p class="lead">Every sensor needs time to catch up with the world it measures. Dynamics Lab lets you change an input and watch the response unfold, using the first- and second-order models from ENCS4380.</p>
+   <a class="to-guide" href="#learn">New to sensors? Read the short guide<svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></a>
+  </div>
+ </div>
+</section>
+
+<section class="tunnel" id="modules" data-tone="dark" aria-labelledby="modules-title">
+ <div class="stage">
+  <canvas class="bg" aria-hidden="true"></canvas>
+  <div class="stage-head"><h2 class="label" id="modules-title">The modules</h2><p class="hint">Scroll to travel · ← → to step</p><p class="count" id="count" aria-hidden="true">01 / 04</p></div>
+  <ol class="plates">
+   <li class="plate">
+    <a class="plate-img" href="module-1.html" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
+     <defs><linearGradient id="p1g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2c1a12"/><stop offset=".55" stop-color="#110c0b"/><stop offset="1" stop-color="#28160d"/></linearGradient><radialGradient id="p1l" cx=".78" cy=".2" r=".8"><stop offset="0" stop-color="#ffb36b" stop-opacity=".3"/><stop offset="1" stop-color="#ffb36b" stop-opacity="0"/></radialGradient></defs>
+     <rect width="400" height="500" fill="url(#p1g)"/><rect width="400" height="500" fill="url(#p1l)"/>
+     <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M40 380H372M120 170H372" stroke="#fff" stroke-opacity=".08" stroke-dasharray="2 6"/>
+      <path d="M170 380V247" stroke="#ffd2a6" stroke-opacity=".4" stroke-dasharray="2 4"/>
+      <path d="M40 380H120V170H372" stroke="#fff" stroke-opacity=".38" stroke-width="1.2" stroke-dasharray="3 6"/>
+      <path d="M40 380 L120 380 L122 360 L128 310.8 L134 274.3 L140 247.3 L146 227.2 L152 212.4 L158 201.4 L164 193.3 L170 187.2 L176 182.8 L182 179.5 L188 177 L194 175.2 L200 173.8 L206 172.8 L212 172.1 L218 171.6 L224 171.2 L230 170.9 L236 170.6 L242 170.5 L248 170.3 L254 170.3 L260 170.2 L266 170.1 L272 170.1 L278 170.1 L284 170.1 L290 170H368" stroke="#ffcf9e" stroke-opacity=".3" stroke-width="1.2"/>
+      <path d="M40 380 L120 380 L122 376.2 L128 365.3 L134 354.9 L140 345.1 L146 335.8 L152 327 L158 318.7 L164 310.8 L170 303.3 L176 296.2 L182 289.5 L188 283.2 L194 277.2 L200 271.5 L206 266.1 L212 261 L218 256.2 L224 251.6 L230 247.3 L236 243.2 L242 239.3 L248 235.6 L254 232.1 L260 228.8 L266 225.7 L272 222.7 L278 219.9 L284 217.3 L290 214.8 L296 212.4 L302 210.1 L308 208 L314 206 L320 204.1 L326 202.3 L332 200.6 L338 198.9 L344 197.4 L350 196 L356 194.6 L362 193.3 L368 192" stroke="#ffcf9e" stroke-opacity=".3" stroke-width="1.2"/>
+      <path d="M40 380 L120 380 L122 371.8 L128 349 L134 328.7 L140 310.8 L146 294.8 L152 280.7 L158 268.2 L164 257.1 L170 247.3 L176 238.5 L182 230.8 L188 223.9 L194 217.8 L200 212.4 L206 207.6 L212 203.4 L218 199.6 L224 196.2 L230 193.3 L236 190.6 L242 188.3 L248 186.2 L254 184.4 L260 182.8 L266 181.3 L272 180 L278 178.9 L284 177.9 L290 177 L296 176.2 L302 175.5 L308 174.9 L314 174.3 L320 173.8 L326 173.4 L332 173 L338 172.7 L344 172.4 L350 172.1 L356 171.9 L362 171.7 L368 171.5" stroke="#ff9a45" stroke-width="9" stroke-opacity=".75" filter="url(#glow)"/>
+      <path d="M40 380 L120 380 L122 371.8 L128 349 L134 328.7 L140 310.8 L146 294.8 L152 280.7 L158 268.2 L164 257.1 L170 247.3 L176 238.5 L182 230.8 L188 223.9 L194 217.8 L200 212.4 L206 207.6 L212 203.4 L218 199.6 L224 196.2 L230 193.3 L236 190.6 L242 188.3 L248 186.2 L254 184.4 L260 182.8 L266 181.3 L272 180 L278 178.9 L284 177.9 L290 177 L296 176.2 L302 175.5 L308 174.9 L314 174.3 L320 173.8 L326 173.4 L332 173 L338 172.7 L344 172.4 L350 172.1 L356 171.9 L362 171.7 L368 171.5" stroke="#fff3e3" stroke-width="2.2"/>
+      <circle cx="170" cy="247.3" r="11" stroke="#ffd2a6" stroke-opacity=".45"/>
+     </g>
+     <circle cx="170" cy="247.3" r="3.5" fill="#fff"/>
+     <text x="181" y="276" fill="#ffe3c6" fill-opacity=".7" font-family="Georgia,serif" font-style="italic" font-size="17">τ</text>
+    </svg><span class="fog"></span></a>
+    <div class="cap">
+     <p class="cap-meta"><span>01</span>First order · Time domain</p>
+     <h3>First-order time response</h3>
+     <p class="cap-d">A sudden change or a steady ramp: gain, time constant and remaining error.</p>
+     <a class="cap-link" href="module-1.html">Open module<svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></a>
+    </div>
+   </li>
+   <li class="plate">
+    <a class="plate-img" href="module-2.html" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
+     <defs><linearGradient id="p2g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0f1e2b"/><stop offset=".55" stop-color="#080c12"/><stop offset="1" stop-color="#0c1a24"/></linearGradient><radialGradient id="p2l" cx=".2" cy=".16" r=".85"><stop offset="0" stop-color="#7fe0ff" stop-opacity=".26"/><stop offset="1" stop-color="#7fe0ff" stop-opacity="0"/></radialGradient></defs>
+     <rect width="400" height="500" fill="url(#p2g)"/><rect width="400" height="500" fill="url(#p2l)"/>
+     <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M30 260H370" stroke="#fff" stroke-opacity=".08" stroke-dasharray="2 6"/>
+      <path d="M82.5 150V410M112.5 150V410" stroke="#bfefff" stroke-opacity=".3" stroke-dasharray="2 5"/>
+      <path d="M82.5 136H112.5M82.5 131v10M112.5 131v10" stroke="#bfefff" stroke-opacity=".75"/>
+      <path d="M30 260 L35 246.3 L40 232.9 L45 220.1 L50 208.2 L55 197.4 L60 188.1 L65 180.3 L70 174.4 L75 170.3 L80 168.3 L85 168.3 L90 170.3 L95 174.4 L100 180.3 L105 188.1 L110 197.4 L115 208.2 L120 220.1 L125 232.9 L130 246.3 L135 260 L140 273.7 L145 287.1 L150 299.9 L155 311.8 L160 322.6 L165 331.9 L170 339.7 L175 345.6 L180 349.7 L185 351.7 L190 351.7 L195 349.7 L200 345.6 L205 339.7 L210 331.9 L215 322.6 L220 311.8 L225 299.9 L230 287.1 L235 273.7 L240 260 L245 246.3 L250 232.9 L255 220.1 L260 208.2 L265 197.4 L270 188.1 L275 180.3 L280 174.4 L285 170.3 L290 168.3 L295 168.3 L300 170.3 L305 174.4 L310 180.3 L315 188.1 L320 197.4 L325 208.2 L330 220.1 L335 232.9 L340 246.3 L345 260 L350 273.7 L355 287.1 L360 299.9 L365 311.8 L370 322.6" stroke="#fff" stroke-opacity=".4" stroke-width="1.2" stroke-dasharray="3 6"/>
+      <path d="M30 305.4 L35 299.6 L40 292.8 L45 285.3 L50 277.2 L55 268.8 L60 260.1 L65 251.5 L70 243 L75 235 L80 227.4 L85 220.7 L90 214.7 L95 209.8 L100 206.1 L105 203.5 L110 202.2 L115 202.2 L120 203.4 L125 206 L130 209.7 L135 214.6 L140 220.4 L145 227.2 L150 234.7 L155 242.8 L160 251.2 L165 259.9 L170 268.5 L175 277 L180 285 L185 292.6 L190 299.3 L195 305.3 L200 310.2 L205 313.9 L210 316.5 L215 317.8 L220 317.8 L225 316.6 L230 314 L235 310.3 L240 305.4 L245 299.6 L250 292.8 L255 285.3 L260 277.2 L265 268.8 L270 260.1 L275 251.5 L280 243 L285 235 L290 227.4 L295 220.7 L300 214.7 L305 209.8 L310 206.1 L315 203.5 L320 202.2 L325 202.2 L330 203.4 L335 206 L340 209.7 L345 214.6 L350 220.4 L355 227.2 L360 234.7 L365 242.8 L370 251.2" stroke="#4cc8ff" stroke-width="9" stroke-opacity=".7" filter="url(#glow)"/>
+      <path d="M30 305.4 L35 299.6 L40 292.8 L45 285.3 L50 277.2 L55 268.8 L60 260.1 L65 251.5 L70 243 L75 235 L80 227.4 L85 220.7 L90 214.7 L95 209.8 L100 206.1 L105 203.5 L110 202.2 L115 202.2 L120 203.4 L125 206 L130 209.7 L135 214.6 L140 220.4 L145 227.2 L150 234.7 L155 242.8 L160 251.2 L165 259.9 L170 268.5 L175 277 L180 285 L185 292.6 L190 299.3 L195 305.3 L200 310.2 L205 313.9 L210 316.5 L215 317.8 L220 317.8 L225 316.6 L230 314 L235 310.3 L240 305.4 L245 299.6 L250 292.8 L255 285.3 L260 277.2 L265 268.8 L270 260.1 L275 251.5 L280 243 L285 235 L290 227.4 L295 220.7 L300 214.7 L305 209.8 L310 206.1 L315 203.5 L320 202.2 L325 202.2 L330 203.4 L335 206 L340 209.7 L345 214.6 L350 220.4 L355 227.2 L360 234.7 L365 242.8 L370 251.2" stroke="#effbff" stroke-width="2.2"/>
+     </g>
+     <text x="97.5" y="121" text-anchor="middle" fill="#d8f6ff" fill-opacity=".75" font-family="Georgia,serif" font-style="italic" font-size="17">φ</text>
+    </svg><span class="fog"></span></a>
+    <div class="cap">
+     <p class="cap-meta"><span>02</span>First order · Frequency domain</p>
+     <h3>First-order frequency response</h3>
+     <p class="cap-d">Repeating signals: amplitude, phase lag and how both change with frequency.</p>
+     <a class="cap-link" href="module-2.html">Open module<svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></a>
+    </div>
+   </li>
+   <li class="plate">
+    <a class="plate-img" href="module-3.html" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
+     <defs><linearGradient id="p3g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d1230"/><stop offset=".55" stop-color="#0a0810"/><stop offset="1" stop-color="#170e24"/></linearGradient><radialGradient id="p3l" cx=".5" cy=".08" r=".8"><stop offset="0" stop-color="#c9a2ff" stop-opacity=".28"/><stop offset="1" stop-color="#c9a2ff" stop-opacity="0"/></radialGradient></defs>
+     <rect width="400" height="500" fill="url(#p3g)"/><rect width="400" height="500" fill="url(#p3l)"/>
+     <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M70 220H372M40 380H372" stroke="#fff" stroke-opacity=".1" stroke-dasharray="2 6"/>
+      <path d="M40 380H70V220" stroke="#fff" stroke-opacity=".38" stroke-width="1.2" stroke-dasharray="3 6"/>
+      <path d="M112 220V124" stroke="#e4d4ff" stroke-opacity=".45" stroke-dasharray="2 4"/>
+      <path d="M40 380 L70 380 L72 378.4 L76 367.9 L80 352.3 L84 334.8 L88 317.5 L92 301.4 L96 287.2 L100 274.8 L104 264.4 L108 255.6 L112 248.5 L116 242.6 L120 237.9 L124 234.1 L128 231 L132 228.6 L136 226.7 L140 225.2 L144 224.1 L148 223.2 L152 222.4 L156 221.9 L160 221.5 L164 221.1 L168 220.9 L172 220.7 L176 220.5 L180 220.4 L184 220.3 L188 220.2 L192 220.2 L196 220.1 L200 220.1 L204 220.1 L208 220.1 L212 220H372" stroke="#dccaff" stroke-opacity=".3" stroke-width="1.2"/>
+      <path d="M40 380 L70 380 L72 378.3 L76 366 L80 345.2 L84 319.5 L88 292.1 L92 265.6 L96 241.7 L100 221.8 L104 206.5 L108 195.8 L112 189.6 L116 187.2 L120 188 L124 191 L128 195.7 L132 201.1 L136 206.7 L140 212 L144 216.7 L148 220.6 L152 223.5 L156 225.4 L160 226.4 L164 226.7 L168 226.4 L172 225.7 L176 224.7 L180 223.6 L184 222.4 L188 221.4 L192 220.4 L196 219.7 L200 219.2 L204 218.8 L208 218.6 L212 218.6 L216 218.7 L220 218.9 L224 219.1 L228 219.3 L232 219.6 L236 219.8 L240 220 L244 220.1 L248 220.2 L252 220.3 L256 220.3 L260 220.3 L264 220.3 L268 220.2 L272 220.2 L276 220.1 L280 220.1 L284 220 L288 220 L292 220 L296 220 L300 219.9 L304 219.9 L308 219.9 L312 219.9 L316 220H372" stroke="#dccaff" stroke-opacity=".3" stroke-width="1.2"/>
+      <path d="M40 380 L70 380 L72 378.2 L76 364.8 L80 340.3 L84 307.7 L88 270.7 L92 232.8 L96 197.2 L100 166.8 L104 143.8 L108 129.3 L112 123.9 L116 127.2 L120 138 L124 154.9 L128 175.8 L132 198.5 L136 221 L140 241.3 L144 258 L148 269.9 L152 276.4 L156 277.6 L160 273.7 L164 265.7 L168 254.4 L172 241.3 L176 227.6 L180 214.4 L184 203 L188 194 L192 188.1 L196 185.4 L200 186 L204 189.3 L208 195 L212 202.3 L216 210.4 L220 218.6 L224 226.2 L228 232.5 L232 237.2 L236 240 L240 240.9 L244 239.8 L248 237.2 L252 233.4 L256 228.8 L260 223.8 L264 219 L268 214.7 L272 211.2 L276 208.8 L280 207.6 L284 207.6 L288 208.6 L292 210.5 L296 213 L300 215.9 L304 218.9 L308 221.7 L312 224.1 L316 225.9 L320 227.1 L324 227.5 L328 227.3 L332 226.5 L336 225.2 L340 223.5 L344 221.8 L348 220 L352 218.4 L356 217.1 L360 216.1 L364 215.6 L368 215.5 L372 215.8" stroke="#a77bff" stroke-width="9" stroke-opacity=".75" filter="url(#glow)"/>
+      <path d="M40 380 L70 380 L72 378.2 L76 364.8 L80 340.3 L84 307.7 L88 270.7 L92 232.8 L96 197.2 L100 166.8 L104 143.8 L108 129.3 L112 123.9 L116 127.2 L120 138 L124 154.9 L128 175.8 L132 198.5 L136 221 L140 241.3 L144 258 L148 269.9 L152 276.4 L156 277.6 L160 273.7 L164 265.7 L168 254.4 L172 241.3 L176 227.6 L180 214.4 L184 203 L188 194 L192 188.1 L196 185.4 L200 186 L204 189.3 L208 195 L212 202.3 L216 210.4 L220 218.6 L224 226.2 L228 232.5 L232 237.2 L236 240 L240 240.9 L244 239.8 L248 237.2 L252 233.4 L256 228.8 L260 223.8 L264 219 L268 214.7 L272 211.2 L276 208.8 L280 207.6 L284 207.6 L288 208.6 L292 210.5 L296 213 L300 215.9 L304 218.9 L308 221.7 L312 224.1 L316 225.9 L320 227.1 L324 227.5 L328 227.3 L332 226.5 L336 225.2 L340 223.5 L344 221.8 L348 220 L352 218.4 L356 217.1 L360 216.1 L364 215.6 L368 215.5 L372 215.8" stroke="#f7f1ff" stroke-width="2.2"/>
+      <circle cx="112" cy="123.9" r="11" stroke="#e4d4ff" stroke-opacity=".45"/>
+     </g>
+     <circle cx="112" cy="123.9" r="3.5" fill="#fff"/>
+     <text x="128" y="117" fill="#efe6ff" fill-opacity=".7" font-family="Georgia,serif" font-style="italic" font-size="17">ζ</text>
+    </svg><span class="fog"></span></a>
+    <div class="cap">
+     <p class="cap-meta"><span>03</span>Second order</p>
+     <h3>Second-order response</h3>
+     <p class="cap-d">Damping, overshoot and the ringing motion of a second-order sensor.</p>
+     <a class="cap-link" href="module-3.html">Open module<svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></a>
+    </div>
+   </li>
+   <li class="plate">
+    <div class="plate-img is-soon" data-m4 tabindex="-1" aria-hidden="true"><svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
+     <defs><linearGradient id="p4g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c1e23"/><stop offset=".55" stop-color="#0b0c0f"/><stop offset="1" stop-color="#16181c"/></linearGradient><radialGradient id="p4l" cx=".7" cy=".22" r=".8"><stop offset="0" stop-color="#e8eef6" stop-opacity=".17"/><stop offset="1" stop-color="#e8eef6" stop-opacity="0"/></radialGradient><linearGradient id="p4v" x1="0" y1="0" x2="1" y2="0"><stop offset=".45" stop-color="#dfe6ee" stop-opacity="0"/><stop offset="1" stop-color="#dfe6ee" stop-opacity=".16"/></linearGradient></defs>
+     <rect width="400" height="500" fill="url(#p4g)"/><rect width="400" height="500" fill="url(#p4l)"/>
+     <text x="292" y="330" text-anchor="middle" fill="#fff" fill-opacity=".05" font-family="Antonio,Impact,sans-serif" font-weight="700" font-size="300">?</text>
+     <path d="M60 370 L66 359 L72 348.6 L78 338.9 L84 329.8 L90 321.3 L96 313.2 L102 305.7 L108 298.6 L114 292 L120 285.7 L126 279.9 L132 274.4 L138 269.2 L144 264.3 L150 259.8 L156 255.5 L162 251.5 L168 247.7 L174 244.2 L180 240.9 L186 237.8 L192 234.9 L198 232.1 L204 229.5 L210 227.1 L216 224.8 L222 222.7 L228 220.7 L234 218.8 L240 217.1 L246 215.4 L252 213.9 L258 212.4 L264 211 L270 209.7 L276 208.5 L282 207.4 L288 206.3 L294 205.3 L300 204.4 L306 203.5 L312 202.7 L318 201.9 L324 201.2 L330 200.5 L336 199.9 L342 199.2 L348 198.7 L354 198.2 L360 197.7 L366 197.2 L372 196.7" fill="none" stroke="#a9b6c6" stroke-opacity=".6" stroke-width="1.6" stroke-dasharray="4 7" stroke-linecap="round"/>
+     <g fill="#8fd2ff" opacity=".7" filter="url(#glow)"><circle cx="60" cy="367.7" r="2.6"/><circle cx="72" cy="344.7" r="2.6"/><circle cx="84" cy="312.8" r="2.6"/><circle cx="96" cy="290.8" r="2.6"/><circle cx="108" cy="267.3" r="2.6"/><circle cx="120" cy="258.7" r="2.6"/><circle cx="132" cy="257.9" r="2.6"/><circle cx="144" cy="241" r="2.6"/><circle cx="156" cy="237.5" r="2.6"/><circle cx="168" cy="222.9" r="2.6"/><circle cx="180" cy="217.8" r="2.6"/><circle cx="192" cy="210.5" r="2.6"/><circle cx="204" cy="189.3" r="2.6"/><circle cx="216" cy="208.2" r="2.6"/><circle cx="228" cy="201.8" r="2.6"/><circle cx="240" cy="199" r="2.6"/><circle cx="252" cy="177" r="2.6"/><circle cx="264" cy="174.6" r="2.6"/><circle cx="276" cy="180.7" r="2.6"/><circle cx="288" cy="183.1" r="2.6"/><circle cx="300" cy="188.9" r="2.6"/><circle cx="312" cy="184.8" r="2.6"/><circle cx="324" cy="189.1" r="2.6"/><circle cx="336" cy="177.9" r="2.6"/><circle cx="348" cy="185.9" r="2.6"/><circle cx="360" cy="186.2" r="2.6"/></g>
+     <g fill="#f2f6fa"><circle cx="60" cy="367.7" r="2.6"/><circle cx="72" cy="344.7" r="2.6"/><circle cx="84" cy="312.8" r="2.6"/><circle cx="96" cy="290.8" r="2.6"/><circle cx="108" cy="267.3" r="2.6"/><circle cx="120" cy="258.7" r="2.6"/><circle cx="132" cy="257.9" r="2.6"/><circle cx="144" cy="241" r="2.6"/><circle cx="156" cy="237.5" r="2.6"/><circle cx="168" cy="222.9" r="2.6"/><circle cx="180" cy="217.8" r="2.6"/><circle cx="192" cy="210.5" r="2.6"/><circle cx="204" cy="189.3" r="2.6"/><circle cx="216" cy="208.2" r="2.6"/><circle cx="228" cy="201.8" r="2.6"/><circle cx="240" cy="199" r="2.6"/><circle cx="252" cy="177" r="2.6"/><circle cx="264" cy="174.6" r="2.6"/><circle cx="276" cy="180.7" r="2.6"/><circle cx="288" cy="183.1" r="2.6"/><circle cx="300" cy="188.9" r="2.6"/><circle cx="312" cy="184.8" r="2.6"/><circle cx="324" cy="189.1" r="2.6"/><circle cx="336" cy="177.9" r="2.6"/><circle cx="348" cy="185.9" r="2.6"/><circle cx="360" cy="186.2" r="2.6"/></g>
+     <rect width="400" height="500" fill="url(#p4v)"/>
+    </svg><span class="fog"></span></div>
+    <div class="cap">
+     <p class="cap-meta"><span>04</span>Challenge</p>
+     <h3>Guess the sensor</h3>
+     <p class="cap-d">Estimate a hidden sensor’s parameters from its response, then check your guess.</p>
+     <span class="cap-link is-soon" data-m4><span data-m4-status="Open module">Coming soon</span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span>
+    </div>
+   </li>
+  </ol>
+  <nav class="rail" aria-label="Module slides">
+   <span class="rail-line"></span><span class="rail-dot"></span>
+   <button type="button" style="left:0%" aria-label="Show module 1, First-order time response">01</button>
+   <button type="button" style="left:33.333%" aria-label="Show module 2, First-order frequency response">02</button>
+   <button type="button" style="left:66.667%" aria-label="Show module 3, Second-order response">03</button>
+   <button type="button" style="left:100%" aria-label="Show module 4, Guess the sensor">04</button>
+  </nav>
+ </div>
+</section>
+
+<!-- ── Guide for newcomers (added section) ───────────────────── -->
+<section class="guide" id="learn" data-tone="light" aria-labelledby="learn-title">
+ <div class="wrap">
+  <header class="g-head">
+   <p class="label">A short guide</p>
+   <div>
+    <h2 class="big" id="learn-title">New here?</h2>
+    <p class="g-lead">No technical background needed. In a couple of minutes you’ll know what Dynamics Lab is, why it matters and how to get started.</p>
+   </div>
+  </header>
+
+  <div class="g-row">
+   <h3 class="g-q">What is Dynamics Lab?</h3>
+   <div class="g-a">
+    <p>Dynamics Lab is an interactive learning tool for exploring how sensors respond when the quantity they measure changes, such as a temperature that rises or a pressure that drops.</p>
+    <p>Every experiment is a <strong>mathematical simulation</strong> that runs in your web browser. You don’t need any sensor hardware: you choose the settings, and the page calculates and draws how a sensor would respond.</p>
+   </div>
+  </div>
+
+  <div class="g-row">
+   <h3 class="g-q">Why does this matter?</h3>
+   <div class="g-a">
+    <p>Picture carrying a thermometer from a cool hallway into a warm kitchen. The kitchen is warm the moment you walk in, but the reading doesn’t jump there. It climbs gradually and only settles after a while.</p>
+    <p>Until it settles, the number on the display isn’t yet the true temperature. Many sensors need time to respond; the exact response depends on their dynamics. Knowing how quickly it catches up tells you when a reading can be trusted, and when it’s worth waiting a moment longer.</p>
+   </div>
+  </div>
+
+  <div class="g-row">
+   <h3 class="g-q">What do “input” and “output” mean?</h3>
+   <div class="g-a">
+    <dl class="g-terms">
+     <div><dt>Input</dt><dd>The real quantity being measured, such as the actual temperature of the kitchen. In the experiments you decide how it changes: all at once, at a steady pace, or up and down again and again.</dd></div>
+     <div><dt>Output</dt><dd>What the sensor reports: its output or displayed reading. In these dynamic models, the output responds over time rather than following a change instantly.</dd></div>
+    </dl>
+    <p>The temperature illustrations below assume a calibrated sensor whose input and displayed reading use the same units. In the general module model, compare the output with the ideal reading for the selected gain.</p>
+    <figure class="g-fig">
+     <svg viewBox="0 0 360 190" role="img" aria-label="Graph over time. The input jumps up at once; the sensor’s output rises gradually and levels off at the same value.">
+      <path d="M20 160H340" stroke="#15171b" stroke-opacity=".18"/>
+      <path d="M20 160H80V44H340" fill="none" stroke="#15171b" stroke-opacity=".7" stroke-width="1.6" stroke-dasharray="4 5"/>
+      <path d="M20 160 L80 160 L84 150.3 L92 133.4 L100 119.1 L108 107.1 L116 97 L124 88.6 L132 81.5 L140 75.5 L148 70.5 L156 66.2 L164 62.7 L172 59.7 L180 57.2 L188 55.1 L196 53.3 L204 51.8 L212 50.6 L220 49.5 L228 48.6 L236 47.9 L244 47.3 L252 46.8 L260 46.3 L268 45.9 L276 45.6 L284 45.4 L292 45.2 L300 45 L308 44.8 L316 44.7 L324 44.6 L332 44.5 L340 44.4" fill="none" stroke="#c8641a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="88" y="34">the change happens</text>
+      <text x="340" y="180" text-anchor="end">time →</text>
+     </svg>
+     <figcaption><span class="key">Input: the real temperature</span><span class="key key-out">Output: the sensor’s reading</span></figcaption>
+    </figure>
+   </div>
+  </div>
+
+  <div class="g-row">
+   <h3 class="g-q">What does the gap mean?</h3>
+   <div class="g-a">
+    <p>In the calibrated temperature example, there is a gap between the actual temperature and the reading. During a steady climb, you can examine that gap vertically as a reading error or horizontally as a ramp time lag:</p>
+    <div class="g-pair">
+     <div style="--c:#a3402a"><h4>Reading error</h4><p>How far the reading is from the true value <em>at the same moment</em>. It is measured in the units of the quantity, for example “the display shows 2 °C less than the kitchen”.</p></div>
+     <div style="--c:#1d6fa5"><h4>Ramp time lag</h4><p>How far <em>behind in time</em> the reading tracks a steady climb, measured in seconds. After the initial response, compare when the input and output reach the same value. This is not a fixed waiting time before the sensor starts responding.</p></div>
+    </div>
+    <figure class="g-fig">
+     <svg viewBox="0 0 360 210" role="img" aria-label="Graph over time. The input climbs at a steady pace; the output climbs at the same pace but lower and later. A vertical bracket marks the reading error, a horizontal bracket marks the ramp time lag.">
+      <path d="M20 190H340" stroke="#15171b" stroke-opacity=".18"/>
+      <path d="M20 190H60L340 30.1" fill="none" stroke="#15171b" stroke-opacity=".7" stroke-width="1.6" stroke-dasharray="4 5"/>
+      <path d="M20 190 L60 190 L66 189.8 L74 189 L82 187.6 L90 185.8 L98 183.5 L106 180.9 L114 178 L122 174.9 L130 171.5 L138 168 L146 164.3 L154 160.5 L162 156.6 L170 152.6 L178 148.5 L186 144.3 L194 140.1 L202 135.8 L210 131.5 L218 127.1 L226 122.7 L234 118.3 L242 113.9 L250 109.4 L258 104.9 L266 100.5 L274 96 L282 91.5 L290 86.9 L298 82.4 L306 77.9 L314 73.3 L322 68.8 L330 64.3 L338 59.7" fill="none" stroke="#c8641a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M250 81.5V109.4M245 81.5h10M245 109.4h10" stroke="#a3402a" stroke-width="1.6"/>
+      <text x="241" y="73" text-anchor="end" fill="#a3402a">reading error</text>
+      <path d="M201.2 109.4H250M201.2 109.4V150M250 109.4V150" stroke="#1d6fa5" stroke-opacity=".5" stroke-dasharray="2 3"/>
+      <path d="M201.2 150H250M201.2 145v10M250 145v10" stroke="#1d6fa5" stroke-width="1.6"/>
+      <text x="225.6" y="170" text-anchor="middle" fill="#1d6fa5">ramp time lag</text>
+      <text x="340" y="206" text-anchor="end">time →</text>
+     </svg>
+     <figcaption><span class="key">Input climbing steadily</span><span class="key key-out">Output following behind</span></figcaption>
+    </figure>
+    <p>For the first-order example shown, once steady ramp tracking is reached, a faster climb makes the reading error larger while the ramp lag stays the same, provided the sensor settings are unchanged. Module 1 compares the output with its ideal reading and shows both quantities.</p>
+   </div>
+  </div>
+
+  <div class="g-row">
+   <h3 class="g-q">What will I learn?</h3>
+   <div class="g-a">
+    <ol class="index" aria-label="All modules">
+     <li><a class="irow" href="module-1.html"><span class="n">01</span><span class="t">First-order time response</span><span class="d">See how a reading catches up after a sudden change or a steady climb, and how a single setting, the time constant, decides how fast it gets there.</span><span class="go">Open<svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></a></li>
+     <li><a class="irow" href="module-2.html"><span class="n">02</span><span class="t">First-order frequency response</span><span class="d">Make the input rise and fall over and over. As the changes get faster, watch the reading shrink and slip further behind.</span><span class="go">Open<svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></a></li>
+     <li><a class="irow" href="module-3.html"><span class="n">03</span><span class="t">Second-order response</span><span class="d">Some sensors overshoot and wobble before settling, like a needle swinging past its mark. Explore how damping calms that motion.</span><span class="go">Open<svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></a></li>
+     <li><span class="irow is-soon" data-m4><span class="n">04</span><span class="t">Guess the sensor</span><span class="d">A challenge: study the response of an unknown sensor and estimate how it behaves. Not available yet.</span><span class="go"><span class="soon" data-m4-status="Open">Coming soon</span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></span></li>
+    </ol>
+   </div>
+  </div>
+
+  <div class="g-row">
+   <h3 class="g-q">How do I start?</h3>
+   <div class="g-a">
+    <ol class="g-steps">
+     <li><b>Open Module 1</b>It begins with the simplest case: an input that changes all at once.</li>
+     <li><b>Change an input or a setting</b>Choose a different kind of change, or adjust a setting such as how quickly the sensor reacts.</li>
+     <li><b>Observe and compare</b>Watch the output next to the input on the graph. Change one thing at a time and notice what moves.</li>
+    </ol>
+    <a class="cta dark" href="module-1.html">Open Module 1<span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></a>
+   </div>
+  </div>
+
+  <p class="note">Works in any modern browser, on a computer or a phone — no account needed. The experiments load their Python and plotting libraries over the internet, so the first visit can take a moment.</p>
+ </div>
+</section>
+<!-- ── End of guide ──────────────────────────────────────────── -->
+</main>
+
+<footer class="foot" data-tone="dark">
+ <div class="wrap">
+  <div class="foot-top"><p class="foot-big">Follow the signal.</p><a href="#top">Back to top ↑</a></div>
+  <div class="foot-bottom">
+   <p>Created by Khaled Bani Oudeh · Jibreel Haddar · Mohammad Khaleel · Waad Melhem</p>
+   <p>Birzeit University — ENCS4380 — Team T19</p>
+  </div>
+ </div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+/* ── SINGLE CONFIGURATION POINT ───────────────────────────────
+   When module-4.html exists and has been tested, set ready: true.
+   Every element marked data-m4 then becomes a link to href, and every
+   data-m4-status label swaps "Coming soon" for its attribute value. */
+var MODULE_4 = { ready: false, href: "module-4.html" };
+
+var root = document.documentElement;
+function $(s, r) { return (r || document).querySelector(s); }
+function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+function pad(n) { return (n < 10 ? "0" : "") + n; }
+
+if (MODULE_4.ready) {
+  $$("[data-m4]").forEach(function (el) {
+    var a = document.createElement("a");
+    Array.prototype.forEach.call(el.attributes, function (at) { if (at.name !== "data-m4") a.setAttribute(at.name, at.value); });
+    a.classList.remove("is-soon"); a.href = MODULE_4.href; a.innerHTML = el.innerHTML; el.parentNode.replaceChild(a, el);
+  });
+  $$("[data-m4-status]").forEach(function (el) { el.textContent = el.getAttribute("data-m4-status"); el.classList.remove("soon"); });
+}
+
+/* Modules menu */
+var btn = $("#menu-btn"), menu = $("#menu");
+function setMenu(open) { btn.setAttribute("aria-expanded", String(open)); menu.hidden = !open; }
+btn.addEventListener("click", function () { setMenu(menu.hidden); });
+menu.addEventListener("click", function (e) { if (e.target.closest("a")) setMenu(false); });
+menu.addEventListener("focusout", function (e) { if (e.relatedTarget && !menu.contains(e.relatedTarget) && e.relatedTarget !== btn) setMenu(false); });
+document.addEventListener("click", function (e) { if (!menu.hidden && !menu.contains(e.target) && !btn.contains(e.target)) setMenu(false); });
+document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !menu.hidden) { setMenu(false); btn.focus(); } });
+
+/* Elements */
+var hdr = $("#hdr"), hero = $("#top"), heroIn = $(".hero-in"), bars = $$(".wipe i"), toned = $$("main [data-tone], .foot");
+var tunnel = $("#modules"), stage = $(".stage"), canvas = $(".bg"), plates = $$(".plate");
+var imgs = plates.map(function (p) { return $(".plate-img", p); });
+var fogs = plates.map(function (p) { return $(".fog", p); });
+var caps = plates.map(function (p) { return $(".cap", p); });
+var ticks = $$(".rail button"), rail = $(".rail"), dot = $(".rail-dot"), count = $("#count");
+var reduce = window.matchMedia ? matchMedia("(prefers-reduced-motion: reduce)") : { matches: true };
+
+/* Flight path: camera position is measured in slides. Plate i rests in front of
+   the camera when cam === i. Scroll maps linearly to t; the cycloid ease adds a
+   gentle dwell at every plate without stopping the motion. */
+var N = plates.length, T0 = -0.8, T1 = N - 1 + 0.8, SPAN = T1 - T0, PER = 0.95;
+var SIDE = [-1, 1, -1, 1], LIFT = [0, -0.025, 0.02, -0.012];
+var motion = false, heroP = 0, vw = 0, vh = 0, pw = 0, ph = 0, vpx = 0, vpy = 0, offX = 0, small = false;
+var tTop = 0, tH = 1, travel = 1, heroH = 1, railW = 0, lastClip = "", lastKey = "";
+var cam = T0, target = T0, vel = 0, last = 0, raf = 0;
+
+function tone() {
+  var t = "dark";
+  for (var i = 0; i < toned.length; i++) {
+    var r = toned[i].getBoundingClientRect();
+    if (r.top <= 40 && r.bottom > 40) { t = toned[i].getAttribute("data-tone"); break; }
+  }
+  if (t === "dark" && motion && heroP > 0.55 && hero.getBoundingClientRect().bottom > 40) t = "light";
+  if (hdr.getAttribute("data-tone") !== t) hdr.setAttribute("data-tone", t);
+}
+
+function measure() {
+  vw = root.clientWidth; vh = stage.clientHeight || window.innerHeight; small = vw < 720;
+  ph = Math.min(vh * (small ? 0.5 : 0.52), vw * (small ? 0.66 : 0.3) * 1.25); pw = ph / 1.25;
+  vpx = vw * (small ? 0.5 : 0.535); vpy = vh * (small ? 0.42 : 0.44); offX = vw * (small ? 0.12 : 0.17);
+  stage.style.setProperty("--pw", pw.toFixed(1) + "px");
+  tTop = tunnel.getBoundingClientRect().top + window.pageYOffset; tH = tunnel.offsetHeight;
+  travel = Math.max(1, tH - vh); heroH = hero.offsetHeight; railW = rail.clientWidth;
+  sizeCanvas();
+}
+
+function scrollTarget(y) {
+  var t = T0 + clamp((y - tTop) / travel, 0, 1) * SPAN;
+  return t - Math.sin(2 * Math.PI * t) / (2 * Math.PI) * 0.9;
+}
+
+function readScroll() {
+  var y = window.pageYOffset;
+  if (y < heroH * 1.1 || heroP < 1) {
+    heroP = clamp(y / heroH, 0, 1);
+    for (var i = 0; i < bars.length; i++) {
+      var p = clamp((heroP - 0.14 - i * 0.07) / 0.6, 0, 1), e = 1 - Math.pow(1 - p, 3);
+      bars[i].style.transform = "translate3d(" + ((1 - e) * 120).toFixed(2) + "%,0,0) skewX(-16deg)";
+    }
+    heroIn.style.transform = "translate3d(0," + (-heroP * 70).toFixed(1) + "px,0)";
+    heroIn.style.opacity = clamp(1 - heroP * 1.15, 0, 1).toFixed(3);
+  }
+  var top = tunnel.getBoundingClientRect().top;
+  tTop = top + y; target = scrollTarget(y);
+  var enter = clamp(top / vh, 0, 1), exit = clamp((vh - (top + tH)) / vh, 0, 1);
+  var l = enter * enter * vw * 0.24, s = exit * vw * 0.03;
+  var clip = (l > 0.5 || s > 0.5) ? "inset(0px " + s.toFixed(1) + "px 0px " + (l + s).toFixed(1) + "px)" : "none";
+  if (clip !== lastClip) { stage.style.clipPath = clip; stage.style.webkitClipPath = clip; lastClip = clip; }
+  tone(); heroSync();
+  return top < vh && top + tH > 0;
+}
+
+/* ── Tunnel environment ────────────────────────────────────────
+   One palette per zone: entry night, then modules 1–4. The mix is driven by
+   the smoothed camera (cam), so colour follows the motion in both directions
+   and during rail/keyboard jumps. Nothing is cached: the backdrop is repainted
+   from the live palette on each camera frame, and the light-dash sprite is
+   re-tinted whenever its colour moves. */
+var PAL = [
+  { sky: [15, 20, 29], mid: [7, 9, 13], floor: [12, 21, 24], base: [20, 27, 37], light: [205, 222, 255], sheenA: [70, 140, 165], sheenB: [135, 110, 195], dash: [222, 238, 255], halo: [120, 170, 225], fog: [6, 8, 11], accent: [127, 224, 255] },
+  { sky: [34, 21, 13], mid: [11, 8, 6], floor: [26, 16, 10], base: [40, 24, 14], light: [255, 198, 145], sheenA: [205, 125, 60], sheenB: [180, 85, 60], dash: [255, 230, 200], halo: [255, 150, 80], fog: [13, 9, 6], accent: [255, 179, 107] },
+  { sky: [12, 27, 38], mid: [5, 9, 13], floor: [8, 23, 30], base: [12, 31, 42], light: [170, 225, 255], sheenA: [50, 170, 200], sheenB: [60, 110, 205], dash: [210, 242, 255], halo: [80, 200, 255], fog: [5, 10, 14], accent: [127, 224, 255] },
+  { sky: [28, 17, 43], mid: [9, 7, 14], floor: [21, 13, 34], base: [32, 19, 49], light: [208, 178, 255], sheenA: [150, 100, 230], sheenB: [205, 90, 185], dash: [234, 220, 255], halo: [170, 120, 255], fog: [10, 7, 15], accent: [201, 162, 255] },
+  { sky: [25, 27, 31], mid: [9, 10, 12], floor: [19, 21, 25], base: [29, 32, 37], light: [228, 234, 242], sheenA: [130, 150, 172], sheenB: [155, 162, 178], dash: [238, 242, 248], halo: [190, 205, 228], fog: [9, 10, 12], accent: [214, 222, 232] }
+];
+var KEYS = ["sky", "mid", "floor", "base", "light", "sheenA", "sheenB", "dash", "halo", "fog", "accent"];
+var P = { k: 1 };
+KEYS.forEach(function (key) { P[key] = [0, 0, 0]; });
+function mixPalette(c) {
+  var q = clamp(c + 1, 0, PAL.length - 1), i0 = Math.floor(q), i1 = Math.min(i0 + 1, PAL.length - 1), f = q - i0;
+  for (var n = 0; n < KEYS.length; n++) {
+    var a = PAL[i0][KEYS[n]], b = PAL[i1][KEYS[n]], o = P[KEYS[n]];
+    o[0] = a[0] + (b[0] - a[0]) * f; o[1] = a[1] + (b[1] - a[1]) * f; o[2] = a[2] + (b[2] - a[2]) * f;
+  }
+  P.k = 1 - 0.28 * Math.sin(Math.PI * f);   // the light dims slightly between zones, like passing between lamps
+}
+function rgb(c, a) {
+  return "rgba(" + Math.round(c[0]) + "," + Math.round(c[1]) + "," + Math.round(c[2]) + "," + (a === undefined ? 1 : Math.max(0, a).toFixed(3)) + ")";
+}
+
+var ctx = canvas.getContext && canvas.getContext("2d"), dpr = 1, dash = null, dashKey = "", uiKey = "", LIGHTS = [];
+(function () {
+  var rows = [[-2.3, -0.06, 1.7, 0.9], [2.5, -0.04, 1.9, 0.8], [-1.5, 0.13, 2.4, 0.5], [1.7, 0.14, 2.2, 0.55],
+              [-3.3, -0.92, 3.1, 0.7], [-3.3, -0.78, 3.1, 0.6], [-3.3, -0.64, 3.1, 0.5], [3.4, -0.85, 3.6, 0.4], [0.1, -1.9, 4.2, 1]];
+  rows.forEach(function (r, k) { for (var z = (k * 0.37) % r[2]; z < 18; z += r[2]) LIGHTS.push({ x: r[0], y: r[1], z: z, a: r[3] }); });
+})();
+
+function sizeCanvas() {
+  if (!ctx) return;
+  dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  canvas.width = Math.round(vw * dpr); canvas.height = Math.round(vh * dpr);
+}
+function tintDash(c) {
+  var key = (c[0] >> 2) + "," + (c[1] >> 2) + "," + (c[2] >> 2);
+  if (key === dashKey) return;
+  dashKey = key;
+  if (!dash) { dash = document.createElement("canvas"); dash.width = 256; dash.height = 24; }
+  var d = dash.getContext("2d");
+  d.setTransform(1, 0, 0, 1, 0, 0); d.clearRect(0, 0, 256, 24); d.setTransform(1, 0, 0, 24 / 256, 0, 0);
+  var g = d.createRadialGradient(128, 128, 0, 128, 128, 128);
+  g.addColorStop(0, "rgba(255,255,255,1)"); g.addColorStop(0.3, rgb(c, 0.6)); g.addColorStop(1, rgb(c, 0));
+  d.fillStyle = g; d.fillRect(0, 0, 256, 256);
+}
+function proj(i) {
+  var d = i - cam, s = 1 / (1 + 1.9 * d);
+  return { d: d, s: s, x: vpx + SIDE[i] * offX * s, y: vpy + LIFT[i] * vh * s };
+}
+
+function draw() {
+  if (!ctx) return;
+  mixPalette(cam); tintDash(P.dash);
+  var c = ctx, k = P.k, g, i;
+  c.setTransform(dpr, 0, 0, dpr, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = "source-over";
+  g = c.createLinearGradient(0, 0, 0, vh);
+  g.addColorStop(0, rgb(P.sky)); g.addColorStop(0.42, rgb(P.mid)); g.addColorStop(0.6, rgb(P.mid)); g.addColorStop(0.82, rgb(P.floor)); g.addColorStop(1, rgb(P.base));
+  c.fillStyle = g; c.fillRect(0, 0, vw, vh);
+  c.globalCompositeOperation = "lighter";
+  g = c.createRadialGradient(vw * 0.5, -vh * 0.06, 0, vw * 0.5, -vh * 0.06, vh * 0.62);           // overhead light
+  g.addColorStop(0, rgb(P.light, 0.28 * k)); g.addColorStop(1, rgb(P.light, 0)); c.fillStyle = g; c.fillRect(0, 0, vw, vh);
+  g = c.createRadialGradient(vpx, vpy, 0, vpx, vpy, vh * 0.45);                                  // glow at the far end
+  g.addColorStop(0, rgb(P.halo, 0.2 * k)); g.addColorStop(0.5, rgb(P.halo, 0.05 * k)); g.addColorStop(1, rgb(P.halo, 0));
+  c.fillStyle = g; c.fillRect(0, 0, vw, vh);
+  g = c.createLinearGradient(0, vpy, 0, vh);                                                     // floor sheen
+  g.addColorStop(0, rgb(P.sheenA, 0)); g.addColorStop(0.55, rgb(P.sheenA, 0.11 * k)); g.addColorStop(1, rgb(P.sheenB, 0.18 * k));
+  c.fillStyle = g; c.beginPath(); c.moveTo(vpx, vpy + vh * 0.03); c.lineTo(vw * 1.5, vh); c.lineTo(-vw * 0.5, vh); c.closePath(); c.fill();
+  g = c.createLinearGradient(vpx, 0, vw, 0);                                                     // floor streak
+  g.addColorStop(0, rgb(P.dash, 0)); g.addColorStop(0.45, rgb(P.dash, 0.38 * k)); g.addColorStop(1, rgb(P.dash, 0.04));
+  c.strokeStyle = g; c.lineWidth = 2; c.beginPath(); c.moveTo(vpx + vw * 0.03, vpy + vh * 0.1); c.lineTo(vw, vpy + vh * 0.24); c.stroke();
+  for (i = 0; i < N; i++) {                                                                      // each plate spills its own colour onto the floor
+    var p = proj(i);
+    if (p.d < -0.3 || p.d > 1.6) continue;
+    var w = Math.max(0, 1 - Math.abs(p.d) / 1.4), rx = pw * p.s * 0.9, col = PAL[i + 1].halo;
+    c.save(); c.translate(p.x, p.y + ph * p.s * 0.5 + vh * 0.035 * p.s); c.scale(1, 0.16);
+    g = c.createRadialGradient(0, 0, 0, 0, 0, rx); g.addColorStop(0, rgb(col, 0.3 * w)); g.addColorStop(1, rgb(col, 0));
+    c.fillStyle = g; c.fillRect(-rx, -rx, rx * 2, rx * 2); c.restore();
+  }
+  var F = vh * 0.9, L = 18, cz = cam * 2.4, stretch = 1 + Math.min(Math.abs(vel) * 0.9, 3.5), dim = 0.75 + 0.25 * k;
+  for (i = 0; i < LIGHTS.length; i++) {
+    var o = LIGHTS[i], z = ((o.z - cz) % L + L) % L;
+    if (z < 0.3) continue;
+    var kk = F / z, a = Math.pow(clamp(1.15 - z / L, 0, 1), 1.4) * clamp((z - 0.3) / 0.7, 0, 1) * o.a * dim;
+    if (a < 0.01) continue;
+    var dw = kk * 0.55 * stretch, dh = Math.max(1.4, kk * 0.024) * 2.4;
+    c.globalAlpha = a; c.drawImage(dash, vpx + o.x * kk - dw / 2, vpy + o.y * kk - dh / 2, dw, dh);
+  }
+  c.globalAlpha = 1; c.globalCompositeOperation = "source-over";
+  g = c.createRadialGradient(vpx, vpy, vh * 0.2, vpx, vpy, Math.max(vw, vh) * 0.85);              // tinted vignette
+  g.addColorStop(0, rgb(P.fog, 0)); g.addColorStop(1, rgb(P.fog, 0.7)); c.fillStyle = g; c.fillRect(0, 0, vw, vh);
+}
+
+/* Place plates by perspective projection: size grows as 1/(distance), and the
+   side offset grows with it, so each plate accelerates past the frame edge. */
+function place() {
+  mixPalette(cam);
+  for (var i = 0; i < N; i++) {
+    var p = proj(i), img = imgs[i];
+    if (p.d < -0.44 || p.d > 2.9) { if (img._on) { img.style.opacity = "0"; img._on = false; } continue; }
+    var op = p.d < -0.18 ? clamp(1 - (-p.d - 0.18) / 0.26, 0, 1) : p.d > 1.8 ? clamp(1 - (p.d - 1.8) / 1.1, 0, 1) : 1;
+    img.style.transform = "translate3d(" + (p.x - pw / 2).toFixed(2) + "px," + (p.y - ph / 2).toFixed(2) + "px,0) scale(" + p.s.toFixed(4) + ")";
+    img.style.opacity = op.toFixed(3); img.style.zIndex = String(100 - Math.round(p.d * 20)); img._on = true;
+    fogs[i].style.opacity = clamp((p.d - 0.1) / 1.7, 0, 0.82).toFixed(3);
+  }
+  var fogCol = rgb(P.fog), acc = rgb(P.accent);
+  if (fogCol + acc !== uiKey) {                     // fog and UI glow share the tunnel's current palette
+    uiKey = fogCol + acc;
+    for (var f = 0; f < N; f++) fogs[f].style.backgroundColor = fogCol;
+    stage.style.setProperty("--accent", acc); stage.style.setProperty("--glow", rgb(P.accent, 0.55));
+  }
+  var near = Math.round(clamp(cam, 0, N - 1)), dd = Math.abs(cam - near), act = dd < 0.3 ? near : -1;
+  for (var j = 0; j < N; j++) {
+    var a = j === near ? clamp(1 - dd / 0.3, 0, 1) : 0;
+    caps[j].style.opacity = a.toFixed(3);
+    caps[j].style.transform = "translate(-50%," + ((1 - a) * 12).toFixed(1) + "px)";
+  }
+  var key = near + ":" + act;
+  if (key !== lastKey) {
+    lastKey = key;
+    for (var m = 0; m < N; m++) {
+      caps[m].classList.toggle("on", m === act);
+      imgs[m].style.pointerEvents = m === act ? "auto" : "none";
+      ticks[m].setAttribute("aria-current", String(m === near));
+    }
+    count.textContent = pad(near + 1) + " / " + pad(N);
+  }
+  dot.style.transform = "translate3d(" + (clamp(cam / (N - 1), 0, 1) * railW).toFixed(1) + "px,0,0)";
+}
+
+function frame(now) {
+  raf = 0;
+  var dt = last ? Math.min(0.1, (now - last) / 1000) : 1 / 60; last = now;
+  var visible = readScroll(), prev = cam;
+  cam += (target - cam) * (1 - Math.exp(-dt / 0.12));
+  if (Math.abs(target - cam) < 0.0004) cam = target;
+  vel = (cam - prev) / dt;
+  if (visible) { draw(); place(); }
+  if (cam !== target) { stage.classList.add("moving"); raf = requestAnimationFrame(frame); }
+  else { last = 0; vel = 0; stage.classList.remove("moving"); if (visible) draw(); }
+}
+function kick() { if (motion && !raf) raf = requestAnimationFrame(frame); }
+
+function jump(i) {
+  i = clamp(i, 0, N - 1);
+  if (!motion) { plates[i].scrollIntoView({ block: "center" }); return; }
+  window.scrollTo({ top: Math.round(tTop + (i - T0) / SPAN * travel), behavior: "smooth" });
+}
+ticks.forEach(function (b, i) { b.addEventListener("click", function () { jump(i); }); });
+caps.forEach(function (c, i) {
+  c.addEventListener("focusin", function () { if (motion && Math.abs(cam - i) > 0.05) jump(i); });
+});
+document.addEventListener("keydown", function (e) {
+  if (!motion || e.altKey || e.ctrlKey || e.metaKey || (e.key !== "ArrowRight" && e.key !== "ArrowLeft")) return;
+  var t = e.target; if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+  var top = tTop - window.pageYOffset; if (top > vh * 0.5 || top + tH < vh * 0.5) return;
+  e.preventDefault(); jump(Math.round(clamp(cam, 0, N - 1)) + (e.key === "ArrowRight" ? 1 : -1));
+});
+
+/* ── Hero atmosphere ───────────────────────────────────────────
+   A family of step responses whose time constants slowly breathe, an
+   oscilloscope sweep that lights them as it passes, drifting motes, and a
+   signal pulse that travels the main response in real time (step applied →
+   rise → steady state). It runs only while the hero is on screen and the tab
+   is visible; with reduced motion a single still frame is drawn instead. */
+var hcv = $(".hero-fx"), hctx = window.Path2D && hcv.getContext ? hcv.getContext("2d") : null;
+var portrait = window.matchMedia ? matchMedia("(max-aspect-ratio: 4/5)") : { matches: false };
+var FAM = [34, 62, 100, 150, 215, 300, 420], motes = [];
+var hW = 0, hH = 0, hd = 1, hs = 1, hox = 0, hoy = 0, hraf = 0, hlast = 0, ht = 0, hVis = true;
+function hx(x) { return hox + x * hs; }
+function hy(y) { return hoy + y * hs; }
+function resp(x, tau) { return x <= 430 ? 700 : 700 - 520 * (1 - Math.exp(-(x - 430) / tau)); }
+function trace(tau, xa, xb) {                       // response path in canvas pixels, dense near the step
+  var p = new Path2D();
+  p.moveTo(hx(xa), hy(resp(xa, tau)));
+  if (xb <= 430) { p.lineTo(hx(xb), hy(700)); return p; }
+  if (xa < 430) p.lineTo(hx(430), hy(700));
+  var s0 = Math.max(xa, 430);
+  for (var k = 1; k <= 44; k++) { var x = s0 + (xb - s0) * Math.pow(k / 44, 1.7); p.lineTo(hx(x), hy(resp(x, tau))); }
+  return p;
+}
+function heroSize() {
+  if (!hctx) return;
+  hW = hero.clientWidth; hH = hero.clientHeight;
+  hd = Math.min(window.devicePixelRatio || 1, hW < 720 ? 1.25 : 1.5);
+  hcv.width = Math.round(hW * hd); hcv.height = Math.round(hH * hd);
+  hs = Math.max(hW / 1600, hH / 900);               // same mapping as the SVG's "slice"
+  hox = (hW - 1600 * hs) / 2 + (portrait.matches ? window.innerHeight * 0.26 : 0); hoy = (hH - 900 * hs) / 2;
+  var n = hW < 720 ? 22 : 44;
+  if (motes.length !== n) {
+    motes = [];
+    for (var i = 0; i < n; i++) motes.push({ x: Math.random(), y: Math.random(), r: 0.5 + Math.random() * 1.3, v: 0.006 + Math.random() * 0.014, p: Math.random() * 6.283, a: 0.08 + Math.random() * 0.22 });
+  }
+}
+function heroDraw(t, live) {
+  if (!hctx) return;
+  var c = hctx, g, i, R = Math.max(hW, hH), e = live ? clamp((t - 0.6) / 2.4, 0, 1) : 1;
+  e = e * e * (3 - 2 * e);
+  c.setTransform(hd, 0, 0, hd, 0, 0); c.clearRect(0, 0, hW, hH); c.globalCompositeOperation = "lighter";
+  var ax = hW * (0.64 + 0.05 * Math.sin(t * 0.27)), ay = hH * (0.24 + 0.05 * Math.cos(t * 0.21));
+  g = c.createRadialGradient(ax, ay, 0, ax, ay, R * 0.62);
+  g.addColorStop(0, "rgba(110,200,255," + (0.12 * e).toFixed(3) + ")"); g.addColorStop(1, "rgba(110,200,255,0)");
+  c.fillStyle = g; c.fillRect(0, 0, hW, hH);
+  var bx = hW * (0.2 + 0.06 * Math.cos(t * 0.19)), by = hH * (0.8 + 0.04 * Math.sin(t * 0.23));
+  g = c.createRadialGradient(bx, by, 0, bx, by, R * 0.5);
+  g.addColorStop(0, "rgba(150,120,255," + (0.08 * e).toFixed(3) + ")"); g.addColorStop(1, "rgba(150,120,255,0)");
+  c.fillStyle = g; c.fillRect(0, 0, hW, hH);
+  var fam = FAM.map(function (b, k) { return trace(b * (1 + 0.22 * Math.sin(t * (0.23 + k * 0.037) + k * 1.7)), 0, 1600); });
+  c.lineJoin = "round"; c.lineCap = "round"; c.lineWidth = 1.1;
+  c.strokeStyle = "rgba(160,220,255," + (0.12 * e).toFixed(3) + ")";
+  for (i = 0; i < fam.length; i++) c.stroke(fam[i]);
+  if (live) {
+    var sx = -0.2 * hW + ((t % 9) / 9) * 1.4 * hW, bw = Math.max(90, hW * 0.1);
+    g = c.createLinearGradient(sx - bw, 0, sx + bw, 0);
+    g.addColorStop(0, "rgba(200,240,255,0)"); g.addColorStop(0.5, "rgba(200,240,255," + (0.5 * e).toFixed(3) + ")"); g.addColorStop(1, "rgba(200,240,255,0)");
+    c.strokeStyle = g; c.lineWidth = 1.4;
+    for (i = 0; i < fam.length; i++) c.stroke(fam[i]);
+    g = c.createLinearGradient(0, 0, 0, hH);
+    g.addColorStop(0, "rgba(190,235,255,0)"); g.addColorStop(0.5, "rgba(190,235,255," + (0.07 * e).toFixed(3) + ")"); g.addColorStop(1, "rgba(190,235,255,0)");
+    c.fillStyle = g; c.fillRect(sx - 0.5, 0, 1, hH);
+  }
+  c.fillStyle = "#d6f0ff";
+  for (i = 0; i < motes.length; i++) {
+    var m = motes[i], my = ((m.y - t * m.v) % 1 + 1) % 1, mx = m.x + 0.012 * Math.sin(t * 0.5 + m.p);
+    c.globalAlpha = m.a * (0.6 + 0.4 * Math.sin(t * 1.3 + m.p)) * e;
+    c.beginPath(); c.arc(mx * hW, my * hH, m.r, 0, 6.283); c.fill();
+  }
+  c.globalAlpha = 1;
+  if (live && t > 3.2) {
+    var ct = (t - 3.2) % 8.6, run = 6.4, u = ct / run, sc = Math.max(hs, 0.6);
+    if (u <= 1) {
+      var x = 260 + 1320 * u, xa = Math.max(260, x - 320), px = hx(x), py = hy(resp(x, 190)), tp = trace(190, xa, x);
+      g = c.createLinearGradient(hx(xa), 0, px, 0);
+      g.addColorStop(0, "rgba(220,246,255,0)"); g.addColorStop(1, "rgba(235,250,255,.95)");
+      c.strokeStyle = g; c.globalAlpha = 0.35; c.lineWidth = 10; c.stroke(tp);
+      c.globalAlpha = 1; c.lineWidth = 2.6; c.stroke(tp);
+      g = c.createRadialGradient(px, py, 0, px, py, 26);
+      g.addColorStop(0, "rgba(255,255,255,.95)"); g.addColorStop(0.3, "rgba(170,230,255,.45)"); g.addColorStop(1, "rgba(127,224,255,0)");
+      c.fillStyle = g; c.fillRect(px - 26, py - 26, 52, 52);
+    }
+    var tc = ct - (430 - 260) / 1320 * run;          // a ripple where the step is applied
+    if (tc > 0 && tc < 1.8) {
+      c.strokeStyle = "rgba(170,230,255," + (0.4 * (1 - tc / 1.8)).toFixed(3) + ")"; c.lineWidth = 1.2;
+      c.beginPath(); c.arc(hx(430), hy(700), (8 + tc * 70) * sc, 0, 6.283); c.stroke();
+    }
+    var tf = ct - run;                               // a soft flash on reaching steady state
+    if (tf > 0 && tf < 1.6) {
+      var fr = 120 * sc, fx = hx(1580), fy = hy(181);
+      g = c.createRadialGradient(fx, fy, 0, fx, fy, fr);
+      g.addColorStop(0, "rgba(220,246,255," + (0.5 * (1 - tf / 1.6)).toFixed(3) + ")"); g.addColorStop(1, "rgba(127,224,255,0)");
+      c.fillStyle = g; c.fillRect(fx - fr, fy - fr, fr * 2, fr * 2);
+    }
+  }
+  c.globalCompositeOperation = "source-over";
+}
+function heroLoop(now) {
+  var dt = hlast ? Math.min(0.25, (now - hlast) / 1000) : 1 / 60;
+  hlast = now; ht += dt; heroDraw(ht, true);
+  hraf = requestAnimationFrame(heroLoop);
+}
+function heroSync() {                               // run only while visible, on screen and not wiped away
+  var on = motion && !!hctx && hVis && !document.hidden && heroP < 0.985;
+  if (on && !hraf) { hlast = 0; hraf = requestAnimationFrame(heroLoop); }
+  else if (!on && hraf) { cancelAnimationFrame(hraf); hraf = 0; }
+}
+if (hctx && "IntersectionObserver" in window) {
+  new IntersectionObserver(function (en) { hVis = en[en.length - 1].isIntersecting; heroSync(); }).observe(hero);
+}
+document.addEventListener("visibilitychange", heroSync);
+
+function setMode() {
+  motion = !reduce.matches && !!window.requestAnimationFrame && !!ctx;
+  root.classList.toggle("motion", motion);
+  if (hctx) { hero.classList.add("fx"); heroSize(); }
+  if (motion) {
+    tunnel.style.setProperty("--h", String(Math.round((SPAN * PER + 1) * 100)));
+    measure(); readScroll(); cam = target; lastKey = ""; uiKey = ""; draw(); place();
+  } else {
+    tunnel.style.removeProperty("--h"); stage.style.clipPath = stage.style.webkitClipPath = ""; lastClip = "";
+    stage.style.removeProperty("--accent"); stage.style.removeProperty("--glow"); uiKey = "";
+    heroIn.removeAttribute("style"); bars.concat(imgs, fogs, caps).forEach(function (el) { el.removeAttribute("style"); });
+    caps.forEach(function (c) { c.classList.remove("on"); }); heroP = 0; tone();
+    heroSync(); heroDraw(5, false);
+  }
+}
+window.addEventListener("scroll", function () { if (motion) kick(); else tone(); }, { passive: true });
+window.addEventListener("resize", function () {
+  if (hctx) { heroSize(); if (!motion) heroDraw(5, false); }
+  if (motion) { measure(); lastKey = ""; kick(); }
+});
+window.addEventListener("load", function () {
+  if (hctx) { heroSize(); if (!motion) heroDraw(5, false); }
+  if (motion) { measure(); kick(); }
+});
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (motion) { measure(); kick(); } });
+if (reduce.addEventListener) reduce.addEventListener("change", setMode); else if (reduce.addListener) reduce.addListener(setMode);
+setMode();
+})();
+</script>
+</body>
+</html>
