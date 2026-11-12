@@ -10,7 +10,7 @@ A static browser toolkit for understanding sensor dynamics through live controls
 
 Module 1's first-order time-response features are implemented and published on GitHub Pages: Step and Ramp, K and τ sliders, response markers, ramp tracking metrics, logarithmic error plot, validation table, a Predict, then check exercise, and the optional Forward Euler comparison.
 
-Module 1 has been checked in a desktop browser and at 320 px and 390 px browser viewports; testing on a physical phone is still pending. Module 2 is implemented, linked from the home page, and includes the live sine/Bode plots, dynamic-error design calculator, prediction exercise and on-page checks 2–3. The Module 2 formula benchmarks and JavaScript syntax have been reviewed, and phone-friendly layout and navigation rules are in place. A team member (Jibreel Haddar) confirmed that Module 2 interactions work on a physical phone and supplied desktop and phone screenshots of the page header. This is team-reported testing, not an independently reproduced cross-device test. Module 3 is implemented, linked from the home page, and tested on desktop and a physical phone; all three required Module 3 validation checks pass. Module 4 remains planned. Instructor collaborator access, Module 3–4 ownership, and any unconfirmed team administration details still need confirmation.
+Module 1 has been checked in a desktop browser and at 320 px and 390 px browser viewports; testing on a physical phone is still pending. **Module 2 v2 (12 November 2026)** is implemented and linked from the home page. Version 2 adds **Superposition of Sine Waves**: a two-frequency interactive experiment using the optional Superposition bonus idea from the homework, in addition to the existing single-sine plots, Bode plots, dynamic-error design calculator, prediction exercise and lecture checks 2–3. The Module 2 formula benchmarks and JavaScript syntax have been reviewed, and phone-friendly layout and navigation rules are in place. A team member (Jibreel Haddar) confirmed that Module 2 interactions work on a physical phone and supplied desktop and phone screenshots of the page header. This is team-reported testing of the earlier Module 2 interface, not an independently reproduced cross-device test. The new v2 Superposition controls still need a separate physical-phone interaction check. Module 3 is implemented, linked from the home page, and tested on desktop and a physical phone; all three required Module 3 validation checks pass. Module 4 remains planned. Instructor collaborator access, Module 3–4 ownership, and any unconfirmed team administration details still need confirmation.
 
 ## Module 1: using the time-response experiment
 
@@ -87,9 +87,10 @@ Module 1 experiment dashboard with its parameter panel, live summary and respons
 2. Wait for **Python ready**, then change the time constant **τ** (seconds) and angular frequency **ω** (rad/s) using the linked sliders or number fields. **Reset example** restores τ = 0.2 s and ω = 2 rad/s.
 3. Compare the blue input sine with the green steady-state output. Read amplitude ratio **M**, phase lag **φ**, signed amplitude-based dynamic error **δ**, and cutoff angular frequency **ωc** in the metric cards.
 4. Scroll to the two **Bode plots**. Their logarithmic frequency axes show magnitude in dB and phase in degrees. The orange cutoff marker is at ωc = 1/τ, and the point at your selected ω is highlighted.
-5. In the **Dynamic-error calculator**, enter the *highest required frequency in Hz* and *maximum allowed amplitude error in percent*. Read the calculated maximum allowed τ, phase at half that frequency using τmax, and whether your currently selected sensor τ meets the limit.
-6. For **Predict, then check**, first choose and save a prediction for M. Increase **ω** while keeping **τ** fixed, then press **Check**. Use **New prediction** to try again. The expandable explanation provides a worked example.
-7. Review **Validation checks 2 and 3**: expected, computed, tolerance and Pass/Fail are shown for fixed lecture cases. They do not change with your sliders.
+5. Open **[Superposition](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/module-2.html#superposition)** from the section navigation. Change ω₁, ω₂ and A₂ to build two sines; compare the blue combined input and green steady-state output, and read M₁ and M₂. The section shares τ with the main Parameters panel. **Reset example** restores ω₁ = 2, ω₂ = 12 and A₂ = 0.6, without changing τ.
+6. In the **Dynamic-error calculator**, enter the *highest required frequency in Hz* and *maximum allowed amplitude error in percent*. Read the calculated maximum allowed τ, phase at half that frequency using τmax, and whether your currently selected sensor τ meets the limit.
+7. For **Predict, then check**, first choose and save a prediction for M. Increase **ω** while keeping **τ** fixed, then press **Check**. Use **New prediction** to try again. The expandable explanation provides a worked example.
+8. Review **Validation checks 2 and 3**: expected, computed, tolerance and Pass/Fail are shown for fixed lecture cases. They do not change with your sliders.
 
 ### Module 2 phone / browser verification checklist
 
@@ -100,7 +101,7 @@ Module 1 experiment dashboard with its parameter panel, live summary and respons
 - [x] Team reports the prediction exercise works on the phone.
 - [x] Desktop and mobile page-header screenshots uploaded to `docs/screenshots/` and linked below. Screenshots of lower-page charts and validation results can be added later if desired.
 
-The responsive rules and static JavaScript checks are in place. The phone test above is confirmed by the team, rather than independently reproduced by the documentation reviewer.
+The responsive rules and static JavaScript checks are in place. The original Module 2 phone test above was confirmed by the team; **the v2 Superposition section has not yet been verified on a physical phone**. Run the new controls and reset button on both desktop and mobile before the demo.
 
 ### Module 2 screenshots
 
@@ -124,7 +125,25 @@ Module 2 reuses the first-order sensor, now with a sinusoidal input. This implem
 - **Predict, then check:** make a prediction about the amplitude ratio when ω rises and τ stays fixed; save it, change ω, and check the result.
 - **Validation:** the page reports fixed course checks 2 and 3 with expected, computed, tolerance, and Pass/Fail. These tests do not depend on current sliders.
 - **Architecture:** `module-2.html` loads `python/First-order frequency response.py` using Pyodide, then renders the returned Python-computed samples with Plotly. The URL uses percent-encoded spaces.
-- **Limitations/testing:** the waveform is steady state, not the start-up transient; the first-order model assumes τ > 0, the input amplitude and gain are fixed at one, and ω > 0 is required for the logarithmic axis. The calculator's δ is an amplitude-ratio error, not instantaneous input-output difference or phase error. Full browser-interaction and physical-phone testing remain to be performed.
+- **Limitations/testing:** the waveform is steady state, not the start-up transient; the first-order model assumes τ > 0, the input amplitude and gain are fixed at one, and ω > 0 is required for the logarithmic axis. The calculator's δ is an amplitude-ratio error, not instantaneous input-output difference or phase error. The original interface was tested on a phone by the team; independent cross-browser and v2 Superposition physical-phone testing remain pending.
+
+### Module 2 v2 — Superposition of Sine Waves (extra-credit option)
+
+**Version:** Module 2 v2, added **12 November 2026** by the Module 2 workstream (Jibreel Haddar). This update implements the homework's optional **Superposition** bonus choice: *build an input from two or three sine waves and observe how the sensor distorts the combination.* The on-site section is titled **“Superposition of Sine Waves”**, without the word “Bonus.”
+
+This addition **does not replace** the required Module 2 plots, design calculator, prediction exercise, or lecture validation checks.
+
+- **Input:** \`x(t) = sin(ω₁t) + A₂ sin(ω₂t)\`, with first-wave amplitude \`A₁ = 1\`. Sliders and number fields let the user change both angular frequencies from **0.5 to 24 rad/s**, and A₂ from **0 to 2**.
+- **Sensor:** the original unit-gain first-order model \`G(s) = 1/(τs + 1)\`. Both components use **the current τ from the main Parameters panel**; the original single-wave ω control remains independent.
+- **Linear superposition:** compute \`Mᵢ = 1/sqrt(1+(ωᵢτ)²)\` and \`φᵢ = -atan(ωᵢτ)\` for each frequency, then add the steady-state outputs:
+  \`yss(t) = M₁ sin(ω₁t + φ₁) + A₂ M₂ sin(ω₂t + φ₂)\`.
+- **Live visualization:** one Plotly chart overlays the **blue combined input** and **green combined output**. Two metric cards report M₁ and M₂; a note reports both phase shifts and the component output amplitudes. The input is sampled over **two periods of the slower wave**, with bounded adaptive samples to keep the faster wave visible and limit work on phones.
+- **Reset / edge cases:** Reset restores ω₁ = 2, ω₂ = 12, A₂ = 0.6 (not τ). A₂ = 0 removes the second wave; equal frequencies remain mathematically valid, with a prompt to separate them for comparison. Invalid or out-of-range values show an error message.
+- **Example:** τ = 0.2 s gives \`M₁ ≈ 0.9285\` for ω₁ = 2 rad/s and \`M₂ ≈ 0.3846\` for ω₂ = 12 rad/s. So the 12 rad/s component loses a larger fraction of its amplitude.
+- **Assumptions:** no phase offsets at the input, \`K = 1\`, first amplitude fixed at 1, and **steady-state only**. This plot intentionally omits the start-up transient. M₁ and M₂ should not be interpreted as a single amplitude ratio for the combined waveform.
+- **Testing:** \`tests/test_superposition.py\` adds seven Python regression tests (component ratios, waveform sum, zero/equal-frequency cases, attenuation, sampling bounds and invalid inputs), alongside the existing Euler tests. The [Python regression GitHub Actions workflow](.github/workflows/python-regression.yml) passed on 12 November 2026. HTML/JavaScript syntax and markup were inspected, and the GitHub Pages deployment succeeded; this does **not** establish full real-browser or physical-phone testing of the new controls.
+
+**Bonus-grading note:** the assignment offers up to 10 additional points for *any one* optional bonus choice. Module 1 already contains the optional Forward Euler comparison. Adding Superposition in Module 2 does not guarantee more points beyond the rubric's bonus cap.
 
 ### Module 2 lecture benchmark calculations
 
@@ -196,8 +215,10 @@ The screenshots were captured after testing Module 3 on desktop and a physical p
 | File | Responsibility |
 | --- | --- |
 | `python/first_order.py` | Python exact responses, our scalar Forward Euler solver, error/lag metrics, validation and prediction evaluation |
-| `python/First-order frequency response.py` | First-order steady-state frequency response, sine/Bode data, amplitude and phase metrics, cutoff, design calculator and validation checks 2–3 |
-| `module-2.html` | Interactive frequency-response page using the Python model through Pyodide and Plotly |
+| `python/First-order frequency response.py` | Module 2 v2: original sine/Bode calculations, design and checks 2–3, plus the `superposition_json` two-frequency waveform model |
+| `module-2.html` | Module 2 v2: original frequency-response UI plus responsive Superposition controls, chart and section navigation |
+| `tests/test_superposition.py` | Seven regression tests for Module 2 v2 superposition including zero amplitude, equal frequencies and invalid inputs |
+| `.github/workflows/python-regression.yml` | Automated numerical regression tests on relevant pushes, pull requests and manual runs; not a Module 1 checkpoint guard |
 | `python/second_order.py` | Closed-form second-order response, optional RK4 comparison, curve-based metrics, poles, state-space calculations, eigenvalues, phase-plane data and Module 3 validation |
 | `module-3.html` | Interactive second-order response page with damping controls, poles, state space, phase plane, prediction and validation |
 | `index.html` | Lightweight home page: introduction, learning path, module navigation and beginner help |
@@ -238,7 +259,7 @@ python -m unittest discover -s tests -v
 | Module | Scope | Tracking issue | Implementation | Owner |
 | --- | --- | --- | --- | --- |
 | 1 | First-order time response | [#1](../../issues/1) | Implemented; phone check pending | Khaled Bani Oudeh ([@Khaledbaniodeh](https://github.com/Khaledbaniodeh)) |
-| 2 | Frequency response, sines, Bode plots and dynamic error | [#2](../../issues/2) | Implemented; phone functionality confirmed by team | Jibreel Haddar |
+| 2 | Frequency response, sines, Bode plots, dynamic error and v2 Superposition | [#2](../../issues/2) | v2 implemented; Python tests passed; v2 phone check pending | Jibreel Haddar |
 | 3 | Second-order response, poles, state space and phase plane | [#3](../../issues/3) | Implemented and tested on desktop and phone | Waad Melhem ([@WaadMelhem05](https://github.com/WaadMelhem05)) |
 | 4 | Guess the sensor: hidden parameters, noise, hints and scoring | [#4](../../issues/4) | Not started | To be assigned by the team |
 
@@ -254,7 +275,9 @@ python -m unittest discover -s tests -v
 - [ ] Confirm owner for Module 4; Modules 1, 2 and 3 have named owners.
 - [ ] Verify on a physical phone: Step/Ramp switching, both sliders, number fields, prediction buttons, table scrolling and both plots.
 - [x] Implement Module 2: sine input/output, magnitude/phase Bode plots, cutoff marker, dynamic-error calculator, prediction, and lecture checks 2–3.
-- [x] Module 2 physical-phone functionality confirmed by Jibreel Haddar; desktop and mobile screenshots supplied for README documentation.
+- [x] Original Module 2 phone functionality confirmed by Jibreel Haddar; desktop/mobile screenshots supplied for README.
+- [x] Implement Module 2 v2 Superposition of Sine Waves and add Python regression tests.
+- [ ] Test the **new v2 Superposition controls, graph and reset** in desktop and physical-phone browsers; add a v2 screenshot after verification.
 - [x] Implement Module 3: second-order response, poles, state space, phase plane, prediction, and validation checks 4–6.
 - [ ] Complete Module 4.
 - [x] Add desktop and mobile screenshots for Module 3.
@@ -297,7 +320,8 @@ Module 3 checks are calculated by the page and shown with expected, calculated a
 | Milestone | Date | Current status |
 | --- | --- | --- |
 | Checkpoint 1 — Module 1 | 3 November 2026 | A reference snapshot was saved in the `checkpoint/module-1` branch at [`20847b4`](https://github.com/Khaledbaniodeh/encs4380-dynamics-t19/commit/20847b440a8155a036944168de1af0f5aacff641). This preserves the code; it does **not** by itself confirm instructor acceptance. |
-| Module 2 — First-order frequency response | 5 November 2026 | Implemented on `main` with Python calculations, interactive plots, validation checks 2–3, documentation and PNG desktop/mobile screenshots. Jibreel Haddar reported successful testing on a physical phone. |
+| Module 2 — First-order frequency response (v1) | 5 November 2026 | Implemented on `main`, documented with PNG screenshots, and phone-tested by Jibreel Haddar. |
+| **Module 2 v2 — Superposition** | **12 November 2026** | Added optional two-sine Superposition experiment with independent ω₁/ω₂/A₂ controls, shared τ, output plot, reset and regression tests. GitHub Actions numerical tests passed; v2 phone check pending. **This is a module version description, not a Git tag or separate release.** |
 | Checkpoint 2 — Modules 2 **and** 3 | 9 November 2026 | **Ready for presentation.** Modules 2 and 3 are implemented; Module 3 has been tested on desktop and phone and all three required validation checks pass. |
 | Final submission — All four modules | 12 November 2026 | **Pending.** Create the `v1.0` release only after Modules 1–4 and the final submission checks are ready. |
 
@@ -309,5 +333,5 @@ See [`docs/versioning.md`](docs/versioning.md) for the saved commit, Git blob ha
 
 ## AI Assistance
 
-ChatGPT was used to explain the homework requirements and equations, help debug and review Module 1's Python/HTML/JavaScript integration and optional Forward Euler comparison, and support documentation. For Module 2, ChatGPT generated the initial Python calculation file and interactive HTML/JavaScript page, then made several layout, navigation and explanatory-text revisions. It also helped review mathematical benchmarks, code structure and the README. Team members remain responsible for understanding and independently checking the equations and code, testing the site on real browsers/devices, and explaining their submitted work in the demo.
+ChatGPT was used to explain the homework requirements and equations, help debug and review Module 1's Python/HTML/JavaScript integration and optional Forward Euler comparison, and support documentation. For Module 2, ChatGPT generated the initial Python calculation file and interactive HTML/JavaScript page, then made several layout, navigation and explanatory-text revisions. For **Module 2 v2**, it also helped implement the two-sine Superposition option in Python and the interactive page, write regression tests and a GitHub Actions workflow, and update project documentation. It also helped review mathematical benchmarks, code structure and the README. Team members remain responsible for understanding and independently checking the equations and code, testing the site on real browsers/devices, and explaining their submitted work in the demo.
 
