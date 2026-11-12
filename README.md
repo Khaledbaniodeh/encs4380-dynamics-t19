@@ -8,7 +8,7 @@ A static browser toolkit for understanding sensor dynamics through live controls
 
 ## Modules and team
 
-All four modules are implemented, linked from the home page and published on GitHub Pages. The home page includes an animated module overview and a beginner guide explaining inputs, outputs, reading error and ramp time lag.
+All four modules are implemented, linked from the home page and published on GitHub Pages. The home page includes an animated module overview and a beginner guide explaining inputs, outputs, reading error and ramp time lag. Its **Open on phone** header button displays the toolkit QR code and a copyable website link for all four modules.
 
 | Module | Experiment | Owner | Tracking |
 | --- | --- | --- | --- |
