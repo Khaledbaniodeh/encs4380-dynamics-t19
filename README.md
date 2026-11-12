@@ -83,7 +83,7 @@ Module 1 experiment dashboard with its parameter panel, live summary and respons
 
 ### How to use Module 2
 
-1. From the home page, choose **Open Module 2**, or use **Home / Module 1 / Module 2** in the header of the module page. **← All modules** also returns to the home page.
+1. From the home page, choose **Open Module 2**, or use **Home / Module 1 / Module 2 / Module 3** in the right-side header navigation of the module page (four touch-friendly links on mobile). **← All modules** also returns to the home page.
 2. Wait for **Python ready**, then change the time constant **τ** (seconds) and angular frequency **ω** (rad/s) using the linked sliders or number fields. **Reset example** restores τ = 0.2 s and ω = 2 rad/s.
 3. Compare the blue input sine with the green steady-state output. Read amplitude ratio **M**, phase lag **φ**, signed amplitude-based dynamic error **δ**, and cutoff angular frequency **ωc** in the metric cards.
 4. Scroll to the two **Bode plots**. Their logarithmic frequency axes show magnitude in dB and phase in degrees. The orange cutoff marker is at ωc = 1/τ, and the point at your selected ω is highlighted.
