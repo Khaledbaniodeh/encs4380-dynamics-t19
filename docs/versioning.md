@@ -1,6 +1,6 @@
 # Checkpoints and versioning
 
-This record distinguishes the saved source snapshots, current `main`, and actual course checkpoint/release status (reviewed on **5 November 2026**).
+This record distinguishes saved source snapshots, the current `main` branch, and course checkpoint/release status (last reviewed on **12 November 2026**).
 
 ## Checkpoint 1 — Module 1 reference snapshot
 
@@ -29,6 +29,19 @@ Module 2 lives on `main`, separate from Module 1, in:
 
 Jibreel Haddar is recorded as Module 2 owner and reported successful testing on a physical phone. This is a team report, not a claim of independently repeated device testing. No separate `checkpoint/module-2` branch or `checkpoint-2` tag/release has been created.
 
+## Module 2 v2 — Superposition (12 November 2026)
+
+The Module 2 owner workstream (Jibreel Haddar) extended Module 2 with **Superposition of Sine Waves**, explicitly one of the homework's optional bonus types. The on-site title does **not** use the word “Bonus.”
+
+- Python extension: \`superposition_json(tau, omega1, omega2, amplitude2)\` in [\`python/First-order frequency response.py\`](../python/First-order%20frequency%20response.py).
+- UI extension: [\`module-2.html#superposition\`](../module-2.html#superposition) with independent two-frequency/amplitude sliders, shared τ, combined-input/output Plotly chart, component amplitude/phase metrics, explanation, reset, responsive styling and a new page-section navigation link.
+- Numerical tests: [\`tests/test_superposition.py\`](../tests/test_superposition.py) covers seven regression cases; existing Module 1 Euler tests remain in place.
+- Automated verification: [\`.github/workflows/python-regression.yml\`](../.github/workflows/python-regression.yml) runs the Python tests on relevant pushes/PRs and on demand. Its first run on 12 November 2026 **passed**. This is a unit-test workflow, **not** the old Module 1 checkpoint guard.
+- Deployment: the updated \`main\` page has deployed successfully to GitHub Pages. A browser-level and physical-phone interaction check of the **new v2 section** remains to be documented.
+- Label: **Module 2 v2** is a change/version description in commit messages and documentation, **not a Git tag or a separate release**. The final course-wide release name remains \`v1.0\`.
+
+The earlier Module 2 PNG screenshots show the pre-v2 interface. Keep them for historical context; add a new v2 screenshot only after checking the new controls.
+
 ## Module 3 implementation — 9 November 2026
 
 Module 3 is implemented on `main` in:
@@ -49,7 +62,7 @@ The `v1.0` GitHub Release has **not** been published. Preserve existing snapshot
 
 ## Change detection and safeguarding earlier modules
 
-The earlier documentation said that a read-only **Module 1 checkpoint guard** runs on pushes and pull requests. However, the `.github/workflows/` directory was **absent from `main` when checked on 5 November 2026**. Therefore, that automated guard must **not** be treated as currently active.
+The earlier documentation said that a read-only **Module 1 checkpoint guard** runs on pushes and pull requests. The `.github/workflows/` directory was absent on 5 November 2026; on 12 November a new **Python numerical regression tests** workflow was added for Module 1 Euler and Module 2 Superposition code. That workflow checks calculations but does **not** compare Module 1 baseline blob hashes, so the old checkpoint guard must **not** be treated as currently active.
 
 The table above is a *manual snapshot comparison*, not an automatically enforced GitHub status check. No branch-protection or deployment gate was verified. GitHub Pages serves the current `main` files, while the checkpoint branch preserves Module 1's historical version.
 
