@@ -232,6 +232,10 @@ See [README_MODULE4.md](README_MODULE4.md) for formulas and [the demo walkthroug
 
 After submitting a guess in Module 4, open the optional **Pole Explorer** to drag second-order poles on the s-plane (mouse or touch) and watch the unit-step response update live. Supports a conjugate pole pair and two negative real poles. The bonus never changes the hidden challenge or session score. See [README_POLE_EXPLORER.md](README_POLE_EXPLORER.md); math tests: `node tests/test_pole_explorer.js`.
 
+Mohammad Khaleel added this bonus in commit `7c5c297`. Its independent closed-form calculations and drag handling are in `js/pole_explorer.js`; the guessing challenge and scoring remain in Python. After a first-order round it uses a separate second-order example. After a second-order round it starts from the revealed poles, rounded to two decimals. The homework awards up to 10 extra points for any one bonus choice; additional choices do not increase that cap.
+
+Independent browser checks with real Pyodide and Plotly verified dragging, real/complex/critical cases, reset, hidden-before-submission behavior, new-round hiding and score isolation. A 320 px browser-width check verified opening, mode switching and the full real-pole slider range without horizontal page overflow. Touch dragging on a physical phone remains to be checked. Integration repairs preserve the Python startup retry/diagnostics and allow the main challenge to work if the optional bonus script is unavailable.
+
 ## Files and technology
 
 | File | Responsibility |
@@ -247,11 +251,15 @@ After submitting a guess in Module 4, open the optional **Pole Explorer** to dra
 | `module-1.html` | First-order experiment, guided explanations, responsive controls, Pyodide bridge and Plotly rendering |
 | `module-4.html` | Challenge controls, guessing, reveal overlays and session-score interface |
 | `python/guess_sensor.py` | Random challenge generation, closed-form responses and scoring |
+| `js/pole_explorer.js` | Independent optional second-order pole explorer: closed-form curves, pole dragging and sliders |
+| `tests/test_pole_explorer.js` | Node assertions for complex, repeated and real-pole math |
 | `tests/test_guess_sensor.py` | Seven numerical, random-challenge and scoring tests |
 | `tests/test_integration.py` | Three local integration-helper tests using temporary fixtures |
 | `README.md` | Live link, model assumptions, usage, validation and project status |
 
 Python executes in the visitor's browser through **Pyodide v314.0.7** in all four modules. **Plotly.js 4.1.1** renders the curves. The CDN versions are pinned in the interactive module pages; the home page loads no Python or plotting runtime. Each module loads its own Python source through Pyodide and passes calculated values to Plotly. Internet access is needed to load CDN libraries.
+
+The optional Pole Explorer uses its own browser JavaScript closed-form model; it does not change the Python challenge model or scoring.
 
 GitHub Pages publishes the repository root from `main`. The deployed site needs no backend server, Binder or login. Numerical models remain in Python; Flask and Django are not used.
 
@@ -376,3 +384,4 @@ See [`docs/versioning.md`](docs/versioning.md) for the historical checkpoint rec
 ChatGPT assisted with interpreting requirements, explaining and reviewing equations, implementing and debugging browser/Python integration, numerical comparisons, tests, and documentation. This included the Module 1 Euler comparison, Module 2 v2 Superposition, and Module 4 challenge/scoring integration. Claude assisted with the home-page design; ChatGPT subsequently refined its beginner guide and reviewed navigation and deployment. Module 4's contribution notes are also recorded in [README_MODULE4.md](README_MODULE4.md).
 
 Team members remain responsible for understanding and checking the submitted equations and code, completing device tests, and explaining their work during the demo. AI assistance and passing tests do not establish instructor acceptance.
+

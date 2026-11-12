@@ -152,6 +152,7 @@
     nodes.secondLabel.textContent = mode === "complex" ? "Oscillation frequency β = |Im(p)|" : "Pole 2 magnitude |p₂|";
     nodes.first.value = String(p.a);
     nodes.second.min = mode === "complex" ? "0" : String(EPS);
+    nodes.second.max = String(mode === "complex" ? MAX_IM : MAX_RATE);
     nodes.second.value = String(p.b);
     nodes.firstNumber.textContent = fmt(p.a);
     nodes.secondNumber.textContent = fmt(p.b);
@@ -290,3 +291,4 @@
 
   window.PoleExplorer = { init, unlock, reset, resize, math };
 })();
+

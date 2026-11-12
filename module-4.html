@@ -85,6 +85,11 @@
       border-radius: 9px; padding: 10px 14px; font: inherit; font-weight: 650; cursor: pointer; }
     .btn:disabled { opacity: .5; cursor: wait; }
     .status { font-size: 13px; margin: 12px 0 !important; }
+    .load-help { margin-top: 10px; font-size: 12px; }
+    .load-help summary { cursor: pointer; color: var(--teal); }
+    .load-help pre { max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere;
+      padding: 10px; background: var(--bg); border-radius: 8px; }
+    #retry-loading { margin-top: 10px; }
     .info { background: var(--teal-soft); padding: 12px; border-radius: 9px; margin-top: 16px !important; }
     #response-plot { width: 100%; min-height: 360px; }
     .plot-panel { min-width: 0; }
@@ -292,6 +297,11 @@
             <h2 id="controls-title">Challenge Controls</h2>
             <p>Generate a random sensor, inspect its noisy response, then estimate the hidden parameters.</p>
             <p class="status" id="status" role="status">Loading Python...</p>
+            <button class="btn" id="retry-loading" type="button" hidden>Retry loading</button>
+            <details class="load-help" id="load-help" hidden>
+              <summary>Show loading details</summary>
+              <pre id="load-details"></pre>
+            </details>
           </div>
           <div class="controls-actions">
             <button class="btn" id="new-sensor" type="button" disabled>New Sensor</button>
@@ -429,12 +439,12 @@
             <div>
               <div class="pole-slider-header"><label for="pole-first" id="pole-first-label">Decay rate α</label>
                 <output id="pole-first-number" for="pole-first">1.20</output></div>
-              <input id="pole-first" type="range" min="0.15" max="6" step="0.05" value="1.2">
+              <input id="pole-first" type="range" min="0.15" max="6" step="0.01" value="1.2">
             </div>
             <div>
               <div class="pole-slider-header"><label for="pole-second" id="pole-second-label">Oscillation frequency β</label>
                 <output id="pole-second-number" for="pole-second">2.30</output></div>
-              <input id="pole-second" type="range" min="0" max="5" step="0.05" value="2.3">
+              <input id="pole-second" type="range" min="0" max="5" step="0.01" value="2.3">
             </div>
           </div>
           <p class="pole-footnote">Model: G(s) = ωn² / (s² + 2ζωn s + ωn²), unit DC gain. 
@@ -446,7 +456,7 @@
     </div>
   </main>
   <script src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js"></script>
+  <script src="https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.js"></script>
   <script src="js/pole_explorer.js"></script>
   <script>
     "use strict";
@@ -454,6 +464,12 @@
     // DOM references (kept together for readability).
     const byId = id => document.getElementById(id);
     const statusElement = byId("status");
+    const retryLoadingButton = byId("retry-loading");
+    const loadHelp = byId("load-help");
+    const loadDetails = byId("load-details");
+    const runtimeURL = "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/";
+    const runtimeMessages = [];
+    let loadingStage = "Loading browser libraries";
     const newSensorButton = byId("new-sensor");
     const sensorTypeElement = byId("sensor-type");
     const plotElement = byId("response-plot");
@@ -482,6 +498,7 @@
     const secondOrderHint = byId("hint-second");
 
     let pyodide = null;
+    let poleExplorerReady = false;
     let isGenerating = false;
     let currentChallengePlot = null;  // Public plot data only (no secret parameters).
     let currentSensorType = null;
@@ -492,8 +509,13 @@
 
     function showError(error) {
       console.error(error);
-      statusElement.textContent = "Error: " + error.message;
+      const message = error.message || String(error);
+      statusElement.textContent = "Could not load the experiment. Check your connection, then Retry loading. " + message;
       statusElement.classList.add("error");
+      loadDetails.textContent = ["Stage: " + loadingStage, "Pyodide: 314.0.7",
+        message, ...runtimeMessages].join("\n");
+      loadHelp.hidden = false;
+      retryLoadingButton.hidden = false;
     }
 
     function resetHint() {
@@ -534,7 +556,7 @@
       parameterErrorsElement.replaceChildren();
       resultsSection.hidden = true; // Hide the ENTIRE result section until submitted.
       // Start the next round with the bonus closed; the session score stays intact.
-      window.PoleExplorer.reset();
+      if (poleExplorerReady) window.PoleExplorer.reset();
       resetHint();
 
       const firstOrder = challenge.type === "first_order";
@@ -692,7 +714,7 @@ json.dumps({"reveal": _reveal, "scoring": _scoring})
         resultsSection.hidden = false;
         // Unlock only now: true second-order poles must never appear before submission.
         try {
-          window.PoleExplorer.unlock(firstOrder ? null : reveal.parameters);
+          if (poleExplorerReady) window.PoleExplorer.unlock(firstOrder ? null : reveal.parameters);
         } catch (bonusError) {
           console.warn("Optional Pole Explorer could not be loaded:", bonusError);
         }
@@ -728,6 +750,8 @@ json.dumps({
         drawResponse(challenge);
         statusElement.classList.remove("error");
         statusElement.textContent = "Python ready · New challenge generated";
+        retryLoadingButton.hidden = true;
+        loadHelp.hidden = true;
       } catch (error) {
         showError(error);
       } finally {
@@ -741,11 +765,25 @@ json.dumps({
         if (typeof loadPyodide !== "function" || typeof Plotly === "undefined") {
           throw new Error("Could not load Pyodide or Plotly. Check internet access.");
         }
-        pyodide = await loadPyodide();
-        const response = await fetch("python/guess_sensor.py");
+        loadingStage = "Starting Python runtime";
+        statusElement.textContent = "Starting Python...";
+        pyodide = await loadPyodide({
+          indexURL: runtimeURL,
+          stderr: message => {
+            console.error(message);
+            runtimeMessages.push(String(message));
+            if (runtimeMessages.length > 8) runtimeMessages.shift();
+          }
+        });
+        loadingStage = "Loading the sensor model";
+        statusElement.textContent = "Loading sensor model...";
+        const response = await fetch("python/guess_sensor.py", { cache: "no-cache" });
         if (!response.ok) throw new Error("Cannot load python/guess_sensor.py");
         pyodide.runPython(await response.text());
-        window.PoleExplorer.init();
+        if (window.PoleExplorer) {
+          try { window.PoleExplorer.init(); poleExplorerReady = true; }
+          catch (bonusError) { console.warn("Optional Pole Explorer could not be loaded:", bonusError); }
+        }
         guessForm.addEventListener("submit", submitGuess);
         hintButton.addEventListener("click", toggleHint);
         newSensorButton.addEventListener("click", generateSensor);
@@ -755,6 +793,7 @@ json.dumps({
             guessFeedback.dataset.state = "";
           });
         });
+        loadingStage = "Generating a sensor";
         await generateSensor();
       } catch (error) {
         showError(error);
@@ -765,9 +804,10 @@ json.dumps({
       if (typeof Plotly !== "undefined" && currentChallengePlot) {
         Plotly.Plots.resize(plotElement);
       }
-      if (window.PoleExplorer) window.PoleExplorer.resize();
+      if (poleExplorerReady) window.PoleExplorer.resize();
     });
 
+    retryLoadingButton.addEventListener("click", () => window.location.reload());
     initialize();
   </script>
 </body>

@@ -2,11 +2,11 @@
 
 This published version adds the optional *Pole Explorer* to the fully working Module 4 challenge. The Pole Explorer is now part of the GitHub repository.
 
-## Run on Windows
+## Open the published experiment
 
-1. Extract the entire ZIP into a new folder (keep `module-4.html`, `js/` and `python/` next to one another).
-2. Double-click `START_LOCAL_WINDOWS.bat` (or open CMD in that folder and run `python -m http.server 8000`).
-3. Open **http://localhost:8000/module-4.html** in a browser with internet access (Pyodide and Plotly are loaded from CDNs).
+1. Open [Module 4 on GitHub Pages](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/module-4.html).
+2. Wait for **Python ready**. An internet connection is required for Pyodide and Plotly.
+3. Study the response and enter your estimates; no installation or account is required.
 4. Click **New Sensor** as desired, enter valid parameters, then click **Submit Guess**.
 5. After submission, the independent **Bonus · Pole Explorer** panel appears below **Challenge Result**. Click **Open Pole Explorer**.
 6. Drag the teal pole dots directly in the *s-plane*. The chart and values update live. Try it on a phone too.
@@ -14,7 +14,7 @@ This published version adds the optional *Pole Explorer* to the fully working Mo
 8. Click **Reset to start** to restore the initial poles. Click **Close Explorer** to collapse the bonus without losing your score.
 9. Click **New Sensor**. The bonus hides until the next submission, and the session total remains unchanged.
 
-**Important:** Do **not** open the HTML with a `file:///` URL. Its Python source is loaded using `fetch`, which requires an HTTP server. Use localhost as above. The links to Modules 1–3 require those files to be present in the same folder; this ZIP intentionally focuses on testing Module 4 without replacing teammates' files.
+For local development, run `python -m http.server 8000` from a complete repository checkout and open `http://localhost:8000/module-4.html`. Opening the HTML through a `file:///` URL cannot load its Python source correctly. Local HTTP serving is a development option; visitors use the published GitHub Pages link without a backend.
 
 ## What the poles mean
 
@@ -37,7 +37,7 @@ The **gray dotted curve** is the response at the original starting poles. The **
 
 The bonus is unlocked **only after Submit Guess**, never while true sensor values are hidden.
 
-- If the completed challenge was **second order**, the explorer starts at the **revealed** sensor's pole locations.
+- If the completed challenge was **second order**, the explorer starts at the **revealed** sensor's pole locations, rounded to two decimal places.
 - If the completed challenge was **first order**, the explorer uses an independent example of a second-order system; it is **not** the hidden first-order sensor.
 - Moving the bonus poles does **not** change the challenge, guess, revealed result or total score.
 
@@ -48,7 +48,9 @@ From the project folder:
 - `python -m unittest discover -s tests -v` — original Module 4 Python math/scoring and integration tests.
 - `node tests/test_pole_explorer.js` — conjugate, critical and real-pole formulas, damping values and reference overshoot.
 
-The new HTML, the external bonus JavaScript, and the original Python math were checked for syntax. A Chromium UI smoke test with simulated Pyodide and Plotly verified unlock/reset, the SVG drag gesture, live state changes, slider controls, lack of score mutations and no horizontal overflow at 320–1280 px. **The CDN-backed browser implementation should still be tried on your own computer and phone**, as requested.
+The Node math assertions and the 25-test Python suite pass. Independent browser checks with actual CDN-loaded Pyodide and Plotly verified unlock, SVG mouse dragging, response changes, complex/real/critical cases, reset, first-order independent examples, second-order revealed initialization, unchanged session scoring and new-round hiding. A 320 px browser-width check verified opening, mode switching and sliders without horizontal page overflow. A missing-script fixture verified that the optional bonus does not block the main challenge. Physical-phone touch dragging still needs a device check.
+
+The integration keeps Pyodide pinned to v314.0.7, with the startup retry and diagnostic controls. The real-pole slider supports the same upper bound (6) as dragging; slider precision matches the two-decimal pole positions. These are integration fixes, not changes to the challenge's Python model or scoring.
 
 ## File locations
 
