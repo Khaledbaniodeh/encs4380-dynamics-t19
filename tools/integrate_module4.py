@@ -104,7 +104,7 @@ def add_readme_note(html: str) -> str:
   tests, documentation and integration instructions. The team should review,
   understand and be prepared to explain every submitted line.
 
-See `README_MODULE4.md` for formulas, scoring and browser setup.
+See the Module 4 section of `README.md` for formulas, scoring and browser setup.
 '''
 
 
@@ -122,7 +122,7 @@ def build_changes(repo: Path, package: Path) -> dict[Path, str | Path]:
     updates[repo/'README.md'] = add_readme_note((repo/'README.md').read_text(encoding='utf-8'))
     for relative_path in (
         'module-4.html', 'python/guess_sensor.py', 'tests/test_guess_sensor.py',
-        'README_MODULE4.md', 'docs/module4_demo.md',
+        'docs/module4_demo.md',
     ):
         src = package/relative_path
         if not src.is_file():

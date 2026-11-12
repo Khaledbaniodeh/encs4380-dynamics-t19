@@ -216,25 +216,55 @@ The screenshots were captured after testing Module 3 on desktop and a physical p
 
 **[Open Module 4](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/module-4.html)**
 
-1. Wait for **Python ready**. A random sensor is generated automatically; **New Sensor** starts another round.
-2. Inspect its noisy response. First-order rounds use a unit Step or a steady-state unit Sine; second-order rounds use an underdamped unit Step. A Sine round states its angular frequency in **rad/s** and shows the input wave.
-3. Estimate **K and τ** for a first-order sensor, or **ζ and ωn** for a second-order sensor. True parameter values remain hidden until submission. **Get Hint** explains the relevant estimation method.
-4. Press **Submit Guess** to reveal the true values and overlay the true response and your predicted curve on the noisy measurements.
-5. Compare parameter errors and the round score. Session points, average and completed rounds remain when generating a new sensor; refreshing the page starts a new session.
+This interactive challenge tests the concepts learned in Modules 1–3. The student works backwards from a simulated, noisy response to estimate a hidden sensor's parameters.
 
-Each parameter receives **100/100 within 10% relative error**, including exactly 10%. Above that, its score decreases linearly to zero at 100% error. The round score is the average of the two parameter scores. This partial-credit rule is an implementation choice; the full-credit boundary follows the brief. A submitted round is locked to prevent duplicate scoring.
+1. Wait for **Python ready**. A random hidden sensor is generated automatically; **New Sensor** starts another round.
+2. Inspect the response. First-order sensors use a unit **Step** or a steady-state **Sine** at a stated angular frequency (rad/s); second-order sensors use an underdamped unit **Step**.
+3. Estimate **K** and **τ** (first order) or **ζ** and **ωn** (second order). True values remain hidden until submission. **Get Hint / Hide Hint** explains the estimation method on request.
+4. Press **Submit Guess** to reveal the true parameters and overlay the true curve (blue), guessed response (orange), and noisy samples (teal).
+5. Compare your errors and score. **Total Points**, **Average Score**, and completed **Rounds** continue across new sensors until the page is reloaded. Each round counts only once.
 
-All challenge parameters must be finite and positive; second-order estimates also require **0 < ζ < 1**, matching the underdamped challenge family. The model uses small simulated Gaussian measurement noise. Step responses start from zero; Sine responses show steady state after the start-up transient has decayed.
+### Screenshots
 
-See [README_MODULE4.md](README_MODULE4.md) for formulas and [the demo walkthrough](docs/module4_demo.md) for a guided example.
+**Challenge interface —** the first-order noisy step response and parameter estimation fields before submitting a guess:
+
+<img src="docs/screenshots/module4-desktop.png" alt="Module 4 challenge interface showing noisy step response, guess inputs, New Sensor and session score" width="900">
+
+**Result and optional Pole Explorer —** revealed parameter values and round score, with draggable second-order poles and a live unit-step plot:
+
+<img src="docs/screenshots/module4-pole-explorer.png" alt="Module 4 completed round result and bonus Pole Explorer showing poles on s-plane and live step response" width="900">
+
+Both screenshots show the working Module 4 interface. The bonus is a separate teaching experiment, not the hidden sensor from a completed first-order challenge.
+
+### Models and estimation
+
+All challenge inputs have unit amplitude, and measurements include a small amount of simulated Gaussian noise.
+
+- **First-order step:** `y(t) = K (1 − exp(−t/τ))`. At `t = τ` the response reaches approximately **63.2%** of the final value; at `3τ` it reaches approximately **95%**. A log-error plot has slope `−1/τ`.
+- **First-order steady-state sine:** `x(t) = sin(ωt)`, `M = 1/sqrt(1+(ωτ)^2)`, phase lag `φ = −atan(ωτ)`, and output `y(t) = K M sin(ωt + φ)`. Estimate `τ = tan(|φ|)/ω` and `K` from the measured amplitude ratio. Four cycles are shown; the start-up transient is intentionally excluded.
+- **Second-order step:** `G(s) = ωn²/(s²+2ζωn s+ωn²)`. For `0 < ζ < 1`, overshoot `Mp = exp(−πζ/sqrt(1−ζ²))` and peak time `Tp = π/(ωn sqrt(1−ζ²))`. Use the measured peak and settling level to estimate `ζ`, then `ωn` from `Tp`. Random second-order challenges remain underdamped so the peak is estimable.
+
+**Scoring:** Each parameter earns **100/100** at relative error **≤10%**. For errors from 10% to 100%, partial credit decreases linearly to zero: `100 × (100 − error%)/90`. Errors **≥100%** receive zero. The round score is the mean of the two parameter scores; the session total is the sum of completed rounds. Parameters are strictly positive, avoiding division by zero. This partial-credit scale is the team's implementation choice; the 10% full-credit rule comes from the homework.
 
 ### Optional bonus — draggable Pole Explorer
 
-After submitting a guess in Module 4, open the optional **Pole Explorer** to drag second-order poles on the s-plane (mouse or touch) and watch the unit-step response update live. Supports a conjugate pole pair and two negative real poles. The bonus never changes the hidden challenge or session score. See [README_POLE_EXPLORER.md](README_POLE_EXPLORER.md); math tests: `node tests/test_pole_explorer.js`.
+After **Submit Guess**, open **Bonus · Pole Explorer** to drag poles in the s-plane with a mouse or touch, and watch the simulated second-order unit-step response change immediately. The **dotted gray** curve is the starting response; the **solid teal** curve follows the moved poles. The panel supports:
 
-Mohammad Khaleel added this bonus in commit `7c5c297`. Its independent closed-form calculations and drag handling are in `js/pole_explorer.js`; the guessing challenge and scoring remain in Python. After a first-order round it uses a separate second-order example. After a second-order round it starts from the revealed poles, rounded to two decimals. The homework awards up to 10 extra points for any one bonus choice; additional choices do not increase that cap.
+- **Complex conjugate poles** `p = −a ± jb`: `ωn = sqrt(a²+b²)`, `ζ = a/ωn`. For `b>0`, the response oscillates; when `b=0`, it is critically damped.
+- **Two negative real poles** `p1 = −a, p2 = −b`: `ωn = sqrt(ab)`, `ζ = (a+b)/(2sqrt(ab))`. Different poles produce an overdamped response, and equal poles produce a critically damped response.
+- **Reset to start** restores the initial poles. **Close Explorer** collapses the panel; **New Sensor** hides the bonus until the next valid submission.
 
-Independent browser checks with real Pyodide and Plotly verified dragging, real/complex/critical cases, reset, hidden-before-submission behavior, new-round hiding and score isolation. A 320 px browser-width check verified opening, mode switching and the full real-pole slider range without horizontal page overflow. Touch dragging on a physical phone remains to be checked. Integration repairs preserve the Python startup retry/diagnostics and allow the main challenge to work if the optional bonus script is unavailable.
+The poles stay in the left half-plane (stable systems). For a completed first-order round, the bonus starts from an independent second-order example; for a second-order round, it starts from the revealed pole positions rounded to two decimal places. **Exploring poles never changes the guess, revealed answer, round score or session total.** The math and drag logic are in `js/pole_explorer.js`; scoring and challenge generation remain in `python/guess_sensor.py`.
+
+### Running and testing
+
+The deployed project runs directly on **GitHub Pages** with HTML/CSS/JavaScript, Plotly and Python via Pyodide; no account or backend is required. To run locally, serve the repository root with `python -m http.server 8000` and open `http://localhost:8000/module-4.html` (not `file://`). Internet access is needed to load the browser libraries.
+
+- Module 4 Python regression: `python -m unittest discover -s tests -v`
+- Bonus mathematics: `node tests/test_pole_explorer.js`
+- Browser checks: first-order Step/Sine, second-order Step, hints, invalid inputs, reveal overlay, score isolation, duplicate-submit protection, reset and responsive widths. Physical-phone touch dragging should also be checked.
+
+**Contribution:** Mohammad Khaleel ([@mohak430](https://github.com/mohak430)) implemented Module 4 and added the Pole Explorer bonus (see commit `7c5c297`). ChatGPT assisted with equations, coding, debugging, tests and documentation; the contributor remains responsible for understanding the code. A guided presentation is in [the demo walkthrough](docs/module4_demo.md).
 
 ## Files and technology
 
@@ -381,7 +411,7 @@ See [`docs/versioning.md`](docs/versioning.md) for the historical checkpoint rec
 
 ## AI assistance
 
-ChatGPT assisted with interpreting requirements, explaining and reviewing equations, implementing and debugging browser/Python integration, numerical comparisons, tests, and documentation. This included the Module 1 Euler comparison, Module 2 v2 Superposition, and Module 4 challenge/scoring integration. Claude assisted with the home-page design; ChatGPT subsequently refined its beginner guide and reviewed navigation and deployment. Module 4's contribution notes are also recorded in [README_MODULE4.md](README_MODULE4.md).
+ChatGPT assisted with interpreting requirements, explaining and reviewing equations, implementing and debugging browser/Python integration, numerical comparisons, tests, and documentation. This included the Module 1 Euler comparison, Module 2 v2 Superposition, and Module 4 challenge/scoring integration. Claude assisted with the home-page design; ChatGPT subsequently refined its beginner guide and reviewed navigation and deployment. Module 4's implementation and contribution notes are documented in the Module 4 section above.
 
 Team members remain responsible for understanding and checking the submitted equations and code, completing device tests, and explaining their work during the demo. AI assistance and passing tests do not establish instructor acceptance.
 
