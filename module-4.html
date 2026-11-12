@@ -85,6 +85,11 @@
       border-radius: 9px; padding: 10px 14px; font: inherit; font-weight: 650; cursor: pointer; }
     .btn:disabled { opacity: .5; cursor: wait; }
     .status { font-size: 13px; margin: 12px 0 !important; }
+    .load-help { margin-top: 10px; font-size: 12px; }
+    .load-help summary { cursor: pointer; color: var(--teal); }
+    .load-help pre { max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere;
+      padding: 10px; background: var(--bg); border-radius: 8px; }
+    #retry-loading { margin-top: 10px; }
     .info { background: var(--teal-soft); padding: 12px; border-radius: 9px; margin-top: 16px !important; }
     #response-plot { width: 100%; min-height: 360px; }
     .plot-panel { min-width: 0; }
@@ -240,6 +245,11 @@
             <h2 id="controls-title">Challenge Controls</h2>
             <p>Generate a random sensor, inspect its noisy response, then estimate the hidden parameters.</p>
             <p class="status" id="status" role="status">Loading Python...</p>
+            <button class="btn" id="retry-loading" type="button" hidden>Retry loading</button>
+            <details class="load-help" id="load-help" hidden>
+              <summary>Show loading details</summary>
+              <pre id="load-details"></pre>
+            </details>
           </div>
           <div class="controls-actions">
             <button class="btn" id="new-sensor" type="button" disabled>New Sensor</button>
@@ -335,13 +345,20 @@
     </div>
   </main>
   <script src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js"></script>
+  <script src="https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.js"></script>
   <script>
     "use strict";
 
     // DOM references (kept together for readability).
     const byId = id => document.getElementById(id);
     const statusElement = byId("status");
+    const retryLoadingButton = byId("retry-loading");
+    const loadHelp = byId("load-help");
+    const loadDetails = byId("load-details");
+    // Keep the loader and its runtime files on the same pinned version.
+    const runtimeURL = "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/";
+    const runtimeMessages = [];
+    let loadingStage = "Loading browser libraries";
     const newSensorButton = byId("new-sensor");
     const sensorTypeElement = byId("sensor-type");
     const plotElement = byId("response-plot");
@@ -380,8 +397,13 @@
 
     function showError(error) {
       console.error(error);
-      statusElement.textContent = "Error: " + error.message;
+      const message = error.message || String(error);
+      statusElement.textContent = "Could not load the experiment. Check your connection, then Retry loading. " + message;
       statusElement.classList.add("error");
+      loadDetails.textContent = ["Stage: " + loadingStage, "Pyodide: 314.0.7",
+        message, ...runtimeMessages].join("\n");
+      loadHelp.hidden = false;
+      retryLoadingButton.hidden = false;
     }
 
     function resetHint() {
@@ -608,6 +630,8 @@ json.dumps({
         drawResponse(challenge);
         statusElement.classList.remove("error");
         statusElement.textContent = "Python ready · New challenge generated";
+        retryLoadingButton.hidden = true;
+        loadHelp.hidden = true;
       } catch (error) {
         showError(error);
       } finally {
@@ -621,8 +645,19 @@ json.dumps({
         if (typeof loadPyodide !== "function" || typeof Plotly === "undefined") {
           throw new Error("Could not load Pyodide or Plotly. Check internet access.");
         }
-        pyodide = await loadPyodide();
-        const response = await fetch("python/guess_sensor.py");
+        loadingStage = "Starting Python runtime";
+        statusElement.textContent = "Starting Python...";
+        pyodide = await loadPyodide({
+          indexURL: runtimeURL,
+          stderr: message => {
+            console.error(message);
+            runtimeMessages.push(String(message));
+            if (runtimeMessages.length > 8) runtimeMessages.shift();
+          }
+        });
+        loadingStage = "Loading the sensor model";
+        statusElement.textContent = "Loading sensor model...";
+        const response = await fetch("python/guess_sensor.py", { cache: "no-cache" });
         if (!response.ok) throw new Error("Cannot load python/guess_sensor.py");
         pyodide.runPython(await response.text());
         guessForm.addEventListener("submit", submitGuess);
@@ -634,6 +669,7 @@ json.dumps({
             guessFeedback.dataset.state = "";
           });
         });
+        loadingStage = "Generating a sensor";
         await generateSensor();
       } catch (error) {
         showError(error);
@@ -646,6 +682,8 @@ json.dumps({
       }
     });
 
+    // A fresh page gives a failed WebAssembly runtime a clean restart.
+    retryLoadingButton.addEventListener("click", () => window.location.reload());
     initialize();
   </script>
 </body>
