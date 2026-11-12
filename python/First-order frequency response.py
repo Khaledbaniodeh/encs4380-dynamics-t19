@@ -170,3 +170,57 @@ def prediction_json(before_omega, after_omega, tau, guess):
         "actual": actual,
         "correct": guess == actual,
     }, allow_nan=False)
+
+
+def superposition_json(tau, omega1, omega2, amplitude2):
+    """Steady-state superposition of two sines for a unit-gain first-order sensor.
+
+    x(t) = sin(omega1*t) + amplitude2*sin(omega2*t)
+    y_ss(t) = M1*sin(omega1*t + phi1)
+              + amplitude2*M2*sin(omega2*t + phi2)
+
+    The model is linear, so each sinusoid is filtered independently before
+    adding the responses. This is not the zero-initial-condition transient.
+    The finite frequency range bounds plotting cost on phones.
+    """
+    require_positive(tau=tau, omega1=omega1, omega2=omega2)
+    if not (0.5 <= omega1 <= 24.0 and 0.5 <= omega2 <= 24.0):
+        raise ValueError("Each superposition frequency must be between 0.5 and 24 rad/s.")
+    if not isfinite(amplitude2) or not (0 <= amplitude2 <= 2):
+        raise ValueError("Second-wave amplitude must be between 0 and 2.")
+
+    ratio1 = amplitude_ratio(omega1, tau)
+    ratio2 = amplitude_ratio(omega2, tau)
+    phi1 = -atan(omega1 * tau)
+    phi2 = -atan(omega2 * tau)
+
+    # Display two complete cycles of the slower wave. Sample fast enough
+    # to resolve the faster wave even when the frequencies are far apart.
+    duration = 4.0 * pi / min(omega1, omega2)
+    fast_cycles = 2.0 * max(omega1, omega2) / min(omega1, omega2)
+    samples = min(2500, max(420, int(fast_cycles * 32)))
+    time = [duration * i / samples for i in range(samples + 1)]
+    combined_input = [
+        sin(omega1 * t) + amplitude2 * sin(omega2 * t) for t in time
+    ]
+    combined_output = [
+        ratio1 * sin(omega1 * t + phi1)
+        + amplitude2 * ratio2 * sin(omega2 * t + phi2) for t in time
+    ]
+
+    return json.dumps({
+        "tau": tau,
+        "omega1": omega1,
+        "omega2": omega2,
+        "amplitude2": amplitude2,
+        "m1": ratio1,
+        "m2": ratio2,
+        "phase1_degrees": phi1 * 180.0 / pi,
+        "phase2_degrees": phi2 * 180.0 / pi,
+        "component1_output_amplitude": ratio1,
+        "component2_output_amplitude": amplitude2 * ratio2,
+        "time": time,
+        "input": combined_input,
+        "output": combined_output
+    }, allow_nan=False)
+
