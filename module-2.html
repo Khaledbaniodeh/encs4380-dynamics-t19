@@ -395,6 +395,7 @@ async function render() {
     await Plotly.react($("phase-chart"),phaseTraces,phaseLayout,plotConfig);
     if (revision!==currentRender) return;
     updateCalculator();
+    await renderSuperposition();
   } catch(error) {
     showModelError(error.message);
     $("calculator-feedback").textContent="Check the model parameters.";
@@ -492,6 +493,69 @@ function resetPrediction() {
   $("prediction-feedback").textContent="Save a prediction, increase ω, then check.";
   syncPrediction();
 }
+
+// Module 2 v2: independent two-wave controls; tau is shared with main Parameters.
+let superTimer=null,superRevision=0;
+function superParameters(){
+  const tau=$("tau-number").valueAsNumber,w1=$("super-w1-number").valueAsNumber,
+    w2=$("super-w2-number").valueAsNumber,a2=$("super-a2-number").valueAsNumber;
+  const fields=[["super-w1-number",w1,0.5,24],["super-w2-number",w2,0.5,24],["super-a2-number",a2,0,2]];
+  for(const [id,v,min,max] of fields)
+    $(id).setAttribute("aria-invalid",String(!Number.isFinite(v)||v<min||v>max));
+  if(!Number.isFinite(tau)||tau<=0)throw new Error("Set a positive τ in the Parameters panel.");
+  if(!Number.isFinite(w1)||!Number.isFinite(w2)||w1<0.5||w1>24||w2<0.5||w2>24)
+    throw new Error("Choose frequencies between 0.5 and 24 rad/s.");
+  if(!Number.isFinite(a2)||a2<0||a2>2)throw new Error("Choose A₂ between 0 and 2.");
+  return {tau,w1,w2,a2};
+}
+async function renderSuperposition(){
+  if(!python?.superposition)return;
+  const revision=++superRevision;
+  try{
+    const {tau,w1,w2,a2}=superParameters();
+    const data=JSON.parse(python.superposition(tau,w1,w2,a2));
+    if(revision!==superRevision)return;
+    $("superposition-error").hidden=true;
+    $("super-m1").textContent=format(data.m1,5);$("super-m2").textContent=format(data.m2,5);
+    const layout=baseLayout("Combined signal");
+    layout.yaxis.range=[-1.12*(1+a2),1.12*(1+a2)];
+    await Plotly.react($("superposition-chart"),[
+      {x:data.time,y:data.input,type:"scatter",mode:"lines",name:"Combined input x(t)",line:{color:"#315dda",width:2.5}},
+      {x:data.time,y:data.output,type:"scatter",mode:"lines",name:"Sensor output yss(t)",line:{color:"#087f72",width:2.8}}
+    ],layout,plotConfig);
+    if(revision!==superRevision)return;
+    const comparison=a2===0?"The second wave is off.":w1===w2?
+      "Equal frequencies combine into one sine. Try different values.":
+      (w1>w2?"The first":"The second")+" frequency is higher and loses a larger fraction of its amplitude.";
+    $("superposition-note").textContent="τ = "+format(tau,4)+" s; φ₁ = "+
+      format(data.phase1_degrees,4)+"°, φ₂ = "+format(data.phase2_degrees,4)+
+      "°. Output component amplitudes: "+format(data.component1_output_amplitude,4)+
+      " and "+format(data.component2_output_amplitude,4)+". "+comparison;
+  }catch(error){
+    $("superposition-error").hidden=false;$("superposition-error").textContent=error.message;
+    $("super-m1").textContent="—";$("super-m2").textContent="—";
+    $("superposition-note").textContent="Correct the inputs to update the plot.";
+  }
+}
+function scheduleSuperposition(){clearTimeout(superTimer);superTimer=setTimeout(renderSuperposition,80);}
+function superPair(name){
+  const slider=$(name+"-slider"),field=$(name+"-number");
+  slider.addEventListener("input",()=>{field.value=slider.value;scheduleSuperposition();});
+  field.addEventListener("input",()=>{
+    const v=field.valueAsNumber;
+    if(Number.isFinite(v)&&v>=Number(slider.min)&&v<=Number(slider.max))slider.value=String(v);
+    scheduleSuperposition();
+  });
+}
+for(const name of ["super-w1","super-w2","super-a2"])superPair(name);
+$("reset-superposition").addEventListener("click",()=>{
+  for(const [name,value] of [["super-w1","2"],["super-w2","12"],["super-a2","0.6"]]){
+    $(name+"-slider").value=value;$(name+"-number").value=value;
+    $(name+"-number").setAttribute("aria-invalid","false");
+  }
+  scheduleSuperposition();
+});
+
 function showValidations() {
   const rows=JSON.parse(python.validation());
   const tbody=$("validation-rows");tbody.replaceChildren();
@@ -521,11 +585,13 @@ async function main() {
       dashboard:engine.globals.get("dashboard_json"),
       calculator:engine.globals.get("calculator_json"),
       validation:engine.globals.get("validation_json"),
-      predict:engine.globals.get("prediction_json")
+      predict:engine.globals.get("prediction_json"),
+       superposition:engine.globals.get("superposition_json")
     };
     $("model-controls").disabled=false;
     $("calculator-controls").disabled=false;
     $("prediction-controls").disabled=false;
+     $("superposition-controls").disabled=false;
     $("runtime").textContent="Python ready";
     $("runtime").className="pill";
     showValidations();
