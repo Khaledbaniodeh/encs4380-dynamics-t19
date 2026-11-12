@@ -143,6 +143,23 @@ html{scroll-padding-top:22px}
   .section-links{gap:11px 16px}
   .section-body{font-size:11px}
 }
+
+/* Module 2 v2: responsive superposition controls */
+.super-panel{padding:22px;min-width:0}
+.super-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.super-field{min-width:0}.super-field label{display:block;font-size:12px;font-weight:650;margin-bottom:9px}
+.super-field label small{color:var(--muted);font-size:10px;font-weight:400}
+.super-field .field-help{line-height:1.6}
+.super-reset{margin-top:17px;max-width:100%}
+.super-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0 8px}
+.super-metric{padding:13px 16px;background:#eaf6f1;border:1px solid #d0e9e0;border-radius:10px;min-width:0}
+.super-metric span{display:block;font-size:11px;color:#47687a}
+.super-metric strong{display:block;font-size:23px;color:#096c60;margin:3px 0;overflow-wrap:anywhere}
+.super-metric small{display:block;font-size:10px;color:#5f7680}
+.super-chart{height:360px;max-width:100%;margin-top:12px}
+@media(max-width:950px){.super-controls{grid-template-columns:1fr 1fr}}
+@media(max-width:760px){.super-panel{padding:17px 13px}.super-controls{grid-template-columns:1fr;gap:16px}.super-reset{width:100%;min-height:44px}.super-metrics{gap:9px}.super-metric{padding:12px 10px}.super-metric strong{font-size:20px}.super-chart{height:315px}}
+@media(max-width:360px){.super-metrics{grid-template-columns:1fr}}
 </style>
 <script src="https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.js"></script>
 <script src="https://cdn.plot.ly/plotly-4.1.1.min.js" charset="utf-8"></script>
@@ -165,6 +182,7 @@ html{scroll-padding-top:22px}
   <nav class="section-links" aria-label="Module 2 sections">
     <a href="#experiment">Experiment</a>
     <a href="#bode">Bode plots</a>
+    <a href="#superposition">Superposition</a>
     <a href="#learn">Design &amp; prediction</a>
     <a href="#validation">Validation</a>
   </nav>
@@ -215,6 +233,35 @@ html{scroll-padding-top:22px}
       <section class="panel chart-panel soft"><h3>Phase · degrees</h3><p>At cutoff, φ = −45°. Faster input oscillations produce more phase lag.</p><div id="phase-chart" class="chart short" aria-label="Bode phase plot with cutoff"></div></section>
     </div>
     <p class="reading-note" id="cutoff-note">At cutoff, amplitude ratio is 0.7071 and phase shift is −45°.</p>
+  </section>
+
+    <section class="section" id="superposition" aria-labelledby="superposition-title">
+    <div class="section-heading"><div><p class="eyebrow">Two frequencies · One sensor</p><h2 id="superposition-title">Superposition of Sine Waves</h2><p class="section-body">Combine two sine signals to see how the same sensor changes their amplitudes and phases. The sensor time constant τ is shared with the main Parameters panel.</p></div><span class="pill">Steady-state response</span></div>
+    <div class="panel soft super-panel">
+      <fieldset id="superposition-controls" disabled style="border:0;padding:0;margin:0;min-width:0">
+        <div class="super-controls">
+          <div class="super-field"><label for="super-w1-number">First frequency ω₁ <small>rad/s</small></label><div class="field-row"><input id="super-w1-slider" type="range" min="0.5" max="24" step="0.1" value="2" aria-label="First wave frequency slider"><input id="super-w1-number" type="number" min="0.5" max="24" step="0.1" value="2" aria-label="First wave frequency in rad/s"></div><p class="field-help">First input sine amplitude A₁ = 1.</p></div>
+          <div class="super-field"><label for="super-w2-number">Second frequency ω₂ <small>rad/s</small></label><div class="field-row"><input id="super-w2-slider" type="range" min="0.5" max="24" step="0.1" value="12" aria-label="Second wave frequency slider"><input id="super-w2-number" type="number" min="0.5" max="24" step="0.1" value="12" aria-label="Second wave frequency in rad/s"></div><p class="field-help">Choose a different frequency to see stronger or weaker filtering.</p></div>
+          <div class="super-field"><label for="super-a2-number">Second amplitude A₂ <small>relative to A₁</small></label><div class="field-row"><input id="super-a2-slider" type="range" min="0" max="2" step="0.05" value="0.6" aria-label="Second wave amplitude slider"><input id="super-a2-number" type="number" min="0" max="2" step="0.05" value="0.6" aria-label="Second wave input amplitude"></div><p class="field-help">A₂ = 0 removes the second sine.</p></div>
+        </div>
+        <button class="super-reset" id="reset-superposition" type="button">Reset example · ω₁ = 2, ω₂ = 12, A₂ = 0.6</button>
+      </fieldset>
+      <div class="super-metrics">
+        <div class="super-metric"><span>First amplitude ratio M₁</span><strong id="super-m1">—</strong><small>Retained fraction of the first wave</small></div>
+        <div class="super-metric"><span>Second amplitude ratio M₂</span><strong id="super-m2">—</strong><small>Retained fraction of the second wave</small></div>
+      </div>
+      <p class="field-help">For each component: M = 1/√(1 + (ωτ)²), φ = −atan(ωτ). The two ratios belong to the individual frequencies, not the combined waveform.</p>
+      <div id="superposition-chart" class="chart super-chart" aria-label="Combined input and steady-state output of two sine waves"></div>
+      <p id="superposition-note" class="reading-note" role="status">Waiting for Python…</p>
+      <p id="superposition-error" class="message error" role="alert" hidden></p>
+      <details class="explain"><summary>Why does the combined waveform change shape?</summary>
+        <p><strong>1. Add the input waves:</strong> x(t) = sin(ω₁t) + A₂ sin(ω₂t). The blue curve is their sum.</p>
+        <p><strong>2. Filter each frequency:</strong> a linear sensor responds to each wave separately, so yss(t) = M₁ sin(ω₁t + φ₁) + A₂M₂ sin(ω₂t + φ₂).</p>
+        <p><strong>3. Compare input and output:</strong> faster changes are attenuated more and phase-shifted further. The combined green output can look smoother or different.</p>
+        <p class="worked-example"><strong>Example (τ = 0.2 s):</strong> at ω₁ = 2 rad/s, M₁ ≈ 0.928; at ω₂ = 12 rad/s, M₂ ≈ 0.385. Increase τ, or set A₂ = 0 to go back to a single sine.</p>
+        <p>The plot is the steady-state response; no switch-on transient is included. The original single-sine experiment and Bode charts remain unchanged.</p>
+      </details>
+    </div>
   </section>
 
   <section class="section" id="learn"><div class="section-heading"><div><p class="eyebrow">Apply what you learned</p><h2>Design and prediction</h2><p class="section-body">Now use the equations to make an engineering decision. Choose an allowed error, find the sensor's required speed, then check your intuition with a prediction before changing the frequency.</p></div></div>
