@@ -409,9 +409,13 @@ Module 3 checks are calculated by the page and shown with expected, calculated a
 
 See [`docs/versioning.md`](docs/versioning.md) for the historical checkpoint record. Its current-main comparison predates Module 4 integration; the current differences are recorded above.
 
-## AI assistance
+## ## AI Assistance
 
-ChatGPT assisted with interpreting requirements, explaining and reviewing equations, implementing and debugging browser/Python integration, numerical comparisons, tests, and documentation. This included the Module 1 Euler comparison, Module 2 v2 Superposition, and Module 4 challenge/scoring integration. Claude assisted with the home-page design; ChatGPT subsequently refined its beginner guide and reviewed navigation and deployment. Module 4's implementation and contribution notes are documented in the Module 4 section above.
+During this project, we used ChatGPT and Claude as supporting tools to help us understand and implement some parts of the project. ChatGPT helped us understand the mathematical equations behind the different sensor models and how to translate these equations into Python functions that could be used to calculate and plot the sensor responses. It also helped us understand how to connect the Python code with HTML and JavaScript using Pyodide, so the calculations could run directly in the browser and the plots could update when the user changes the input parameters.
 
-Team members remain responsible for understanding and checking the submitted equations and code, completing device tests, and explaining their work during the demo. AI assistance and passing tests do not establish instructor acceptance.
+For the website interface, our team decided on the overall design, layout, colors, and how we wanted to present the different modules. We then used Claude to help turn our design ideas into HTML and CSS code. ChatGPT also assisted us in organizing the interface, improving the arrangement of sections, and making the pages easier to navigate and use on different screen sizes.
+
+We also used ChatGPT to better understand the purpose of the optional bonus features, such as Forward Euler, Superposition, and Pole Explorer, and how these features could be integrated into the existing modules without affecting their main functionality. In addition, AI assistance was useful for reviewing parts of the code, identifying possible issues, and suggesting ways to improve the explanations and documentation.
+
+Throughout the project, our team made the main decisions about the features and design, reviewed the generated code, tested the implementation, and worked on understanding the mathematical concepts and programming logic so we could explain our work during the project demonstration.
 
