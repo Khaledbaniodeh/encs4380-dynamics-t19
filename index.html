@@ -1,203 +1,320 @@
 <!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#101a1b">
-<meta name="description" content="Explore sensor dynamics with Team T19's interactive experiments for ENCS4380 at Birzeit University.">
-<title>Dynamics Lab — Team T19</title>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#eef0e6">
+<meta name="description" content="A visual journey into sensor dynamics. Interactive experiments by ENCS4380 Team T19, Birzeit University.">
+<title>Dynamics Lab — A signal in motion</title>
 <style>
-:root{--ink:#101a1b;--paper:#f3f3eb;--lime:#d3f578;--muted:#8c9a97;--line:#ffffff24;--ease:cubic-bezier(.22,.8,.2,1)}
-[hidden]{display:none!important}
-*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:90px}body{margin:0;background:var(--paper);color:var(--ink);font-family:Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased}button,a{-webkit-tap-highlight-color:transparent}button{font:inherit}a{color:inherit;text-decoration:none}button,a,summary{touch-action:manipulation}button{cursor:pointer}button:focus-visible,a:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:3px solid #62951e;outline-offset:6px}button:disabled{cursor:default}::selection{background:var(--lime);color:var(--ink)}.skip{position:fixed;top:-100px;left:20px;z-index:100;background:var(--lime);padding:16px}.skip:focus{top:16px}.wrap{width:min(1320px,calc(100% - 96px));margin-inline:auto}.eyebrow{font:11px/1.4 ui-monospace,Consolas,monospace;letter-spacing:1.6px;text-transform:uppercase}.display{font-family:Impact,"Arial Narrow","DejaVu Sans Condensed",sans-serif;font-weight:900;text-transform:uppercase;letter-spacing:-.045em}.header{position:absolute;inset:0 0 auto;z-index:5;color:var(--paper);border-bottom:1px solid var(--line)}.header-inner{height:90px;display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{display:flex;gap:12px;align-items:center;font-weight:700;font-size:17px;letter-spacing:-.5px}.brand-mark{width:37px;height:37px;border:1px solid #a0b3ac;display:grid;place-items:center;transform:skew(-9deg);font-size:16px;color:var(--lime)}.brand small{display:block;font:9px/1.7 ui-monospace,monospace;letter-spacing:1.5px;color:#a9b8b3}.nav{display:flex;align-items:center;gap:30px;font-size:12px}.nav a{min-height:44px;display:flex;align-items:center}.nav a:hover{color:var(--lime)}.team-tag{border-left:1px solid var(--line);padding-left:30px;color:#b8c5bf}.hero{position:relative;min-height:760px;min-height:min(920px,100svh);background:var(--ink);color:var(--paper);overflow:hidden;padding:145px 0 42px;isolation:isolate}.hero:before{content:"";position:absolute;inset:0;z-index:-2;background:linear-gradient(105deg,#142321,#111a1b 65%)}.hero-grid{position:absolute;inset:0;z-index:-1;opacity:.16;background-image:linear-gradient(#b3d0b31a 1px,transparent 1px),linear-gradient(90deg,#b3d0b31a 1px,transparent 1px);background-size:90px 90px;mask-image:linear-gradient(90deg,transparent,#000)}.hero-top{display:flex;align-items:center;justify-content:space-between}.hero-top .eyebrow{color:#c4d2c9}.live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--lime);margin-right:9px}.hero h1{position:relative;z-index:1;margin:43px 0 28px;font-size:clamp(78px,12.4vw,190px);line-height:.83;max-width:1100px;pointer-events:none}.hero h1 span{display:block}.hero h1 .outline{color:var(--lime);margin-left:12vw}.hero-summary{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:flex-end;gap:35px;margin-top:35px}.hero-summary p{font-size:15px;line-height:1.8;color:#b9c6c1;max-width:370px;margin:0}.button{display:inline-flex;align-items:center;justify-content:space-between;gap:35px;min-height:52px;padding:16px 22px;background:var(--lime);color:var(--ink);font-weight:700;font-size:12px;border:1px solid transparent;transition:background .2s,transform .3s}.button:hover{background:#e5ffa4;transform:translateY(-2px)}.button span[aria-hidden]{font-size:21px;line-height:1}.hero-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:56px;border-top:1px solid var(--line);padding-top:20px;color:#95a79f;font:10px/1.5 ui-monospace,monospace;letter-spacing:.7px}.scroll-cue{display:flex;gap:15px;align-items:center}.scroll-cue b{font-size:18px;font-weight:400;color:var(--lime)}.signal-art{position:absolute;width:52%;right:-2%;top:205px;opacity:.5;z-index:0;transform:rotate(-9deg);pointer-events:none}.signal-art svg{width:100%;overflow:visible}.signal-art .signal{stroke-dasharray:1600;stroke-dashoffset:1600;animation:draw 2.6s var(--ease) .2s forwards}.hero-tau{font:italic 210px Georgia,serif;position:absolute;right:9%;top:130px;color:#c5f09607;pointer-events:none}.intro{padding:105px 0 100px}.section-top{display:flex;align-items:flex-start;gap:50px;justify-content:space-between}.section-index{font:12px ui-monospace,monospace;color:#64716a;min-width:180px}.intro-title{margin:0;font-size:clamp(38px,5.4vw,76px);line-height:1.04;letter-spacing:-3px;max-width:800px;font-weight:500}.intro-title em{font-family:Georgia,serif;font-weight:400;color:#637850}.intro-body{margin:40px 0 0 auto;width:min(760px,72%);display:grid;grid-template-columns:1fr 1fr;gap:45px}.intro-body p{font-size:14px;line-height:1.85;color:#55625b;margin:0}.intro-body strong{color:var(--ink)}.intro-body a{display:inline-block;margin-top:17px;border-bottom:1px solid #8d9c86;padding-bottom:5px;color:var(--ink);font-size:12px;font-weight:700}.lab{background:var(--ink);color:var(--paper);padding:70px 0 42px;overflow:hidden;position:relative;isolation:isolate}.lab:before{content:"";position:absolute;inset:220px -20% 110px;z-index:-1;background:repeating-linear-gradient(174deg,transparent 0,transparent 65px,#6b8e7526 66px,transparent 67px);transform:perspective(400px) rotateX(36deg);opacity:.7}.lab-header{display:flex;justify-content:space-between;align-items:flex-end;gap:25px}.lab h2{font-size:clamp(52px,7vw,94px);line-height:.95;margin:15px 0 0}.lab-header p:not(.eyebrow){max-width:280px;color:#a9bbb1;line-height:1.8;font-size:13px}.lab .eyebrow{color:#a8b8af}.gallery{position:relative;height:535px;margin:25px 0 0;perspective:1450px;touch-action:pan-y;outline-offset:-8px!important}.module-card{position:absolute;width:440px;height:430px;left:50%;top:35px;margin-left:-220px;background:#d3e4cc;color:var(--ink);padding:27px 29px 25px;display:flex;flex-direction:column;transform-origin:center;transition:transform .85s var(--ease),opacity .65s var(--ease),filter .65s var(--ease),box-shadow .7s;will-change:transform;box-shadow:0 25px 60px #0004;backface-visibility:hidden}.module-card[data-index="1"]{background:#b9d8d5}.module-card[data-index="2"]{background:#e2d3bc}.module-card[data-index="3"]{background:#cbd0d4}.card-head{display:flex;justify-content:space-between;align-items:center;gap:15px;font:10px ui-monospace,monospace;letter-spacing:1px;text-transform:uppercase}.status{display:flex;align-items:center;gap:7px}.status:before{content:"";width:5px;height:5px;border-radius:50%;background:#487244}.status.planned:before{background:#65737c}.card-number{font-size:75px;line-height:1;color:#20362920;position:absolute;top:63px;right:28px;pointer-events:none}.card-art{width:100%;height:150px;margin:21px 0 7px;flex:none;overflow:visible}.card-art .axis{stroke:#243c3033;stroke-width:1;fill:none}.card-art .guide{stroke:#314d4466;stroke-width:1.5;stroke-dasharray:5 5;fill:none}.card-art .curve{stroke:#253c2c;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}.card-art .second{stroke:#577b7966;stroke-width:2;fill:none;stroke-dasharray:5 4}.module-card h3{font-size:28px;line-height:1.04;letter-spacing:-1.1px;font-weight:600;margin:7px 0 12px;max-width:295px}.module-card>p{font-size:12px;line-height:1.7;color:#3d5149;margin:0;max-width:330px}.card-foot{margin-top:auto;padding-top:18px;border-top:1px solid #1f3b2b30;display:flex;justify-content:space-between;align-items:center;font-size:10px;gap:15px}.card-link{font-size:12px;font-weight:700;min-height:38px;display:inline-flex;align-items:center;gap:22px}.card-link:hover{text-decoration:underline;text-underline-offset:5px}.card-link span{font-size:21px}.card-focus{position:absolute;inset:0;width:100%;border:0;background:transparent;z-index:3;display:block}.module-card.is-active{box-shadow:0 35px 80px #0007}.module-card.is-active .card-focus{display:none}.module-card:not(.is-active) .card-link{pointer-events:none}.gallery:not(.enhanced){height:auto;display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:25px 0}.gallery:not(.enhanced) .module-card{position:relative;width:auto;left:auto;top:auto;margin:0}.gallery:not(.enhanced) .card-focus{display:none}.gallery:not(.enhanced) .card-link{pointer-events:auto}.gallery-bottom{display:grid;grid-template-columns:1fr auto 1fr;gap:25px;align-items:center}.selected-meta{font-size:12px;line-height:1.6}.selected-meta .selected-count{color:var(--lime);font:13px ui-monospace,monospace;margin-bottom:5px}.gallery-dots{display:flex;gap:10px}.gallery-dots button{border:0;background:transparent;padding:16px 3px;min-height:44px;min-width:25px}.gallery-dots button:before{content:"";display:block;width:23px;height:2px;background:#ffffff35;transition:background .25s}.gallery-dots button[aria-pressed="true"]:before{background:var(--lime)}.gallery-arrows{justify-self:end;display:flex;gap:9px}.arrow-button{display:grid;place-items:center;min-width:50px;min-height:50px;color:var(--paper);border:1px solid #ffffff40;background:transparent;font-size:23px;transition:background .2s,color .2s}.arrow-button:hover{background:var(--lime);color:var(--ink)}.gallery-note{display:flex;justify-content:space-between;gap:25px;border-top:1px solid var(--line);padding-top:23px;margin:30px 0 0;font:10px/1.7 ui-monospace,monospace;color:#849b8d}.gallery-note a{color:#c3d7ca;border-bottom:1px solid #ffffff40}.method{padding:100px 0}.method-title{font-size:clamp(40px,5.3vw,73px);line-height:1.04;margin:0;letter-spacing:-2.5px;font-weight:500;max-width:740px}.method-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin-top:65px}.method-item{border-top:1px solid #aeb8aa;padding-top:19px}.method-item .eyebrow{color:#66775d}.method-item h3{font-size:24px;letter-spacing:-.8px;margin:27px 0 14px;font-weight:500}.method-item p{font-size:13px;color:#5f6b61;line-height:1.9;max-width:330px}.about{display:grid;grid-template-columns:1fr 1fr;gap:90px;padding:65px 0 85px;border-top:1px solid #c4ccbf}.about h2{font-size:34px;letter-spacing:-1px;line-height:1.15;margin:20px 0;max-width:420px;font-weight:500}.about p{font-size:13px;color:#5f6b61;line-height:1.9;max-width:450px}.about details{border-bottom:1px solid #c4ccbf;font-size:13px}.about summary{cursor:pointer;padding:22px 28px 22px 0;font-weight:600;position:relative;list-style:none;min-height:60px}.about summary::-webkit-details-marker{display:none}.about summary:after{content:"+";position:absolute;right:2px;top:16px;font-size:25px;font-weight:400;color:#68795f}.about details[open] summary:after{content:"−"}.about details p{margin:0 0 22px}.footer{background:var(--ink);color:var(--paper);padding:36px 0}.footer-top{display:flex;justify-content:space-between;align-items:center;gap:25px}.footer-top p{color:#a4b7aa;font:10px/1.8 ui-monospace,monospace;letter-spacing:.6px}.footer-bottom{border-top:1px solid var(--line);margin-top:25px;padding-top:23px;display:flex;justify-content:space-between;gap:35px;color:#a4b7aa;font-size:10px;line-height:1.9}.footer-authors{max-width:620px}.footer-authors b{color:#d6e2d9;font-weight:400}.footer-bottom a{white-space:nowrap}.reveal{opacity:1}.js-motion .reveal{opacity:0;transform:translateY(24px);transition:opacity .9s var(--ease),transform .9s var(--ease)}.js-motion .reveal.visible{opacity:1;transform:none}@keyframes draw{to{stroke-dashoffset:0}}@keyframes enter{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}.hero h1,.hero-summary{animation:enter 1.2s var(--ease) both}.hero-summary{animation-delay:.15s}.sr-only{position:absolute!important;clip:rect(0,0,0,0);clip-path:inset(50%);width:1px;height:1px;overflow:hidden;white-space:nowrap}
-@media(min-width:1700px){.hero{min-height:850px}.hero h1{margin-top:60px}.signal-art{top:230px}}
-@media(max-width:1000px){.wrap{width:calc(100% - 60px)}.hero{min-height:720px}.hero h1{font-size:13vw;margin-top:65px}.hero-summary{margin-top:50px}.hero-bottom{margin-top:60px}.section-index{min-width:140px}.intro-body{width:74%}.intro-title{letter-spacing:-2px}.module-card{width:390px;margin-left:-195px}.gallery{height:515px}.about{gap:50px}.method-grid{gap:25px}.team-tag{display:none}}
-@media(max-width:650px){html{scroll-padding-top:24px}.wrap{width:calc(100% - 40px)}.header-inner{height:77px}.brand{font-size:15px}.brand small{font-size:8px}.brand-mark{width:31px;height:31px}.nav{gap:19px;font-size:11px}.hero{min-height:720px;min-height:max(690px,92svh);padding-top:115px;padding-bottom:27px}.hero-top>.eyebrow{font-size:9px;letter-spacing:1px}.hero-top>.eyebrow:last-child{display:none}.hero h1{font-size:17.3vw;line-height:.9;margin:52px 0 0;letter-spacing:-.055em}.hero h1 .outline{margin-left:0;margin-top:7px}.signal-art{width:103%;right:-18%;top:230px;opacity:.27}.hero-tau{top:155px;right:4%;font-size:180px}.hero-summary{display:block;margin-top:45px}.hero-summary p{font-size:14px;max-width:310px}.hero-summary .button{margin-top:28px;min-width:220px}.hero-bottom{margin-top:45px;font-size:8px;gap:15px}.hero-bottom>span{max-width:125px;text-align:right}.intro{padding:64px 0}.section-top{display:block}.section-index{margin-bottom:27px;font-size:10px}.intro-title{font-size:39px;letter-spacing:-1.6px;max-width:440px}.intro-body{width:100%;margin-top:28px;grid-template-columns:1fr;gap:18px}.intro-body p{font-size:13px}.intro-body a{margin-top:13px;min-height:36px}.lab{padding-top:48px;padding-bottom:27px}.lab-header{display:block}.lab h2{font-size:58px}.lab-header p:not(.eyebrow){font-size:12px;max-width:300px;margin-top:22px}.lab .eyebrow{font-size:9px}.gallery{height:455px;margin-top:3px}.module-card{width:calc(100vw - 78px);max-width:390px;height:396px;left:50%;margin-left:calc((min(100vw - 78px,390px)) / -2);top:26px;padding:23px 24px}.module-card h3{font-size:25px}.card-art{height:125px;margin-top:20px;margin-bottom:7px}.card-number{font-size:65px}.module-card>p{font-size:11px}.card-head{font-size:9px}.card-foot{font-size:9px;padding-top:13px}.card-link{font-size:11px;gap:12px}.gallery-bottom{grid-template-columns:1fr auto;gap:15px}.gallery-dots{grid-row:2;grid-column:1/-1;justify-content:center;gap:14px}.gallery-arrows{grid-column:2;grid-row:1}.arrow-button{min-width:46px;min-height:46px}.selected-meta{font-size:11px}.selected-meta .selected-count{font-size:11px}.gallery-note{display:block;margin-top:15px;padding-top:20px;font-size:9px}.gallery-note span{display:block;margin-bottom:8px}.method{padding:60px 0}.method-title{font-size:40px;letter-spacing:-1.7px}.method-grid{grid-template-columns:1fr;margin-top:35px;gap:25px}.method-item h3{margin-top:18px;font-size:23px}.method-item p{max-width:100%;font-size:13px}.about{grid-template-columns:1fr;padding-top:40px;padding-bottom:50px;gap:20px}.about h2{font-size:32px}.about summary{font-size:12px}.footer{padding:28px 0}.footer-top{align-items:flex-start;gap:10px}.footer-top p{font-size:8px;text-align:right;max-width:125px;margin:0}.footer-bottom{flex-direction:column;gap:15px;font-size:10px}.gallery:not(.enhanced){grid-template-columns:1fr}.gallery:not(.enhanced) .module-card{width:auto;max-width:none;margin:0}.hero-summary .button{font-size:12px}}
-@media(max-width:650px){.lab h2{font-size:clamp(34px,10.6vw,58px)}.module-card{height:420px}.gallery{height:480px}}
-@media(max-width:360px){.header-inner{gap:10px}.brand{font-size:13px;gap:8px}.brand small{font-size:7px;letter-spacing:1px}.nav{gap:12px;font-size:10px}.module-card{padding:23px 20px}.card-head{font-size:8px;gap:8px}.module-card h3{font-size:23px}.card-foot{gap:8px}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}.signal-art .signal{stroke-dashoffset:0}.js-motion .reveal{opacity:1;transform:none}.module-card{will-change:auto}}
-</style>
-</head>
-<body>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Manrope:wght@400;500;600;700&display=swap');
+:root{--paper:#eef0e6;--ink:#13221b;--green:#c7f282;--accent:#c7f282;--ease:cubic-bezier(.22,1,.36,1);--mono:ui-monospace,"Courier New",monospace;--body:Manrope,Arial,sans-serif;--display:"Barlow Condensed",Impact,"Arial Narrow",sans-serif}
+*{box-sizing:border-box}html{scroll-padding-top:90px}body{margin:0;color:var(--ink);background:var(--paper);font-family:var(--body);-webkit-font-smoothing:antialiased}button,a{touch-action:manipulation;-webkit-tap-highlight-color:transparent}a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #5a9444;outline-offset:6px}::selection{background:var(--green);color:var(--ink)}[hidden]{display:none!important}.sr-only{position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden;white-space:nowrap}.wrap{width:calc(100% - 112px);max-width:1600px;margin:auto}.eyebrow{font:10px/1.6 var(--mono);letter-spacing:1.6px;text-transform:uppercase}.display{font-family:var(--display);font-weight:700;letter-spacing:-.025em;text-transform:uppercase}.skip{position:fixed;top:-100px;left:20px;z-index:100;background:var(--green);padding:15px}.skip:focus{top:15px}
+.header{position:fixed;inset:0 0 auto;z-index:20;color:var(--ink);transition:color .4s,background .4s;background:#eef0e6e8;backdrop-filter:blur(12px);border-bottom:1px solid #13221b20}.header.dark{color:var(--paper);background:#091610c9;border-color:#ffffff1a}.header-inner{display:flex;align-items:center;justify-content:space-between;height:83px;gap:20px}.brand{font-weight:700;letter-spacing:-.6px;font-size:16px;display:flex;align-items:center;gap:12px}.brand-icon{width:32px;height:32px;display:block}.brand small{font:8px/1.5 var(--mono);display:block;letter-spacing:1.6px;margin-top:3px;opacity:.6}.header-nav{display:flex;gap:32px;font-size:11px;align-items:center}.header-nav a{min-height:44px;display:flex;align-items:center;gap:8px}.nav-dot{width:5px;height:5px;border-radius:50%;background:currentColor}.header-nav a:hover{opacity:.6}.header-note{font:9px var(--mono);opacity:.6;border-left:1px solid #7f8b7840;padding-left:30px;letter-spacing:1px}
+.hero{min-height:780px;height:100svh;max-height:1180px;position:relative;isolation:isolate;overflow:hidden;padding-top:83px}.hero-grid{position:absolute;inset:0;background-image:linear-gradient(#34533109 1px,transparent 1px),linear-gradient(90deg,#34533109 1px,transparent 1px);background-size:82px 82px;z-index:-2}.hero-copy{position:relative;z-index:2;padding-top:54px;pointer-events:none}.hero-copy .eyebrow{color:#66705c;margin-bottom:28px}.hero h1{font-size:clamp(100px,14.3vw,220px);line-height:.79;max-width:1100px;margin:0;font-weight:700}.hero h1 span{display:block}.hero h1 .offset{margin-left:12.8vw}.hero h1 .soft{color:#778a6c}.hero-visual{position:absolute;right:-9%;top:1%;width:67%;height:98%;z-index:-1;transform:rotate(-12deg);pointer-events:none}.hero-visual svg{height:100%;width:100%;overflow:visible}.hero-bottom{position:absolute;bottom:36px;left:0;right:0;display:flex;justify-content:space-between;gap:40px;align-items:flex-end;z-index:3}.hero-bottom p{font-size:13px;line-height:1.9;color:#58674f;max-width:305px;margin:0}.round-link{display:flex;align-items:center;gap:20px;font-size:11px;font-weight:700}.round-arrow{width:61px;height:61px;border:1px solid #80927470;border-radius:50%;display:grid;place-items:center;transition:background .3s,transform .4s}.round-arrow svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.5}.round-link:hover .round-arrow{background:var(--green);transform:translateY(3px)}.hero-caption{position:absolute;right:58px;top:54%;font:9px/1.9 var(--mono);text-align:right;color:#65775c;letter-spacing:1px;z-index:1}.hero-rule{height:1px;background:#8a987b40;width:110px;margin:10px 0 10px auto}.hero-scroll{display:flex;align-items:center;gap:18px}.hero-scroll small{font:9px/1.6 var(--mono);letter-spacing:1px;color:#718267}
+.intro{padding:65px 0 75px;border-top:1px solid #bbc6b1;display:grid;grid-template-columns:1fr 1.25fr;gap:60px;align-items:start}.intro h2{font-family:var(--display);font-size:clamp(38px,4vw,60px);font-weight:600;line-height:1;margin:20px 0 0;letter-spacing:-.8px}.intro p{font-size:13px;line-height:1.95;color:#607054;max-width:560px;margin:24px 0 0}.intro p strong{color:#23381f;font-weight:600}.intro .eyebrow{color:#77856c}
+.experience{background:#091710;color:var(--paper);position:relative;isolation:isolate;--accent:#c7f282}.stage{position:relative;min-height:760px;overflow:hidden;background:radial-gradient(ellipse at 77% 45%,#23433155,transparent 55%),#091710}.stage-grid{position:absolute;inset:0;pointer-events:none;opacity:.3;background-image:linear-gradient(#8bb09313 1px,transparent 1px),linear-gradient(90deg,#8bb09313 1px,transparent 1px);background-size:92px 92px;mask-image:linear-gradient(90deg,transparent,#000)}.stage-orbit{position:absolute;inset:6% -15% 1% 27%;border:1px solid #a6cf9612;border-radius:50%;transform:rotate(-30deg);pointer-events:none}.stage-orbit:before,.stage-orbit:after{content:"";position:absolute;inset:12%;border:1px solid #a6cf9610;border-radius:50%}.stage-orbit:after{inset:25%}.chapter-label{position:absolute;top:115px;left:0;right:0;display:flex;justify-content:space-between;z-index:4;pointer-events:none;color:#93ab96;font:9px var(--mono);letter-spacing:1.4px}.scene{min-height:800px;position:relative;padding:190px 0 145px;isolation:isolate;color:var(--paper)}.scene-inner{width:calc(100% - 112px);max-width:1600px;margin:auto;position:relative;z-index:2}.scene-kicker{color:var(--accent);font:10px/1.7 var(--mono);letter-spacing:1.7px;display:flex;gap:12px;align-items:center;margin-bottom:26px}.scene-kicker .tiny-rule{width:34px;height:1px;background:currentColor}.scene h2{font-size:clamp(77px,10.1vw,155px);line-height:.85;letter-spacing:-.012em;font-weight:600;margin:0;max-width:770px;position:relative;z-index:2}.scene h2 span{display:block}.scene h2 em{font-style:normal;color:var(--accent)}.scene-description{font-size:12px;color:#b0c2b0;line-height:1.9;max-width:290px;margin-top:29px}.scene-description strong{color:var(--paper);font-weight:500}.scene-action{display:inline-flex;align-items:center;gap:35px;min-height:48px;font-size:11px;margin-top:25px;padding-bottom:4px;border-bottom:1px solid #a9bf9e55;color:var(--accent);font-weight:600}.scene-action svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.4;transition:transform .4s}.scene-action:hover svg{transform:translate(3px,-3px)}.scene-art{position:absolute;right:-4%;top:3%;height:100%;width:69%;z-index:0;pointer-events:none;transform:translate3d(var(--mx,0px),var(--my,0px),0);transition:transform .8s var(--ease)}.scene-art svg{width:100%;height:100%;overflow:visible}.scene-note{position:absolute;right:55px;bottom:150px;font:9px/1.9 var(--mono);letter-spacing:1.2px;color:#829e83;text-align:right;z-index:3}.scene-number{font-family:var(--display);position:absolute;left:43%;top:10%;font-size:clamp(200px,38vw,650px);line-height:1;font-weight:600;color:#d7efbb05;letter-spacing:-20px;z-index:-1;pointer-events:none}.scene[data-scene="1"]{--accent:#9eddda}.scene[data-scene="1"] .scene-note{color:#87b5af}.scene[data-scene="2"]{--accent:#f0c394}.scene[data-scene="2"] .scene-note{color:#ba9f82}.scene[data-scene="3"]{--accent:#c1bcf0}.scene[data-scene="3"] .scene-note{color:#a09ac4}.scene[data-scene="3"] .scene-description{max-width:305px}.stage-navigation{display:none}.cinematic .experience{height:440svh;min-height:3400px}.cinematic .stage{position:sticky;top:0;height:100svh;min-height:680px;perspective:1800px;isolation:isolate}.cinematic .scene{position:absolute;inset:0;min-height:0;height:100%;padding:0;will-change:transform,opacity;transform-origin:70% 50%;backface-visibility:hidden}.cinematic .scene-inner{position:absolute;top:50%;left:0;right:0;transform:translateY(-42%)}.cinematic .scene-art{top:0;height:100%}.cinematic .stage-navigation{display:grid;position:absolute;bottom:24px;left:0;right:0;grid-template-columns:1fr auto;gap:26px;z-index:6}.chapter-buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:25px}.chapter-button{border:0;border-top:1px solid #819d7c40;position:relative;background:none;color:#819981;padding:16px 0 5px;display:flex;align-items:center;gap:15px;text-align:left;min-height:55px;font-size:10px}.chapter-button:before{content:"";position:absolute;left:0;top:-1px;width:100%;height:2px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease),background .5s}.chapter-button[aria-pressed="true"]{color:var(--paper)}.chapter-button[aria-pressed="true"]:before{transform:scaleX(1)}.chapter-button b{font:11px var(--mono);font-weight:400;color:var(--accent)}.chapter-button small{font-size:8px;display:block;margin-top:4px;opacity:.65}.stage-arrows{display:flex;gap:8px;align-items:start}.arrow{width:45px;height:45px;border:1px solid #8cb88040;color:#c6d6bc;background:none;display:grid;place-items:center}.arrow:hover{background:#a4cb8520}.arrow svg{height:19px;width:19px;stroke:currentColor;stroke-width:1.4;fill:none}.arrow:disabled{opacity:.3;cursor:default}.scene-progress{position:absolute;left:0;right:0;bottom:0;height:2px;background:#91ad8018;z-index:7}.scene-progress span{display:block;width:0;height:100%;background:var(--accent)}.scene-caption{font-size:9px;color:#819b82;position:absolute;bottom:100px;right:56px;z-index:5;font-family:var(--mono);letter-spacing:.3px}.chapter-status{font:9px var(--mono);letter-spacing:1px;margin-left:auto;opacity:.7}
+.guide{padding:115px 0 95px}.guide-heading{display:flex;justify-content:space-between;gap:40px}.guide h2{font:600 clamp(58px,7vw,105px)/.92 var(--display);letter-spacing:-1.4px;margin:18px 0 0;text-transform:uppercase;max-width:850px}.guide-heading>p{font-size:12px;line-height:1.9;color:#67745e;max-width:265px;margin-top:45px}.guide-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:50px;margin-top:65px}.guide-step{padding-top:18px;border-top:1px solid #a8b69d}.guide-step .eyebrow{color:#819071}.guide-step h3{font-size:20px;letter-spacing:-.7px;font-weight:500;margin:29px 0 14px}.guide-step p{font-size:12px;color:#68765d;line-height:1.95;max-width:320px}.directory{border-top:1px solid #a8b69d;padding-top:55px;margin-top:65px;display:grid;grid-template-columns:1fr 2fr;gap:50px}.directory h3{font-size:24px;font-weight:500;letter-spacing:-1px;margin:15px 0}.directory>div>p{font-size:12px;line-height:1.8;color:#68765d;max-width:245px}.module-link{border-bottom:1px solid #b8c4ac;display:grid;grid-template-columns:40px 1fr auto;align-items:center;gap:18px;padding:20px 0;min-height:72px;font-size:12px;transition:padding .3s,color .3s}.module-link b{font:11px var(--mono);color:#7a8b6d;font-weight:400}.module-link:hover{padding-inline:10px;color:#52743b}.module-link .link-status{font:8px var(--mono);letter-spacing:1px}.module-link svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.4}.about{display:grid;grid-template-columns:1fr 1fr;gap:100px;border-top:1px solid #b8c4ac;padding:65px 0 80px}.about h2{font:600 43px/.98 var(--display);text-transform:uppercase;max-width:390px;margin:25px 0}.about p{font-size:12px;color:#68765d;line-height:1.95;max-width:430px}.about details{border-bottom:1px solid #b8c4ac;font-size:12px}.about summary{cursor:pointer;min-height:68px;padding:24px 25px 23px 0;list-style:none;position:relative;font-weight:600}.about summary::-webkit-details-marker{display:none}.about summary:after{content:"+";position:absolute;right:0;top:18px;font:24px Arial;font-weight:400;color:#829374}.about details[open] summary:after{content:"−"}.about details p{margin:0 0 20px}.footer{background:#091710;color:var(--paper);padding:43px 0 28px}.footer-top{display:flex;justify-content:space-between;align-items:flex-end;gap:30px}.footer-title{font:600 clamp(40px,6vw,90px)/.9 var(--display);letter-spacing:-1px;text-transform:uppercase;margin:0;color:#b2cc9f}.footer-top>a{font:9px var(--mono);color:#9bb28d;border-bottom:1px solid #91b78350;padding-bottom:10px;white-space:nowrap}.footer-bottom{border-top:1px solid #86a17d25;margin-top:35px;padding-top:24px;display:flex;justify-content:space-between;gap:40px;color:#8ca080;font-size:9px;line-height:1.9}.footer-bottom b{font-weight:400;color:#c5d4b8}.footer-bottom>span:last-child{text-align:right;white-space:nowrap}.art-float{animation:float 7s ease-in-out infinite}.art-float-delayed{animation:float 9s ease-in-out -3s infinite}.signal-flow{stroke-dasharray:8 12;animation:flow 8s linear infinite}.scan{animation:scan 6s ease-in-out infinite}.hero-line{stroke-dasharray:1400;stroke-dashoffset:1400;animation:draw 3s var(--ease) .1s forwards}.hero-title-in{animation:enter 1.4s var(--ease) both}.hero-fade{animation:fade 1.8s ease both}.reveal{opacity:1}.reveal-ready .reveal{opacity:0;transform:translateY(28px);transition:opacity .9s var(--ease),transform .9s var(--ease)}.reveal-ready .reveal.visible{opacity:1;transform:none}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-13px)}}@keyframes flow{to{stroke-dashoffset:-200}}@keyframes scan{0%,100%{opacity:.2}50%{opacity:.8}}@keyframes draw{to{stroke-dashoffset:0}}@keyframes enter{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}@keyframes fade{from{opacity:0}to{opacity:1}}
+.stage{overflow:clip}#modules{scroll-margin-top:-90px}.chapter-label{z-index:22}.scene-caption{z-index:22}.cinematic .stage-navigation{z-index:30}
+@media(min-width:1700px){.hero-copy{padding-top:85px}.hero h1{font-size:235px}.scene h2{font-size:170px}.scene-description{font-size:14px;max-width:330px}.scene-action{font-size:13px}.hero-visual{right:-1%;width:65%}}
+@media(max-width:1000px){.wrap,.scene-inner{width:calc(100% - 64px)}.hero{min-height:740px}.hero-copy{padding-top:70px}.hero h1{font-size:16vw}.hero h1 .offset{margin-left:7vw}.hero-visual{width:90%;right:-25%;top:8%}.hero-caption{right:33px;top:60%;font-size:8px}.hero-bottom{bottom:30px}.header-note{display:none}.scene h2{font-size:11.7vw}.scene-art{width:85%;right:-18%;top:8%}.scene-note{right:32px;font-size:8px;bottom:145px}.cinematic .scene-inner{transform:translateY(-43%)}.scene-description{max-width:265px;font-size:11px}.chapter-buttons{gap:16px}.chapter-button{gap:9px;font-size:9px}.chapter-label{top:110px}.scene-caption{right:32px;font-size:8px}.intro{gap:40px}.guide{padding-top:80px}.guide-steps{gap:30px}.about{gap:55px}}
+@media(max-width:650px){html{scroll-padding-top:80px}.wrap,.scene-inner{width:calc(100% - 40px)}.header-inner{height:72px;gap:12px}.brand{font-size:14px;gap:9px}.brand small{font-size:7px;letter-spacing:1.1px}.brand-icon{width:27px;height:27px}.header-nav{gap:18px;font-size:10px}.header-nav .nav-dot{display:none}.hero{padding-top:72px;min-height:730px;height:100svh;max-height:950px}.hero-copy{padding-top:37px}.hero-copy .eyebrow{font-size:8px;letter-spacing:1.25px;max-width:250px;line-height:1.8;margin-bottom:30px}.hero h1{font-size:22.2vw;line-height:.86;letter-spacing:-.015em;max-width:100%}.hero h1 .offset{margin-left:10vw}.hero-visual{height:69%;width:115%;right:-24%;top:22%;transform:rotate(-15deg);opacity:.8}.hero-caption{top:auto;bottom:150px;right:21px;font-size:7px}.hero-caption .hero-rule{width:50px}.hero-bottom{display:block;bottom:25px}.hero-bottom p{font-size:11px;max-width:230px;margin-bottom:25px}.hero-scroll{justify-content:space-between}.round-arrow{width:47px;height:47px}.round-link{font-size:10px;gap:13px}.hero-scroll small{font-size:7px;max-width:93px;text-align:right}.intro{grid-template-columns:1fr;gap:0;padding:40px 0 45px}.intro h2{font-size:44px;max-width:330px;margin-top:15px}.intro p{font-size:12px;margin-top:22px}.intro .eyebrow{font-size:8px}.cinematic .experience{height:440svh;min-height:2800px}.cinematic .stage{min-height:640px;height:100svh}.chapter-label{top:96px;font-size:7px;letter-spacing:1px}.chapter-label>span:last-child{display:none}.scene{min-height:780px;padding:150px 0 125px}.cinematic .scene-inner{top:0;transform:none;padding-top:140px;height:100%}.scene-kicker{font-size:8px;margin-bottom:20px;letter-spacing:1.25px;gap:9px}.scene-kicker .tiny-rule{width:24px}.scene h2{font-size:clamp(58px,17vw,105px);max-width:100%;line-height:.87}.scene-description{position:absolute;bottom:169px;max-width:240px;font-size:10px;line-height:1.8;margin:0;left:0;z-index:4}.scene-action{position:absolute;bottom:109px;left:0;margin:0;min-height:44px;font-size:10px;gap:28px;z-index:5}.scene-art{width:118%;height:73%;top:18%;right:-28%;opacity:.85}.cinematic .scene-art{top:15%;height:72%}.scene[data-scene="1"] .scene-art{right:-29%;top:20%;height:62%;width:125%}.scene[data-scene="2"] .scene-art{right:-27%;top:23%;height:64%}.scene[data-scene="3"] .scene-art{right:-14%;top:22%;height:64%;width:100%}.scene-number{top:20%;left:15%;font-size:110vw;color:#d7efbb06;letter-spacing:-10px}.scene-note{display:none}.scene-caption{right:20px;bottom:92px;font-size:6px;letter-spacing:0;max-width:110px;text-align:right;line-height:1.7}.cinematic .stage-navigation{bottom:12px;gap:15px;grid-template-columns:1fr;z-index:6}.chapter-buttons{gap:13px}.chapter-button{font-size:8px;min-height:53px;padding:11px 0 2px;gap:0;display:block;line-height:1.7}.chapter-button b{display:block;font-size:9px;margin-bottom:3px}.chapter-button small{font-size:6px;margin:2px 0 0}.stage-arrows{position:absolute;right:0;bottom:84px;gap:6px}.arrow{width:36px;height:36px}.arrow svg{width:16px;height:16px}.guide{padding:55px 0 50px}.guide-heading{display:block}.guide h2{font-size:59px;letter-spacing:-.8px}.guide-heading>p{font-size:12px;margin-top:25px;max-width:300px}.guide-steps{grid-template-columns:1fr;gap:24px;margin-top:35px}.guide-step h3{margin-top:19px;font-size:20px}.guide-step p{max-width:100%;font-size:12px}.directory{grid-template-columns:1fr;gap:15px;margin-top:35px;padding-top:35px}.directory>div>p{max-width:100%}.module-link{grid-template-columns:23px 1fr auto;gap:10px;font-size:11px;padding:19px 0}.module-link .link-status{font-size:7px}.about{grid-template-columns:1fr;gap:20px;padding-top:35px;padding-bottom:45px}.about h2{font-size:41px}.about p,.about summary{font-size:11px}.about summary{min-height:60px;padding:23px 24px 21px 0}.footer{padding-top:33px}.footer-title{font-size:46px}.footer-top>a{font-size:7px;max-width:90px;line-height:1.8}.footer-bottom{display:block;font-size:8px}.footer-bottom>span{display:block}.footer-bottom>span:last-child{text-align:left;margin-top:17px}.stage-orbit{inset:20% -90% 15% -25%}}
+@media(max-width:650px){#modules{scroll-margin-top:-80px}}
+@media(max-width:360px){.hero h1{font-size:21.5vw}.brand{font-size:12px}.brand-icon{width:23px;height:23px}.header-nav{gap:12px;font-size:9px}.hero-copy .eyebrow{font-size:7px}.hero-caption{font-size:6px}.scene h2{font-size:17vw}.scene-description{max-width:215px;font-size:9px;bottom:175px}.scene-kicker{font-size:7px}.scene-action{bottom:118px}.cinematic .scene-inner{padding-top:132px}.chapter-button{font-size:7px}.guide h2{font-size:50px}}
+.cinematic .stage-navigation{z-index:30}.scene-caption{pointer-events:none}
+@media(max-width:650px){.hero h1 .soft{color:#5f7753}.hero-visual{opacity:.65}.scene-caption{left:20px;right:auto;bottom:83px;max-width:220px;text-align:left}.footer-top{flex-direction:column;align-items:flex-start;gap:24px}.footer-top>a{max-width:none}.scene-art{right:-12%}.scene[data-scene="1"] .scene-art{right:-13%}.scene[data-scene="2"] .scene-art{right:-10%}.scene[data-scene="3"] .scene-art{right:-8%}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}.hero-line{stroke-dashoffset:0}.reveal-ready .reveal{opacity:1;transform:none}.scene-art{transform:none}.experience .scene{min-height:800px}.chapter-label{position:relative;padding-top:35px;top:auto}.scene-description{position:relative;bottom:auto;margin-top:28px}.scene-action{position:relative;bottom:auto;margin-top:20px}.scene-caption{position:relative;bottom:auto;padding:0 20px 20px;right:auto}}
+</style></head><body>
 <a class="skip" href="#main">Skip to content</a>
-<header class="header"><div class="wrap header-inner">
-<a class="brand" href="./" aria-label="Dynamics Lab home"><span class="brand-mark" aria-hidden="true">DL</span><span>Dynamics Lab<small>ENCS4380 / TEAM T19</small></span></a>
-<nav class="nav" aria-label="Main navigation"><a href="#modules">Experiments →</a><a href="#how-it-works">The idea</a><span class="team-tag">BIRZEIT UNIVERSITY</span></nav>
+<header class="header" id="header"><div class="wrap header-inner">
+<a class="brand" href="./" aria-label="Dynamics Lab home"><svg class="brand-icon" viewBox="0 0 36 36" aria-hidden="true"><path d="M3 28V8h9c12 0 12 20 0 20H3Zm17 0h13M24 8v20" stroke="currentColor" stroke-width="2" fill="none"/><path d="M3 31h29" stroke="currentColor" opacity=".25"/></svg><span>Dynamics Lab<small>ENCS4380 / TEAM T19</small></span></a>
+<nav class="header-nav" aria-label="Main navigation"><a href="#modules"><i class="nav-dot" aria-hidden="true"></i>Experiments</a><a href="#guide">The idea</a><span class="header-note">BIRZEIT UNIVERSITY / 2026</span></nav>
 </div></header>
 <main id="main">
-<section class="hero" aria-labelledby="hero-title">
-<div class="hero-grid" aria-hidden="true"></div><div class="hero-tau" aria-hidden="true">τ</div>
-<div class="signal-art" aria-hidden="true"><svg viewBox="0 0 800 470"><path d="M0 385H800M0 90H800" fill="none" stroke="#9fc398" stroke-width="1" stroke-dasharray="5 10"/><path d="M10 385L115 385L115 90L790 90" fill="none" stroke="#759981" stroke-width="2"/><path class="signal" d="M10 385H115C175 155 245 113 365 96S620 90 790 90" fill="none" stroke="#d3f578" stroke-width="5"/><circle cx="210" cy="180" r="7" fill="#d3f578"/><path d="M210 192V385" fill="none" stroke="#d3f578" stroke-dasharray="5 8"/><text x="204" y="415" fill="#d3f578" font-size="22" font-family="Georgia">τ</text></svg></div>
-<div class="wrap">
-<div class="hero-top"><p class="eyebrow"><span class="live-dot"></span>An interactive guide to sensor dynamics</p><p class="eyebrow">INTERFACING TECHNIQUES / 2026</p></div>
-<h1 class="display" id="hero-title"><span>Beyond the</span><span class="outline">reading.</span></h1>
-<div class="hero-summary"><p>The world changes. Sensors take time.<br>Explore what happens between the input<br class="desktop-break"> and the reading.</p><a class="button" href="#modules">Explore the experiments <span aria-hidden="true">→</span></a></div>
-<div class="hero-bottom"><a class="scroll-cue" href="#the-idea"><b aria-hidden="true">↓</b> SCROLL TO DISCOVER</a><span>IN YOUR BROWSER. AT YOUR PACE.</span></div>
-</div>
+<section class="hero" aria-labelledby="hero-title"><div class="hero-grid" aria-hidden="true"></div>
+<div class="hero-visual hero-fade" aria-hidden="true"><svg viewBox="0 0 900 1000"><defs>
+<linearGradient id="hero-glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f8ffed" stop-opacity=".3"/><stop offset=".5" stop-color="#96b67b" stop-opacity=".2"/><stop offset="1" stop-color="#efffdd" stop-opacity=".85"/></linearGradient>
+<linearGradient id="hero-metal" x1="0" x2="1"><stop stop-color="#182c22"/><stop offset=".17" stop-color="#496b48"/><stop offset=".4" stop-color="#213b2b"/><stop offset=".65" stop-color="#10241a"/><stop offset=".86" stop-color="#557e4a"/><stop offset="1" stop-color="#1e3c29"/></linearGradient>
+<linearGradient id="hero-neon"><stop stop-color="#9fbf7e"/><stop offset=".45" stop-color="#e9ffd0"/><stop offset="1" stop-color="#4d7546"/></linearGradient>
+<filter id="hero-shadow" x="-100%" y="-30%" width="300%" height="170%"><feGaussianBlur stdDeviation="23"/></filter>
+<filter id="hero-glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="6"/></filter>
+</defs>
+<ellipse cx="488" cy="833" rx="185" ry="37" fill="#476540" opacity=".14" filter="url(#hero-shadow)"/>
+<g class="art-float"><path d="M506 127V30C506-15 675-17 675 45V116" fill="none" stroke="#9cac8c" stroke-width="12"/><path d="M506 127V30C506-15 675-17 675 45V116" fill="none" stroke="#e7efdd" stroke-width="3"/>
+<rect x="430" y="130" width="154" height="495" rx="77" fill="url(#hero-metal)"/><path d="M452 211V529" stroke="#759e62" stroke-width="2" opacity=".5"/><path d="M562 211V529" stroke="#102619" stroke-width="2"/>
+<ellipse cx="507" cy="206" rx="76" ry="32" fill="#153a25"/><ellipse cx="507" cy="196" rx="76" ry="32" fill="#294b32"/><ellipse cx="507" cy="188" rx="74" ry="29" fill="#355b3c"/>
+<path d="M445 179Q507 153 569 179" stroke="#829a69" stroke-width="1" fill="none"/><path d="M441 285Q507 315 574 285M441 297Q507 327 574 297" fill="none" stroke="#b0cb94" stroke-width="2" opacity=".35"/>
+<rect x="473" y="364" width="68" height="132" rx="9" fill="#0e2418"/><rect x="479" y="370" width="56" height="120" rx="5" fill="#233d28" stroke="#658356" stroke-width=".8"/>
+<path d="M486 448H493L500 414L508 457L517 405L525 438" stroke="#b8ec83" stroke-width="2.4" fill="none"/><circle cx="506" cy="478" r="3" fill="#c8f3a3"/>
+<path d="M481 621H533V805Q533 836 507 836Q481 836 481 805Z" fill="url(#hero-metal)" stroke="#55734b" stroke-width="1"/>
+<ellipse cx="507" cy="622" rx="27" ry="11" fill="#a8c58b"/><path d="M490 640V801Q490 821 500 825" stroke="#89a575" fill="none" stroke-width="1.4"/>
+<path d="M422 350Q507 389 592 350L592 576Q507 618 422 576Z" fill="url(#hero-glass)" stroke="#bbd4a0" stroke-opacity=".4"/>
+<ellipse cx="507" cy="350" rx="85" ry="34" fill="none" stroke="#bfd5a7" stroke-width="1.5"/>
+<path d="M422 560Q507 600 592 560" stroke="#d0f7b3" stroke-width="6" fill="none" filter="url(#hero-glow)"/><path d="M422 560Q507 600 592 560" stroke="#e0ffc6" stroke-width="2" fill="none"/>
+</g>
+<g fill="none" stroke="#88a66c" opacity=".3"><ellipse cx="507" cy="640" rx="220" ry="88" transform="rotate(-12 507 640)"/><ellipse cx="507" cy="640" rx="285" ry="115" transform="rotate(-12 507 640)" stroke-dasharray="3 10"/><path d="M248 385L310 365H400M624 720H735L770 683"/><circle cx="400" cy="365" r="3"/><circle cx="624" cy="720" r="3"/></g>
+<path class="hero-line" d="M135 755H234L259 650L284 782L316 610L348 704H382" fill="none" stroke="#6d8b52" stroke-width="2"/>
+<text x="270" y="340" fill="#627d50" font-family="monospace" font-size="10" letter-spacing="2">INPUT</text><text x="674" y="755" fill="#627d50" font-family="monospace" font-size="10" letter-spacing="2">RESPONSE</text>
+</svg></div>
+<div class="wrap hero-copy"><p class="eyebrow hero-fade">THE WORLD CHANGES. SENSORS TAKE TIME.</p><h1 class="display hero-title-in" id="hero-title"><span>Dynamics</span><span class="offset soft">in motion.</span></h1></div>
+<div class="hero-caption hero-fade">A SIGNAL IN.<div class="hero-rule"></div>A STORY OUT.</div>
+<div class="wrap hero-bottom hero-fade"><p>Go beyond a number on a screen.<br>Discover how a sensor follows change,<br>and what its response tells you.</p><div class="hero-scroll"><a class="round-link" href="#modules">Follow the signal <span class="round-arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M6 14l6 6 6-6"/></svg></span></a><small>SCROLL TO EXPLORE<br>FOUR PERSPECTIVES</small></div></div>
 </section>
-<section class="intro wrap" id="the-idea" aria-labelledby="intro-title">
-<div class="section-top reveal"><div class="section-index">01 / THE IDEA</div><h2 class="intro-title" id="intro-title">A correct sensor.<br>An <em>unfinished</em> reading.</h2></div>
-<div class="intro-body reveal"><p>A thermometer can be perfectly calibrated and still read too low just after entering warm water. Its reading needs time to catch up. <strong>That gap is where sensor dynamics begins.</strong></p><div><p>Change a parameter. Follow the curve. Predict the result. These experiments turn the lecture’s models into something you can explore.</p><a href="module-1.html">Start with first-order response →</a></div></div>
-</section>
-<section class="lab" id="modules" aria-labelledby="modules-title">
-<div class="wrap">
-<div class="lab-header reveal"><div><p class="eyebrow">02 / THE EXPERIMENTS</p><h2 class="display" id="modules-title">Choose your<br>perspective.</h2></div><p>From a sudden change to a hidden sensor.<br>Explore the modules in order, or pick<br>the experiment you want.</p></div>
-<div class="gallery" id="gallery" tabindex="0" aria-label="Module gallery. Use the arrow buttons, left and right arrow keys, or swipe to choose a module.">
-<article class="module-card is-active" data-index="0" aria-labelledby="card-title-1">
-<div class="card-head"><span>01 / TIME DOMAIN</span><span class="status">Available</span></div><span class="card-number display" aria-hidden="true">01</span>
-<svg class="card-art" viewBox="0 0 360 150" role="img" aria-label="Illustration of a step and a gradually rising sensor response"><path class="axis" d="M12 10V135H348"/><path class="guide" d="M12 135V28H348"/><path class="curve" d="M12 135C40 51 77 36 130 30S255 28 348 28"/><circle cx="60" cy="55" r="4" fill="#253c2c"/></svg>
-<h3 id="card-title-1">First-order<br>time response.</h3><p>A sudden jump. A steady ramp. Discover how quickly a sensor catches up.</p>
-<div class="card-foot"><span>K · τ · STEP &amp; RAMP</span><a class="card-link" href="module-1.html">Open experiment <span aria-hidden="true">→</span></a></div>
-<button type="button" class="card-focus" aria-label="Select Module 1: first-order time response" hidden></button>
-</article>
-<article class="module-card" data-index="1" aria-labelledby="card-title-2">
-<div class="card-head"><span>02 / FREQUENCY DOMAIN</span><span class="status">Available</span></div><span class="card-number display" aria-hidden="true">02</span>
-<svg class="card-art" viewBox="0 0 360 150" role="img" aria-label="Illustration of input and attenuated, phase-shifted output sine waves"><path class="axis" d="M12 10V135H348M12 76H348"/><path class="second" d="M12 76C33 10 54 10 75 76S117 142 138 76S180 10 201 76S243 142 264 76S306 10 327 76"/><path class="curve" d="M12 107C33 107 47 39 68 39S110 113 131 113S173 39 194 39S236 113 257 113S299 39 320 39S338 62 348 77"/></svg>
-<h3 id="card-title-2">First-order<br>frequency response.</h3><p>Follow a changing signal. Explore attenuation, phase lag and two-wave superposition.</p>
-<div class="card-foot"><span>τ · ω · BODE &amp; SINES</span><a class="card-link" href="module-2.html">Open experiment <span aria-hidden="true">→</span></a></div>
-<button type="button" class="card-focus" aria-label="Select Module 2: first-order frequency response" hidden></button>
-</article>
-<article class="module-card" data-index="2" aria-labelledby="card-title-3">
-<div class="card-head"><span>03 / SECOND ORDER</span><span class="status">Available</span></div><span class="card-number display" aria-hidden="true">03</span>
-<svg class="card-art" viewBox="0 0 360 150" role="img" aria-label="Illustration of a damped response overshooting and settling toward its final value"><path class="axis" d="M12 10V135H348"/><path class="guide" d="M12 57H348"/><path class="curve" d="M12 135C35 135 40 16 82 20S117 82 151 75S184 42 216 49S252 63 285 59S321 55 348 57"/></svg>
-<h3 id="card-title-3">Second-order<br>response.</h3><p>See why a sensor overshoots. Connect damping, poles and state-space behavior.</p>
-<div class="card-foot"><span>ζ · ωn · STATE SPACE</span><a class="card-link" href="module-3.html">Open experiment <span aria-hidden="true">→</span></a></div>
-<button type="button" class="card-focus" aria-label="Select Module 3: second-order response" hidden></button>
-</article>
-<article class="module-card" data-index="3" aria-labelledby="card-title-4">
-<div class="card-head"><span>04 / THE CHALLENGE</span><span class="status planned">Planned</span></div><span class="card-number display" aria-hidden="true">04</span>
-<svg class="card-art" viewBox="0 0 360 150" role="img" aria-label="Illustration of a hidden sensor response with a question mark"><path class="axis" d="M12 10V135H348"/><path class="curve" d="M12 135L24 128L30 133L40 112L49 115L58 99L68 103L79 79L89 84L100 70L110 74L120 60L131 65L142 54L153 59L164 48L175 51L188 43L200 49L212 42L224 47L236 40L249 44L260 40" opacity=".7"/><text x="286" y="91" fill="#344b43" font-family="Georgia,serif" font-size="81">?</text></svg>
-<h3 id="card-title-4">Guess<br>the sensor.</h3><p>Read an unfamiliar curve and estimate its hidden parameters. This module is planned.</p>
-<div class="card-foot"><span>OBSERVE · ESTIMATE · CHECK</span><a class="card-link" href="#challenge-info">About the challenge <span aria-hidden="true">↓</span></a></div>
-<button type="button" class="card-focus" aria-label="Select Module 4: planned sensor challenge" hidden></button>
-</article>
-</div>
-<div class="gallery-bottom" id="gallery-controls" hidden>
-<div class="selected-meta" aria-live="polite" aria-atomic="true"><div class="selected-count" id="selected-count">01 / 04</div><div id="selected-label">First-order time response</div></div>
-<div class="gallery-dots" role="group" aria-label="Choose a module"><button type="button" aria-label="Show Module 1" aria-pressed="true"></button><button type="button" aria-label="Show Module 2" aria-pressed="false"></button><button type="button" aria-label="Show Module 3" aria-pressed="false"></button><button type="button" aria-label="Show Module 4" aria-pressed="false"></button></div>
-<div class="gallery-arrows"><button class="arrow-button" id="previous-module" type="button" aria-label="Previous module">←</button><button class="arrow-button" id="next-module" type="button" aria-label="Next module">→</button></div>
-</div>
-<div class="gallery-note"><span>Illustrative curves. Open an experiment for calculated results.</span><a href="module-1.html">New here? Start with Module 1 →</a></div>
-</div>
-</section>
-<section class="method wrap" id="how-it-works" aria-labelledby="method-title">
-<div class="section-top reveal"><div class="section-index">03 / HOW TO EXPLORE</div><h2 class="method-title" id="method-title">Less memorising.<br>More understanding.</h2></div>
-<div class="method-grid">
-<article class="method-item reveal"><p class="eyebrow">01 — CHANGE</p><h3>Make it your experiment.</h3><p>Choose an input and move a slider. Follow the sensor’s response as the parameter changes.</p></article>
-<article class="method-item reveal"><p class="eyebrow">02 — OBSERVE</p><h3>Read what the curve says.</h3><p>Look at the time, the reading and the gap. Each module explains its plots and the quantities they show.</p></article>
-<article class="method-item reveal"><p class="eyebrow">03 — PREDICT</p><h3>Test your intuition.</h3><p>Use “Predict, then check” before changing a parameter. Compare your expectation with the model and its lecture checks.</p></article>
-</div>
-</section>
-<section class="about wrap" aria-labelledby="about-title">
-<div class="reveal"><p class="eyebrow">THE TOOLKIT / TEAM T19</p><h2 id="about-title">Built to make<br>sensor dynamics visible.</h2><p>A course project for ENCS4380 Interfacing Techniques at Birzeit University. Explore the lecture’s first- and second-order models through interactive experiments.</p><p>These are mathematical simulations. A real sensor follows a model only when that model’s assumptions apply.</p></div>
-<div class="reveal">
+<section class="intro wrap" aria-labelledby="intro-title"><div class="reveal"><span class="eyebrow">BEFORE THE EXPERIMENT</span><h2 id="intro-title">First, a change.<br>Then, a reading.</h2></div><p class="reveal">A thermometer needs time to catch up when you put it into warm water. An accelerometer can overshoot before it settles. <strong>These experiments make those responses visible.</strong> Change an input, follow the curve, and test what you expect to happen.</p></section>
+
+<section class="experience" id="modules" aria-label="Explore the four modules">
+<div class="stage" id="stage"><div class="stage-grid" aria-hidden="true"></div><div class="stage-orbit" aria-hidden="true"></div>
+<div class="wrap chapter-label"><span>THE EXPERIMENTS / SCROLL TO MOVE THROUGH</span><span id="chapter-position" aria-live="polite">01 — TIME RESPONSE</span></div>
+
+<article class="scene" data-scene="0" id="scene-1" aria-labelledby="scene-title-1">
+<div class="scene-number" aria-hidden="true">01</div>
+<div class="scene-art" aria-hidden="true"><svg viewBox="0 0 1000 950"><defs>
+<linearGradient id="t-body" x1="0" x2="1"><stop stop-color="#092b20"/><stop offset=".26" stop-color="#35644b"/><stop offset=".48" stop-color="#173a29"/><stop offset=".72" stop-color="#071c14"/><stop offset="1" stop-color="#50855d"/></linearGradient>
+<linearGradient id="t-ring" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#defbb7"/><stop offset=".25" stop-color="#709e5c"/><stop offset=".5" stop-color="#1d442c"/><stop offset=".8" stop-color="#a1d77e"/><stop offset="1" stop-color="#4b7347"/></linearGradient>
+<linearGradient id="t-glass"><stop stop-color="#9bc98b" stop-opacity=".17"/><stop offset=".5" stop-color="#628759" stop-opacity=".025"/><stop offset="1" stop-color="#c2e4a3" stop-opacity=".23"/></linearGradient>
+<radialGradient id="t-light"><stop stop-color="#84ba57" stop-opacity=".23"/><stop offset="1" stop-color="#84ba57" stop-opacity="0"/></radialGradient>
+<filter id="t-glow"><feGaussianBlur stdDeviation="7"/></filter>
+</defs><ellipse cx="560" cy="500" rx="370" ry="380" fill="url(#t-light)"/>
+<g transform="translate(90 -50) rotate(24 570 500)"><g class="art-float">
+<path d="M535 100V15" fill="none" stroke="#163526" stroke-width="17"/><path d="M533 100V15" fill="none" stroke="#63865b" stroke-width="2"/>
+<rect x="452" y="100" width="166" height="470" rx="82" fill="url(#t-body)" stroke="#59784c" stroke-width=".7"/>
+<ellipse cx="535" cy="180" rx="82" ry="33" fill="#0d271a" stroke="#72935d"/>
+<path d="M455 257Q535 295 615 257M455 270Q535 308 615 270M455 283Q535 321 615 283" stroke="#8ab071" opacity=".25" stroke-width="2" fill="none"/>
+<rect x="495" y="330" width="80" height="147" rx="8" fill="#071c13" stroke="#597e46"/>
+<path d="M507 424H518L528 385L541 441L552 371L565 413" fill="none" stroke="#c7f282" stroke-width="2.5"/><text x="513" y="460" font-size="9" letter-spacing="2" fill="#6b9b57" font-family="monospace">SENSOR</text>
+<rect x="506" y="553" width="58" height="254" rx="28" fill="url(#t-body)" stroke="#698853" stroke-width="1"/>
+<path d="M516 583V780" stroke="#9db784" stroke-width="1" opacity=".6"/>
+<path d="M438 297Q535 345 632 297V529Q535 580 438 529Z" fill="url(#t-glass)" stroke="#bce5a0" stroke-opacity=".25"/>
+<ellipse cx="535" cy="297" rx="97" ry="39" fill="none" stroke="#a9ce8d" opacity=".6"/>
+<ellipse cx="535" cy="531" rx="97" ry="39" fill="none" stroke="#b5eb8d" stroke-width="4" opacity=".65" filter="url(#t-glow)"/>
+<path d="M438 531Q535 579 632 531" fill="none" stroke="url(#t-ring)" stroke-width="3"/>
+</g>
+<g class="art-float-delayed"><ellipse cx="535" cy="650" rx="186" ry="65" fill="none" stroke="#c1e8a6" stroke-width="1" opacity=".6"/><ellipse cx="535" cy="650" rx="214" ry="77" fill="none" stroke="#91c17b" stroke-width="1" opacity=".22" stroke-dasharray="3 10"/></g></g>
+<path d="M215 765H355C390 765 395 593 446 554S568 513 848 513" fill="none" stroke="#c8f297" stroke-width="3" opacity=".8"/><path d="M355 765V513H848" fill="none" stroke="#9dbe8e" stroke-width="1" opacity=".25" stroke-dasharray="4 8"/>
+<circle cx="460" cy="544" r="5" fill="#ddffb7"/><path class="signal-flow" d="M460 553V765" stroke="#b4d58d" stroke-width="1" opacity=".6"/><text x="454" y="792" font-size="18" font-family="Georgia" fill="#a5c68a">τ</text>
+<path d="M741 335H850M696 685H865" stroke="#8bad77" stroke-width="1" opacity=".4"/><circle cx="741" cy="335" r="3" fill="#a7c48b"/><circle cx="696" cy="685" r="3" fill="#a7c48b"/><text x="782" y="323" font-family="monospace" font-size="10" fill="#6d8d61" letter-spacing="2">INPUT</text>
+</svg></div>
+<div class="scene-inner"><p class="scene-kicker"><span class="tiny-rule"></span>01 / FIRST-ORDER TIME RESPONSE</p><h2 class="display" id="scene-title-1"><span>Change</span><span>takes <em>time.</em></span></h2><p class="scene-description">A sudden jump. A steady ramp.<br>Find out how quickly a sensor catches up,<br>and what the remaining gap means.</p><a class="scene-action" href="module-1.html">Open Module 1<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></a></div>
+<div class="scene-note">K / STATIC GAIN<br>τ / TIME CONSTANT<br>STEP &amp; RAMP</div></article>
+
+<article class="scene" data-scene="1" id="scene-2" aria-labelledby="scene-title-2">
+<div class="scene-number" aria-hidden="true">02</div>
+<div class="scene-art" aria-hidden="true"><svg viewBox="0 0 1000 950"><defs>
+<linearGradient id="f-screen" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#153633"/><stop offset=".45" stop-color="#0b201f"/><stop offset="1" stop-color="#17312e"/></linearGradient>
+<linearGradient id="f-edge"><stop stop-color="#6b9690"/><stop offset=".4" stop-color="#14342f"/><stop offset=".8" stop-color="#557f73"/><stop offset="1" stop-color="#0a1d18"/></linearGradient>
+<radialGradient id="f-light"><stop stop-color="#63b3a5" stop-opacity=".18"/><stop offset="1" stop-color="#5bb6a5" stop-opacity="0"/></radialGradient>
+<filter id="f-glow"><feGaussianBlur stdDeviation="5"/></filter>
+<pattern id="f-grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" stroke="#7eb7a420" stroke-width=".8" fill="none"/></pattern>
+</defs><ellipse cx="610" cy="460" rx="410" ry="360" fill="url(#f-light)"/>
+<g transform="translate(20 0) rotate(-13 590 450)"><g class="art-float">
+<path d="M280 245 883 210 916 650 309 697Z" fill="#071b18" stroke="#45665d" stroke-width="2"/>
+<path d="M285 234 875 200 910 635 314 683Z" fill="url(#f-screen)" stroke="#8bb3a0" stroke-width="1"/>
+<path d="M314 272 843 241 871 602 341 643Z" fill="url(#f-grid)" stroke="#6a998845"/>
+<path d="M327 455 853 419" stroke="#6a998850" stroke-width="1"/>
+<path d="M330 456C357 322 390 318 418 446S478 565 505 438S565 304 594 431S654 555 683 423S742 294 772 418S826 537 853 411" stroke="#4d887b" stroke-width="2" fill="none"/>
+<path d="M330 493C359 493 369 365 404 362S461 518 496 514S553 355 588 353S646 508 680 505S738 344 772 344S827 490 859 487" stroke="#a0e5dc" stroke-width="6" fill="none" filter="url(#f-glow)" opacity=".5"/>
+<path d="M330 493C359 493 369 365 404 362S461 518 496 514S553 355 588 353S646 508 680 505S738 344 772 344S827 490 859 487" stroke="#b4ece2" stroke-width="2.5" fill="none"/>
+<path d="M441 282V620" stroke="#c2f6df" stroke-width="1" opacity=".2" class="scan"/>
+<circle cx="340" cy="251" r="3" fill="#b8efda"/><text x="358" y="254" fill="#8db7a9" font-family="monospace" font-size="10" letter-spacing="2">SIGNAL / FREQUENCY DOMAIN</text>
+<circle cx="832" cy="638" r="9" stroke="#597e6b" fill="#102b22"/><circle cx="800" cy="641" r="9" stroke="#597e6b" fill="#102b22"/>
+</g></g>
+<g class="art-float-delayed" transform="translate(0 30)"><ellipse cx="655" cy="746" rx="184" ry="40" fill="none" stroke="#64958c" opacity=".35"/><ellipse cx="655" cy="746" rx="139" ry="30" fill="none" stroke="#64958c" opacity=".25"/><path class="signal-flow" d="M655 719V590" stroke="#9eddda" opacity=".5" fill="none"/></g>
+<text x="392" y="752" fill="#6eac9c" font-family="monospace" font-size="12" letter-spacing="3">AMPLITUDE / PHASE</text></svg></div>
+<div class="scene-inner"><p class="scene-kicker"><span class="tiny-rule"></span>02 / FIRST-ORDER FREQUENCY RESPONSE</p><h2 class="display" id="scene-title-2"><span>Same signal.</span><span><em>New rhythm.</em></span></h2><p class="scene-description">Faster changes tell a different story.<br>Explore attenuation, phase lag, Bode plots,<br>and the sum of two sine waves.</p><a class="scene-action" href="module-2.html">Open Module 2<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></a></div>
+<div class="scene-note">τ / SENSOR SPEED<br>ω / INPUT FREQUENCY<br>SINES &amp; SUPERPOSITION</div></article>
+
+<article class="scene" data-scene="2" id="scene-3" aria-labelledby="scene-title-3">
+<div class="scene-number" aria-hidden="true">03</div>
+<div class="scene-art" aria-hidden="true"><svg viewBox="0 0 1000 950"><defs>
+<linearGradient id="s-mass" x1="0" y1="0" x2="1" y2=".6"><stop stop-color="#c7a276"/><stop offset=".4" stop-color="#745536"/><stop offset="1" stop-color="#b79568"/></linearGradient>
+<linearGradient id="s-side"><stop stop-color="#63513a"/><stop offset="1" stop-color="#2f2c1c"/></linearGradient>
+<linearGradient id="s-coil" x1="0" x2="1"><stop stop-color="#42623a"/><stop offset=".28" stop-color="#a3c28a"/><stop offset=".52" stop-color="#e4eab4"/><stop offset=".76" stop-color="#799766"/><stop offset="1" stop-color="#2e4a2c"/></linearGradient>
+<radialGradient id="s-light"><stop stop-color="#c3aa76" stop-opacity=".15"/><stop offset="1" stop-color="#c3aa76" stop-opacity="0"/></radialGradient>
+</defs><ellipse cx="638" cy="464" rx="350" ry="360" fill="url(#s-light)"/>
+<g transform="translate(15 -30) rotate(8 615 490)">
+<path d="M425 174 680 142 847 214 590 247Z" fill="#36513a" stroke="#668260" stroke-width="1"/><path d="M425 174V202L590 275 847 241V214L590 247Z" fill="#122c1d" stroke="#4d6544"/>
+<path d="M768 246V714M791 244V712" stroke="#4d6a48" stroke-width="7"/><path d="M766 246V714" stroke="#a4b989" opacity=".45" stroke-width="1"/>
+<g class="art-float"><path d="M596 240V264" stroke="#a8ba87" stroke-width="9"/>
+<path d="M596 264C446 259 446 312 596 308S746 357 596 354S446 405 596 400S746 452 596 446S446 499 596 492S746 545 596 540V565" fill="none" stroke="#07160e" stroke-width="15"/>
+<path d="M596 264C446 259 446 312 596 308S746 357 596 354S446 405 596 400S746 452 596 446S446 499 596 492S746 545 596 540V565" fill="none" stroke="url(#s-coil)" stroke-width="10"/>
+<path d="M467 571 631 547 753 599 588 628Z" fill="#d3b68b" stroke="#e3c79e" stroke-width=".8"/>
+<path d="M467 571V686L588 744V628Z" fill="url(#s-mass)" stroke="#8a714b" stroke-width=".8"/>
+<path d="M588 628 753 599V709L588 744Z" fill="url(#s-side)" stroke="#9c875f" stroke-width=".6"/>
+<path d="M487 588V670L567 709" stroke="#e7cd9f" opacity=".32" fill="none"/>
+<text x="510" y="645" fill="#ead5af" font-family="Georgia" font-style="italic" font-size="39" transform="rotate(26 510 645)">m</text>
+</g>
+<path d="M752 480H793M752 489H793M770 490V590" stroke="#63875a" stroke-width="5"/><rect x="752" y="590" width="39" height="88" rx="7" fill="#25432c" stroke="#759363"/><path d="M770 677V733" stroke="#9cb183" stroke-width="6"/>
+<path d="M423 760 681 722 845 794 587 836Z" fill="#1e3b26" stroke="#54744a"/><path d="M423 760V781L587 859 845 814V794L587 836Z" fill="#0b2014" stroke="#2c4b30"/>
+<path d="M471 780 680 749" stroke="#86a571" opacity=".3"/>
+</g>
+<path d="M273 641C311 641 317 457 369 467S405 614 456 600S498 514 546 533S588 574 636 558S690 548 730 554" fill="none" stroke="#edc695" stroke-width="2.5" opacity=".75"/><path d="M269 555H775" stroke="#8b8259" stroke-dasharray="4 8" opacity=".35"/>
+<text x="373" y="717" fill="#a19067" font-family="monospace" font-size="10" letter-spacing="2">OVERSHOOT / SETTLING</text>
+</svg></div>
+<div class="scene-inner"><p class="scene-kicker"><span class="tiny-rule"></span>03 / SECOND-ORDER RESPONSE</p><h2 class="display" id="scene-title-3"><span>A little</span><span><em>back &amp; forth.</em></span></h2><p class="scene-description">Some responses go beyond their target.<br>Connect damping and overshoot with poles,<br>state space, and motion in the phase plane.</p><a class="scene-action" href="module-3.html">Open Module 3<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></a></div>
+<div class="scene-note">ζ / DAMPING RATIO<br>ωn / NATURAL FREQUENCY<br>MASS · SPRING · DAMPER</div></article>
+
+<article class="scene" data-scene="3" id="scene-4" aria-labelledby="scene-title-4">
+<div class="scene-number" aria-hidden="true">04</div>
+<div class="scene-art" aria-hidden="true"><svg viewBox="0 0 1000 950"><defs><linearGradient id="q-body" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#303b38"/><stop offset=".5" stop-color="#111d18"/><stop offset="1" stop-color="#4a4b55"/></linearGradient><radialGradient id="q-light"><stop stop-color="#b0a3ea" stop-opacity=".15"/><stop offset="1" stop-color="#b0a3ea" stop-opacity="0"/></radialGradient></defs><ellipse cx="620" cy="480" rx="350" ry="370" fill="url(#q-light)"/>
+<g class="art-float"><g transform="rotate(-12 610 470)"><path d="M433 300 675 239 829 327 586 397Z" fill="#3e4a42" stroke="#8b9a8a"/><path d="M433 300V590L586 699V397Z" fill="#1e2c24" stroke="#6f816c"/><path d="M586 397 829 327V613L586 699Z" fill="url(#q-body)" stroke="#7e8a80"/>
+<path d="M451 336V566L568 650V423Z" stroke="#66765f" stroke-dasharray="3 8" fill="none" opacity=".5"/><path d="M609 419 807 362V590L609 657Z" stroke="#8c88a6" stroke-dasharray="3 8" fill="none" opacity=".5"/>
+<text x="640" y="573" font-family="Georgia" font-size="169" fill="#c1bcf0" transform="skewY(-17)">?</text>
+<path d="M490 295 653 257M614 687 802 623" stroke="#d3c7fb" opacity=".45" stroke-width="2"/></g></g>
+<g class="art-float-delayed"><ellipse cx="629" cy="740" rx="237" ry="64" fill="none" stroke="#a49dc8" opacity=".35"/><ellipse cx="629" cy="740" rx="185" ry="48" fill="none" stroke="#a49dc8" opacity=".18"/><path class="signal-flow" d="M629 690V831" fill="none" stroke="#c1bcf0" opacity=".3"/></g>
+<path d="M266 630L284 612L296 623L312 593L324 600L342 558L356 570L371 519L386 531L400 482L417 492L433 454L450 466L468 441" fill="none" stroke="#b7aee4" stroke-width="2.5" opacity=".6"/>
+</svg></div>
+<div class="scene-inner"><p class="scene-kicker"><span class="tiny-rule"></span>04 / GUESS THE SENSOR · PLANNED</p><h2 class="display" id="scene-title-4"><span>The curve</span><span>holds <em>clues.</em></span></h2><p class="scene-description">An unfamiliar response. Hidden parameters.<br>The planned challenge turns observation<br>into a guess you can test.</p><a class="scene-action" href="#challenge-info">About the challenge<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M6 14l6 6 6-6"/></svg></a></div>
+<div class="scene-note">OBSERVE THE RESPONSE<br>ESTIMATE THE PARAMETERS<br>THIS MODULE IS PLANNED</div></article>
+
+<div class="scene-caption">Illustrative artwork.<br>Calculated plots are inside each module.</div>
+<nav class="wrap stage-navigation" id="chapter-controls" aria-label="Choose an experiment" hidden>
+<div class="chapter-buttons"><button class="chapter-button" type="button" data-go="0" aria-pressed="true"><b>01</b><span>Time response<small>STEP &amp; RAMP</small></span></button><button class="chapter-button" type="button" data-go="1" aria-pressed="false"><b>02</b><span>Frequency<small>SINES &amp; BODE</small></span></button><button class="chapter-button" type="button" data-go="2" aria-pressed="false"><b>03</b><span>Second order<small>DAMPING &amp; POLES</small></span></button><button class="chapter-button" type="button" data-go="3" aria-pressed="false"><b>04</b><span>The challenge<small>PLANNED</small></span></button></div>
+<div class="stage-arrows"><button class="arrow" id="previous-scene" type="button" aria-label="Previous experiment"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H4M10 6l-6 6 6 6"/></svg></button><button class="arrow" id="next-scene" type="button" aria-label="Next experiment"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg></button></div>
+</nav><div class="scene-progress" aria-hidden="true"><span id="scene-progress"></span></div>
+</div></section>
+
+<section class="guide wrap" id="guide" aria-labelledby="guide-title">
+<div class="guide-heading reveal"><div><span class="eyebrow">LOOK. CHANGE. UNDERSTAND.</span><h2 id="guide-title">A curve is just<br>the beginning.</h2></div><p>Each experiment connects the lecture’s model with something you can change, observe and explain.</p></div>
+<div class="guide-steps"><article class="guide-step reveal"><span class="eyebrow">01 / CHANGE</span><h3>Start with an input.</h3><p>Choose a signal and adjust a parameter. Watch the response change with your settings.</p></article><article class="guide-step reveal"><span class="eyebrow">02 / OBSERVE</span><h3>Make sense of the gap.</h3><p>Follow the reading, the timing and the response shape. The plots explain what each quantity means.</p></article><article class="guide-step reveal"><span class="eyebrow">03 / PREDICT</span><h3>Put your intuition to work.</h3><p>Use “Predict, then check” before changing a parameter. Compare what you expected with the model and its lecture checks.</p></article></div>
+<div class="directory reveal" id="all-modules"><div><span class="eyebrow">STRAIGHT TO THE EXPERIMENT</span><h3>Choose your own path.</h3><p>Start with Module 1, or jump directly to the model you want to explore.</p></div><div>
+<a class="module-link" href="module-1.html"><b>01</b><span>First-order time response</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></a>
+<a class="module-link" href="module-2.html"><b>02</b><span>First-order frequency response</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></a>
+<a class="module-link" href="module-3.html"><b>03</b><span>Second-order response</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></a>
+<a class="module-link" href="#challenge-info"><b>04</b><span>Guess the sensor</span><span class="link-status">PLANNED</span></a>
+</div></div></section>
+<section class="about wrap" id="about" aria-labelledby="about-title"><div class="reveal"><span class="eyebrow">ENCS4380 / INTERFACING TECHNIQUES</span><h2 id="about-title">Built to make<br>sensor dynamics visible.</h2><p>A course project by Team T19 at Birzeit University. Explore the lecture’s first- and second-order models through interactive experiments.</p><p>These are mathematical simulations. A real sensor follows a model only when that model’s assumptions apply.</p></div><div class="reveal">
 <details><summary>Do I need to install anything?</summary><p>No. Open the website in your browser. The experiments load Python and plotting libraries over the internet; no account or app is needed.</p></details>
 <details><summary>Can I open it on my phone?</summary><p>Use the same website link in your phone’s browser. Inside Module 1, “Open on phone” also provides a QR code and a copyable link.</p></details>
 <details><summary>Where should I start?</summary><p>Start with <a href="module-1.html"><u>Module 1</u></a> to explore how a sensor responds to a sudden change. Continue to frequency response in Module 2, then damping and state space in Module 3.</p></details>
 <details id="challenge-info"><summary>What is “Guess the sensor”?</summary><p>The planned fourth module asks you to estimate hidden sensor parameters from an unfamiliar response curve, then compare your guess with the true model. It is not available in this version.</p></details>
-</div>
-</section>
-</main>
-<footer class="footer"><div class="wrap"><div class="footer-top"><a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">DL</span><span>Dynamics Lab<small>THE WORLD CHANGES. SENSORS TAKE TIME.</small></span></a><p>BIRZEIT UNIVERSITY<br>ENCS4380 / TEAM T19</p></div><div class="footer-bottom"><span class="footer-authors">Created by <b>Khaled Bani Oudeh</b> · <b>Jibreel Haddar</b> · <b>Mohammad Khaleel</b> · <b>Waad Melhem</b></span><a href="#main">Back to the beginning ↑</a></div></div></footer>
+</div></section></main>
+<footer class="footer"><div class="wrap"><div class="footer-top"><p class="footer-title">Understand the signal.<br>See the bigger picture.</p><a href="#main">BACK TO THE BEGINNING ↑</a></div><div class="footer-bottom"><span>Created by <b>Khaled Bani Oudeh</b> · <b>Jibreel Haddar</b> · <b>Mohammad Khaleel</b> · <b>Waad Melhem</b></span><span>BIRZEIT UNIVERSITY<br>ENCS4380 / TEAM T19</span></div></div></footer>
 <script>
 (function () {
   "use strict";
-  // This script controls presentation only. Sensor calculations stay in the module Python files.
-  const gallery = document.getElementById("gallery");
-  const cards = Array.from(gallery.querySelectorAll(".module-card"));
-  const dots = Array.from(document.querySelectorAll(".gallery-dots button"));
-  const labels = ["First-order time response", "First-order frequency response", "Second-order response", "Guess the sensor · planned"];
+  // Presentation only. All calculated sensor responses remain in the existing module Python files.
+  const experience = document.getElementById("modules");
+  const stage = document.getElementById("stage");
+  const scenes = Array.from(document.querySelectorAll(".scene"));
+  const chapterButtons = Array.from(document.querySelectorAll(".chapter-button"));
+  const controls = document.getElementById("chapter-controls");
+  const header = document.getElementById("header");
+  const previous = document.getElementById("previous-scene");
+  const next = document.getElementById("next-scene");
+  const progressLine = document.getElementById("scene-progress");
+  const chapterPosition = document.getElementById("chapter-position");
+  const labels = ["01 — TIME RESPONSE", "02 — FREQUENCY RESPONSE", "03 — SECOND-ORDER RESPONSE", "04 — THE CHALLENGE · PLANNED"];
+  const accents = ["#c7f282", "#9eddda", "#f0c394", "#c1bcf0"];
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   let selected = 0;
-  let startPoint = null;
-  let swiped = false;
-  gallery.classList.add("enhanced");
-  document.getElementById("gallery-controls").hidden = false;
-  cards.forEach(function (card, i) {
-    const button = card.querySelector(".card-focus");
-    button.hidden = false;
-    button.addEventListener("click", function () { select(i); });
-  });
-  function paint() {
-    const narrow = window.innerWidth <= 650;
-  const width = cards[0].offsetWidth;
-    const distance = narrow ? width * 0.88 : Math.min(435, window.innerWidth * 0.335);
-    cards.forEach(function (card, i) {
-      let offset = i - selected;
-      if (offset > cards.length / 2) offset -= cards.length;
-      if (offset < -cards.length / 2) offset += cards.length;
-      const active = offset === 0;
-      const far = Math.abs(offset) > 1;
-      const scale = active ? 1 : far ? 0.48 : 0.72;
-      const x = offset * distance;
-      const rotation = active ? 0 : offset > 0 ? -12 : 12;
-      card.style.transform = "translate3d(" + x + "px," + (active ? 0 : 20) + "px," + (active ? 0 : -100) + "px) rotateY(" + rotation + "deg) scale(" + scale + ")";
-      card.style.opacity = active ? "1" : far ? "0" : "0.53";
-      card.style.filter = active ? "none" : "saturate(.7)";
-      card.style.zIndex = active ? "4" : far ? "0" : "2";
-      card.style.pointerEvents = far ? "none" : "auto";
-      card.classList.toggle("is-active", active);
-      card.setAttribute("aria-current", active ? "true" : "false");
-      card.setAttribute("aria-hidden", String(far));
-      card.querySelector(".card-link").tabIndex = active ? 0 : -1;
-      card.querySelector(".card-focus").tabIndex = -1;
-    });
-    dots.forEach(function (dot, i) { dot.setAttribute("aria-pressed", String(i === selected)); });
-    document.getElementById("selected-count").textContent = String(selected + 1).padStart(2, "0") + " / 04";
-    document.getElementById("selected-label").textContent = labels[selected];
+  let enabled = false;
+  let frame = 0;
+  let jumpTimer = 0;
+  function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
+  function setMode() {
+    enabled = !reduceMotion.matches;
+    document.documentElement.classList.toggle("cinematic", enabled);
+    controls.hidden = !enabled;
+    if (!enabled) {
+      scenes.forEach(function (scene) {
+        scene.style.transform = "";
+        scene.style.opacity = "";
+        scene.style.zIndex = "";
+        scene.style.pointerEvents = "";
+        scene.removeAttribute("aria-hidden");
+        scene.inert = false;
+      });
+    }
+    update();
   }
-  function select(index) { selected = (index + cards.length) % cards.length; paint(); }
-  dots.forEach(function (dot, i) { dot.addEventListener("click", function () { select(i); }); });
-  document.getElementById("previous-module").addEventListener("click", function () { select(selected - 1); });
-  document.getElementById("next-module").addEventListener("click", function () { select(selected + 1); });
-  gallery.addEventListener("keydown", function (event) {
+  function update() {
+    frame = 0;
+    const rect = experience.getBoundingClientRect();
+    header.classList.toggle("dark", rect.top < 79 && rect.bottom > 83);
+    if (!enabled) return;
+    const range = Math.max(1, experience.offsetHeight - stage.offsetHeight);
+    const position = clamp(-rect.top / range, 0, 1) * (scenes.length - 1);
+    const closest = clamp(Math.round(position), 0, scenes.length - 1);
+    scenes.forEach(function (scene, index) {
+      const delta = index - position;
+      const distance = Math.abs(delta);
+      const visible = distance < 1.12;
+      const opacity = visible ? clamp(1 - Math.max(0, distance - 0.1) / 0.82, 0, 1) : 0;
+      const shift = delta * window.innerWidth * 0.65;
+      const scale = 1 - Math.min(distance, 1.2) * 0.13;
+      const depth = -Math.min(distance, 1.2) * 240;
+      scene.style.transform = "translate3d(" + shift + "px,0," + depth + "px) rotateY(" + (delta * -6) + "deg) scale(" + scale + ")";
+      scene.style.opacity = String(opacity);
+      scene.style.zIndex = String(10 - Math.round(distance * 3));
+      scene.style.pointerEvents = index === closest ? "auto" : "none";
+      scene.setAttribute("aria-hidden", String(index !== closest));
+      scene.inert = index !== closest;
+    });
+    stage.style.setProperty("--accent", accents[closest]);
+    progressLine.style.width = String(position / (scenes.length - 1) * 100) + "%";
+    if (closest !== selected || chapterPosition.textContent !== labels[closest]) {
+      selected = closest;
+      chapterPosition.textContent = labels[closest];
+    }
+    chapterButtons.forEach(function (button, index) { button.setAttribute("aria-pressed", String(index === selected)); });
+    previous.disabled = selected === 0;
+    next.disabled = selected === scenes.length - 1;
+  }
+  function requestUpdate() { if (!frame) frame = requestAnimationFrame(update); }
+  function jumpTo(index) {
+    const target = clamp(index, 0, scenes.length - 1);
+    if (!enabled) {
+      scenes[target].scrollIntoView({ behavior: "auto", block: "start" });
+      return;
+    }
+    const top = experience.getBoundingClientRect().top + window.scrollY;
+    const range = experience.offsetHeight - stage.offsetHeight;
+    const targetY = top + range * target / (scenes.length - 1);
+    // Native scrolling preserves wheel, touch, keyboard and browser navigation behavior.
+    window.scrollTo({ top: targetY, behavior: "smooth" });
+    clearTimeout(jumpTimer);
+    jumpTimer = window.setTimeout(requestUpdate, 900);
+  }
+  chapterButtons.forEach(function (button) {
+    button.addEventListener("click", function () { jumpTo(Number(button.dataset.go)); });
+  });
+  previous.addEventListener("click", function () { jumpTo(selected - 1); });
+  next.addEventListener("click", function () { jumpTo(selected + 1); });
+  controls.addEventListener("keydown", function (event) {
     if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
       event.preventDefault();
-      select(selected + (event.key === "ArrowRight" ? 1 : -1));
+      jumpTo(selected + (event.key === "ArrowRight" ? 1 : -1));
     }
   });
-  gallery.addEventListener("pointerdown", function (event) {
-    if (event.isPrimary && event.button === 0) {
-      startPoint = { x: event.clientX, y: event.clientY, id: event.pointerId };
-      swiped = false;
-    }
+  // Fine pointer movement adds a small sense of depth; there is no automatic scene rotation.
+  const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
+  stage.addEventListener("pointermove", function (event) {
+    if (!enabled || !finePointer.matches) return;
+    const box = stage.getBoundingClientRect();
+    const x = ((event.clientX - box.left) / box.width - 0.5) * 14;
+    const y = ((event.clientY - box.top) / box.height - 0.5) * 12;
+    stage.style.setProperty("--mx", x + "px");
+    stage.style.setProperty("--my", y + "px");
   });
-  gallery.addEventListener("pointerup", function (event) {
-    if (!startPoint || startPoint.id !== event.pointerId) return;
-    const dx = event.clientX - startPoint.x;
-    const dy = event.clientY - startPoint.y;
-    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.3) {
-      swiped = true;
-      select(selected + (dx < 0 ? 1 : -1));
-    }
-    startPoint = null;
+  stage.addEventListener("pointerleave", function () {
+    stage.style.setProperty("--mx", "0px");
+    stage.style.setProperty("--my", "0px");
   });
-  gallery.addEventListener("pointercancel", function () { startPoint = null; });
-  gallery.addEventListener("click", function (event) {
-    if (swiped) { event.preventDefault(); event.stopImmediatePropagation(); swiped = false; }
-  }, true);
-  window.addEventListener("pointerup", function () { startPoint = null; });
-  let resizeFrame = 0;
-  window.addEventListener("resize", function () {
-    cancelAnimationFrame(resizeFrame);
-    resizeFrame = requestAnimationFrame(paint);
+  window.addEventListener("scroll", requestUpdate, {passive:true});
+  window.addEventListener("resize", requestUpdate);
+  if (reduceMotion.addEventListener) reduceMotion.addEventListener("change", setMode);
+  document.querySelectorAll('a[href="#challenge-info"]').forEach(function (link) {
+    link.addEventListener("click", function () { document.getElementById("challenge-info").open = true; });
   });
-  // Reveal sections as they enter view. Reduced-motion users receive the complete static view.
-  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-  if ("IntersectionObserver" in window && !reduced.matches) {
+  if ("IntersectionObserver" in window && !reduceMotion.matches) {
     const observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) { entry.target.classList.add("visible"); observer.unobserve(entry.target); }
       });
-    }, { threshold: 0.08 });
-    document.documentElement.classList.add("js-motion");
-    document.querySelectorAll(".reveal").forEach(function (section) { observer.observe(section); });
+    }, {threshold:0.12});
+    document.documentElement.classList.add("reveal-ready");
+    document.querySelectorAll(".reveal").forEach(function (element) { observer.observe(element); });
   }
-  document.querySelectorAll('a[href="#challenge-info"]').forEach(function (link) {
-    link.addEventListener("click", function () { document.getElementById("challenge-info").open = true; });
-  });
-  paint();
+  setMode();
 }());
-</script>
-</body>
-</html>
+</script></body></html>
 
