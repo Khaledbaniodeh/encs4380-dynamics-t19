@@ -1,0 +1,30 @@
+name: Python numerical regression tests
+
+on:
+  push:
+    paths:
+      - "python/**"
+      - "tests/**"
+      - ".github/workflows/python-regression.yml"
+  pull_request:
+    paths:
+      - "python/**"
+      - "tests/**"
+      - ".github/workflows/python-regression.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run Module 1 Euler and Module 2 superposition regression tests
+        run: python -m unittest discover -s tests -v
