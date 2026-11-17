@@ -19,33 +19,90 @@ All four modules are implemented, linked from the home page and published on Git
 
 Open the live toolkit, choose a module and wait for **Python ready**. Calculations run in your browser; no hardware, installation or account is required. An internet connection is needed to load the Python and plotting libraries.
 
-## Control Toolkit
+## Control Toolkit and team
 
-The same GitHub Pages site now also includes a separate **Control** area for controller-focused experiments. Control pages are kept separate from the four sensor-dynamics modules so the site can grow without tying its structure to a specific homework number.
+The same GitHub Pages site now includes a separate **Control** area for controller-focused experiments. Control pages are kept separate from the four sensor-dynamics modules so the site can grow without tying its structure to a specific homework number.
 
-### P1: PID Playground
+| Part | Experiment | Owner | Tracking |
+| --- | --- | --- | --- |
+| [P1](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/pid-playground.html) | PID Playground: first-order plant, live PID tuning, actuator limits and response metrics | Waad Melhem ([@WaadMelhem05](https://github.com/WaadMelhem05)) | [#5](../../issues/5) |
 
-**Owner:** Waad Melhem ([@WaadMelhem05](https://github.com/WaadMelhem05)) · **Tracking:** [#5](../../issues/5)
+Each Control part should be added to this table when its implementation, tracking issue and live page are ready.
+
+## P1: PID Playground
 
 **[Open P1 · PID Playground](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/pid-playground.html)**
 
-P1 implements a browser-based PID controller around the first-order plant
+P1 is a browser-based PID control experiment built around a first-order plant. The user can change the plant parameters, PID gains, setpoint and actuator limits, then immediately compare the closed-loop response with the reference.
+
+### P1 model and controller
+
+The first-order plant is
 
 ```text
 tau * dy/dt + y = K * u
 ```
 
-with live controls for **K, tau, Kp, Ki, Kd, setpoint and actuator limits**. The page shows the closed-loop block diagram, output versus setpoint, the actuator-limited control signal, rise time, overshoot, settling time and estimated steady-state error.
+and the controller uses proportional, integral and derivative action:
 
-The implementation uses Euler integration in `python/pid_control.py`, browser execution through Pyodide, actuator saturation, anti-windup, derivative-on-measurement with a low-pass derivative filter, live updates, Reset, and a **Predict, then check** interaction for increasing Kp.
+```text
+u = Kp * e + Ki * integral(e) - Kd * dy/dt
+```
 
-Validation includes the fixed P-only check `K=1, tau=1, Kp=9` with closed-loop time constant about **0.1 s** and steady-state error about **10%**, and the PI check `K=1, tau=1, Kp=1, Ki=1` with `omega_n=1 rad/s`, `zeta=1`, and near-zero step steady-state error. Saturation behavior was also checked with tighter actuator limits.
+The derivative term is applied to the measured output rather than directly to the error, and it is passed through a low-pass filter to reduce derivative kick and noisy numerical changes. The simulation uses Forward Euler integration in `python/pid_control.py`.
 
-Files:
+The page provides live controls for:
+
+- Plant gain **K** and time constant **tau**.
+- Controller gains **Kp**, **Ki** and **Kd**.
+- Step setpoint.
+- Minimum and maximum actuator limits.
+
+The page shows:
+
+- A closed-loop block diagram.
+- Output versus setpoint.
+- Actuator-limited control signal `u(t)`.
+- Rise time.
+- Overshoot.
+- Settling time.
+- Estimated steady-state error.
+- Saturation status.
+- Live simulation updates.
+- Reset.
+- A **Predict, then check** exercise for increasing `Kp`.
+
+The controller also includes actuator saturation and anti-windup logic. The prediction exercise stores the original parameters and only accepts the intended `Kp` change before checking the measured response.
+
+### P1 validation
+
+The fixed homework checks use the first-order plant `K/(tau*s+1)`.
+
+| Check | Expected | Calculated / observed | Result |
+| --- | --- | --- | --- |
+| P-only: `K=1, tau=1, Kp=9, Ki=0, Kd=0` | Closed-loop time constant about 0.1 s; steady-state error about 10% | Response matches the expected first-order closed-loop behavior and about 10% final error | Pass |
+| PI: `K=1, tau=1, Kp=1, Ki=1, Kd=0` | `omega_n=1 rad/s`, `zeta=1` | Validation values match the lecture benchmark | Pass |
+| PI step response | Zero steady-state error | Final error approaches zero within the numerical simulation tolerance | Pass |
+| Actuator saturation | `u(t)` remains within the selected limits | Tight limits such as -0.5 to 0.5 clip the control signal at the boundary | Pass |
+
+Development checks also covered `Kp`, `Ki` and `Kd` behavior, live updates, Reset, prediction validation, unavailable rise-time handling, actuator-limit validation and responsive layout.
+
+### P1 testing
+
+P1 was tested on the deployed GitHub Pages site. The live page loads its Python model through Pyodide, updates the plots when parameters change, reports the response metrics, and applies the configured actuator limits. The navigation entry is available from the home page under **Control → P1 · PID Playground**.
+
+The tested cases include:
+
+- Increasing `Kp` with `Ki=Kd=0` reduces the P-only steady-state error and speeds the closed-loop response.
+- Adding `Ki` drives the step steady-state error toward zero.
+- Changing `Kd` changes the transient response while the filtered derivative keeps the plotted control behavior smooth.
+- Tight actuator limits visibly clip `u(t)` and report saturation.
+- The Predict-then-check workflow rejects unchanged `Kp` or changes to other saved parameters.
+
+### P1 files
+
 - `pid-playground.html`
 - `python/pid_control.py`
-
-The home page exposes this page under **Control → P1 · PID Playground**.
 
 Implementation and browser checks are separate from instructor acceptance and final submission. The remaining delivery checks are listed below.
 
