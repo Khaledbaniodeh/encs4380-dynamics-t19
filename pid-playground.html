@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PID Playground · Dynamics Lab</title>
+<meta name="description" content="Interactive PID Playground for ENCS4380 Homework 2 · Team T19.">
+<meta name="theme-color" content="#14243a">
+<!-- Plotly - same version used by Homework 1 -->
+<script src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script>
+<!-- Pyodide - same version used by Homework 1 -->
+<script src="https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.js"></script>
+<style>
+:root{--ink:#17263b;--muted:#66758a;--line:#e0e6ed;--paper:#ffffff;--bg:#f4f6f8;--teal:#087f72;--teal-soft:#e7f5f1;--blue:#315dda;--orange:#b56425;--red:#ba3d3d;--green:#167554;--radius:16px;}
+*{box-sizing:border-box;}
+[hidden]{display:none !important;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
+button,input,select{font:inherit;}
+button{cursor:pointer;}
+a{color:var(--teal);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.limit-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+:focus-visible{outline:3px solid #dfac50;outline-offset:3px;}
+/* TOP BAR */
+.topbar{background:#14243a;color:#fff;}
+.topbar-inner{max-width:1380px;margin:auto;padding:17px 36px;display:flex;align-items:center;justify-content:space-between;gap:20px;}
+.brand{display:flex;align-items:center;gap:12px;font-size:17px;font-weight:700;}
+.brand-mark{width:33px;height:33px;display:grid;place-items:center;border:1px solid #496271;border-radius:9px;color:#81d5bc;}
+.brand a{color:#fff;}
+.brand a:hover{text-decoration:none;color:#b5ead9;}
+.brand small{display:block;font-size:11px;font-weight:500;color:#b7c2d1;}
+.topbar-meta{font-size:11px;color:#c0cada;letter-spacing:1.2px;}
+.topbar-meta b{color:#b5ead9;background:#244b4b;padding:5px 9px;border-radius:5px;}
+/* MAIN */
+main{max-width:1380px;margin:auto;padding:30px 36px 50px;}
+.breadcrumb{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:18px;color:var(--muted);font-size:12px;}
+.eyebrow{margin:0 0 7px;color:var(--teal);font-size:10px;font-weight:750;letter-spacing:1.7px;text-transform:uppercase;}
+h1{margin:0 0 10px;font-size:clamp(28px,3.2vw,40px);line-height:1.15;letter-spacing:-1px;}
+.intro{max-width:900px;color:var(--muted);font-size:13px;line-height:1.75;margin-bottom:24px;}
+.status-row{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:22px;}
+.pill{display:inline-block;border-radius:100px;padding:7px 11px;background:#e4f2ee;color:#0d6f60;font-size:11px;font-weight:650;}
+.pill.waiting{background:#eef1f5;color:#677485;}
+.pill.error{background:#fff0ec;color:#af4027;}
+/* PANELS */
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);min-width:0;box-shadow:0 2px 3px rgba(20,36,58,.02);}
+.workspace{display:grid;grid-template-columns:320px minmax(0,1fr);gap:22px;align-items:start;}
+.controls{padding:22px;position:sticky;top:16px;}
+.controls h2{margin:0 0 7px;font-size:18px;}
+.desc{margin:0 0 12px;color:var(--muted);font-size:11px;line-height:1.65;}
+.field{padding:16px 0;border-bottom:1px solid #edf0f4;}
+.field label{display:flex;justify-content:space-between;gap:10px;margin-bottom:8px;font-size:12px;font-weight:650;}
+.field label small{color:var(--muted);font-weight:500;}
+.field-row{display:grid;grid-template-columns:minmax(0,1fr) 92px;gap:10px;align-items:center;}
+input[type="range"]{width:100%;accent-color:var(--teal);}
+input[type="number"],select{width:100%;min-height:41px;border:1px solid #d2dce6;border-radius:8px;padding:9px 10px;background:#fff;color:var(--ink);font-size:13px;}
+.control-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px;}
+button{min-height:41px;border:1px solid #d1dbe5;border-radius:9px;padding:9px 12px;background:#fff;color:var(--ink);font-size:12px;font-weight:650;}
+button.primary{background:var(--teal);border-color:var(--teal);color:#fff;}
+button.primary:hover{background:#066d62;}
+button:disabled{opacity:.55;cursor:not-allowed;}
+/* RESULTS */
+.results{display:grid;gap:18px;min-width:0;}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;}
+.metric{padding:16px;}
+.metric-label{display:block;margin-bottom:7px;color:var(--muted);font-size:10px;}
+.metric-value{display:block;font-size:24px;font-weight:700;letter-spacing:-.6px;}
+.metric small{display:block;margin-top:5px;color:var(--muted);font-size:10px;}
+.metric.accent{background:#eef8f5;border-color:#d7eae3;}
+.metric.accent .metric-value{color:#096c60;}
+/* BLOCK DIAGRAM */
+.diagram-panel{padding:20px;}
+.diagram-panel h2{margin:0 0 5px;font-size:18px;}
+.diagram-panel p{margin:0 0 18px;color:var(--muted);font-size:11px;}
+.block-diagram{overflow-x:auto;padding:18px 8px;}
+.diagram-line{min-width:760px;display:flex;align-items:center;justify-content:center;gap:10px;}
+.diagram-box{min-width:110px;padding:12px 14px;text-align:center;border:1px solid #d5dfe8;border-radius:10px;background:#f8fafb;font-size:12px;font-weight:700;}
+.diagram-box.pid{background:#eaf7f3;border-color:#cae5dc;color:#076d60;}
+.diagram-box.plant{background:#edf2ff;border-color:#d6def5;color:#3151aa;}
+.sum{width:42px;height:42px;flex:none;display:grid;place-items:center;border:1px solid #cfd9e3;border-radius:50%;background:#fff;font-weight:800;}
+.arrow{color:#75869a;font-size:20px;}
+.feedback-text{margin-top:13px;text-align:center;color:var(--muted);font-size:11px;}
+/* CHARTS */
+.chart-panel{padding:20px 21px;}
+.chart-panel header{display:flex;align-items:start;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.chart-panel h2{margin:0;font-size:18px;}
+.chart-panel p{margin:5px 0 0;color:var(--muted);font-size:11px;}
+.chart{width:100%;height:380px;min-width:0;}
+/* PREDICT THEN CHECK */
+.section{margin-top:28px;}
+.section-heading{margin-bottom:13px;}
+.section-heading h2{margin:0;font-size:19px;}
+.section-heading p{margin:5px 0 0;color:var(--muted);font-size:11px;}
+.prediction{padding:21px;}
+.prediction-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:14px;}
+.prediction-options button.selected{border-color:var(--teal);background:var(--teal-soft);color:var(--teal);}
+.prediction-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px;}
+.message{margin-top:12px;padding:10px 12px;border-radius:8px;background:#f3f6f8;color:#5d7080;font-size:11px;}
+.message.success{background:#e9f6ee;color:#07613d;}
+.message.warning{background:#fff5ec;color:#98551a;}
+.message.error{background:#fff0ed;color:#a8432d;}
+/* VALIDATION */
+.validation{padding:22px;}
+.table-wrap{overflow-x:auto;margin-top:13px;}
+table{width:100%;border-collapse:collapse;min-width:700px;font-size:11px;}
+th,td{padding:11px 10px;text-align:left;border-bottom:1px solid #e9eef3;}
+thead{background:#f6f8fa;color:#61748a;}
+.tag{display:inline-block;padding:4px 8px;border-radius:5px;background:#e4f5ec;color:#0b774d;font-size:10px;font-weight:700;}
+.tag.fail{background:#fff0ec;color:#ae4026;}
+/* DETAILS */
+.details-panel{padding:21px;}
+.detail-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+.detail-card{padding:12px;background:#f6f8fa;border-radius:9px;}
+.detail-card span{display:block;color:var(--muted);font-size:10px;}
+.detail-card strong{display:block;margin-top:4px;font-size:15px;}
+/* FOOTER */
+footer{margin-top:28px;padding-top:17px;border-top:1px solid var(--line);color:#8290a0;font-size:10px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;}
+/* MOBILE */
+@media(max-width:1050px){
+  .workspace{grid-template-columns:1fr;}
+  .controls{position:static;}
+  .metrics{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media(max-width:700px){
+  main{padding:23px 15px 35px;}
+  .topbar-inner{padding:13px 16px;flex-wrap:wrap;}
+  .topbar-meta{width:100%;}
+  .metrics{grid-template-columns:1fr 1fr;}
+  .prediction-options{grid-template-columns:1fr;}
+  .detail-grid{grid-template-columns:1fr;}
+  .chart{height:320px;}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">C</div>
+      <div><a href="index.html">Dynamics Lab</a><small>ENCS4380 · Team T19</small></div>
+    </div>
+    <div class="topbar-meta">Homework 2 <b>P1 · PID Playground</b></div>
+  </div>
+</header>
+<main>
+  <div class="breadcrumb"><a href="index.html">Home</a><span>›</span><span>Control</span><span>›</span><strong>PID Playground</strong></div>
+  <p class="eyebrow">Homework 2 · Control</p>
+  <h1>PID Playground</h1>
+  <p class="intro">Experiment with a PID controller around a first-order plant. Change the plant parameters, controller gains and setpoint, then compare the output with the target and observe how the control signal changes.</p>
+  <div class="status-row">
+    <span id="python-status" class="pill waiting">Loading Python...</span>
+    <span class="pill">Euler simulation</span>
+    <span class="pill">Anti-windup enabled</span>
+  </div>
+  <div class="workspace">
+    <!-- CONTROLS -->
+    <aside class="panel controls">
+      <h2>Parameters</h2>
+      <p class="desc">Start with the first-order plant from Homework 1. Change one parameter at a time to see its effect.</p>
+      <!-- Plant type -->
+      <div class="field">
+        <label for="plant-type">Plant type</label>
+        <select id="plant-type"><option value="first">First-order plant</option></select>
+      </div>
+      <!-- K -->
+      <div class="field">
+        <label>Plant gain K <small>output / input</small></label>
+        <div class="field-row"><input id="K-range" type="range" min="0.1" max="5" step="0.1" value="1"><input id="K" type="number" min="0.1" max="5" step="0.1" value="1"></div>
+      </div>
+      <!-- Tau -->
+      <div class="field">
+        <label>Time constant τ <small>seconds</small></label>
+        <div class="field-row"><input id="tau-range" type="range" min="0.1" max="5" step="0.1" value="1"><input id="tau" type="number" min="0.01" max="5" step="0.1" value="1"></div>
+      </div>
+      <!-- Kp -->
+      <div class="field">
+        <label>Kp <small>proportional</small></label>
+        <div class="field-row"><input id="Kp-range" type="range" min="0" max="20" step="0.1" value="2"><input id="Kp" type="number" min="0" max="20" step="0.1" value="2"></div>
+      </div>
+      <!-- Ki -->
+      <div class="field">
+        <label>Ki <small>integral</small></label>
+        <div class="field-row"><input id="Ki-range" type="range" min="0" max="10" step="0.1" value="1"><input id="Ki" type="number" min="0" max="10" step="0.1" value="1"></div>
+      </div>
+      <!-- Kd -->
+      <div class="field">
+        <label>Kd <small>derivative</small></label>
+        <div class="field-row"><input id="Kd-range" type="range" min="0" max="5" step="0.05" value="0.5"><input id="Kd" type="number" min="0" max="5" step="0.05" value="0.5"></div>
+      </div>
+      <!-- Setpoint -->
+      <div class="field">
+        <label>Setpoint <small>target</small></label>
+        <div class="field-row"><input id="setpoint-range" type="range" min="0.1" max="5" step="0.1" value="1"><input id="setpoint" type="number" min="0.1" max="5" step="0.1" value="1"></div>
+      </div>
+      <!-- Limits -->
+      <div class="field">
+        <label>Control limits <small>actuator</small></label>
+        <div class="limit-grid"><input id="u-min" type="number" value="-100" step="1" aria-label="Minimum control signal"><input id="u-max" type="number" value="100" step="1" aria-label="Maximum control signal"></div>
+      </div>
+      <div class="control-buttons"><button id="reset-button">Reset</button><button id="run-button" class="primary" disabled>Run simulation</button></div>
+      <div id="control-message" class="message">Python is loading.</div>
+    </aside>
+    <!-- RESULTS -->
+    <section class="results">
+      <!-- Metrics -->
+      <div class="metrics">
+        <article class="panel metric accent"><span class="metric-label">Rise time</span><strong id="rise-time" class="metric-value">—</strong><small>10% → 90%</small></article>
+        <article class="panel metric"><span class="metric-label">Overshoot</span><strong id="overshoot" class="metric-value">—</strong><small>above setpoint</small></article>
+        <article class="panel metric"><span class="metric-label">Settling time</span><strong id="settling-time" class="metric-value">—</strong><small>±2% band</small></article>
+        <article class="panel metric"><span class="metric-label">Steady-state error</span><strong id="steady-error" class="metric-value">—</strong><small>estimated at end of simulation</small></article>
+      </div>
+      <!-- Block diagram -->
+      <article class="panel diagram-panel">
+        <h2>Closed-loop block diagram</h2>
+        <p>The output is measured and fed back to calculate the next error.</p>
+        <div class="block-diagram">
+          <div class="diagram-line">
+            <div class="diagram-box">Setpoint<br>r(t)</div><span class="arrow">→</span>
+            <div class="sum">Σ</div><span class="arrow">→</span>
+            <div class="diagram-box">Error<br>e(t)</div><span class="arrow">→</span>
+            <div class="diagram-box pid">PID<br>Kp · Ki · Kd</div><span class="arrow">→</span>
+            <div class="diagram-box">u(t)</div><span class="arrow">→</span>
+            <div class="diagram-box plant">First-order<br>Plant</div><span class="arrow">→</span>
+            <div class="diagram-box">Output<br>y(t)</div>
+          </div>
+          <div class="feedback-text">↖──────────── negative feedback: y(t) returns to the comparison point ────────────↙</div>
+        </div>
+      </article>
+      <!-- Output chart -->
+      <article class="panel chart-panel">
+        <header><div><h2>Output vs setpoint</h2><p>The target is shown with the simulated plant output.</p></div></header>
+        <div id="response-chart" class="chart"></div>
+      </article>
+      <!-- Control chart -->
+      <article class="panel chart-panel">
+        <header><div><h2>Control signal u(t)</h2><p>The controller output is limited by the actuator bounds.</p></div></header>
+        <div id="control-chart" class="chart"></div>
+      </article>
+      <!-- Details -->
+      <article class="panel details-panel">
+        <div class="section-heading"><h2>Current run</h2><p>Useful values from the simulation.</p></div>
+        <div class="detail-grid">
+          <div class="detail-card"><span>Final output</span><strong id="final-output">—</strong></div>
+          <div class="detail-card"><span>Final error</span><strong id="final-error">—</strong></div>
+          <div class="detail-card"><span>Saturation</span><strong id="saturation-status">—</strong></div>
+        </div>
+      </article>
+    </section>
+  </div>
+  <!-- PREDICT THEN CHECK -->
+  <section class="section">
+    <div class="section-heading"><h2>Predict, then check</h2><p>Keep Ki and Kd fixed. What do you expect when Kp increases?</p></div>
+    <article class="panel prediction">
+      <strong>Increasing Kp will usually make the rise time:</strong>
+      <div class="prediction-options">
+        <button class="prediction-option" data-answer="increase">Increase</button>
+        <button class="prediction-option" data-answer="decrease">Decrease</button>
+        <button class="prediction-option" data-answer="same">Stay the same</button>
+      </div>
+      <div class="prediction-actions"><button id="save-prediction">Save prediction</button><button id="check-prediction" class="primary">Check</button></div>
+      <div id="prediction-message" class="message">Choose your prediction before changing Kp.</div>
+    </article>
+  </section>
+  <!-- VALIDATION -->
+  <section class="section">
+    <div class="section-heading"><h2>Homework validation checks</h2><p>Fixed checks from the Homework 2 brief.</p></div>
+    <article class="panel validation">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Check</th><th>Expected</th><th>Computed</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>P only · K=1, τ=1, Kp=9</td><td>τcl = 0.1 s, error = 10%</td><td id="validation-p-result">—</td><td><span id="validation-p-status" class="tag">—</span></td></tr>
+            <tr><td>PI · Kp=1, Ki=1</td><td>ωn = 1 rad/s, ζ = 1</td><td id="validation-pi-result">—</td><td><span id="validation-pi-status" class="tag">—</span></td></tr>
+            <tr><td>PI step steady-state error</td><td>Approximately 0%</td><td id="validation-error-result">—</td><td><span id="validation-error-status" class="tag">—</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+  </section>
+  <footer><span>ENCS4380 Interfacing Techniques · Team T19</span><span>Homework 2 · PID Control Toolkit</span></footer>
+</main>
+<script>
+/* ==========================================
+   GLOBALS
+========================================== */
+let pyodide = null;
+let selectedPrediction = null;
+let savedPrediction = null;
+let savedPredictionRiseTime = null;
+let savedPredictionKp = null;
+let lastResult = null;
+let renderTimer = null;
+let savedPredictionKi = null;
+let savedPredictionKd = null;
+let savedPredictionK = null;
+let savedPredictionTau = null;
+let savedPredictionSetpoint = null;
+
+function scheduleSimulation(){
+  if(!pyodide){ return; }
+  clearTimeout(renderTimer);
+  renderTimer = setTimeout(() => { runSimulation(); }, 150);
+}
+
+/* ==========================================
+   HELPERS
+========================================== */
+const $ = id => document.getElementById(id);
+
+function normalizeNumberText(value){
+  return String(value).replace(/[٠-٩]/g, digit => "٠١٢٣٤٥٦٧٨٩".indexOf(digit)).replace(/[۰-۹]/g, digit => "۰۱۲۳۴۵۶۷۸۹".indexOf(digit)).replace(/٫/g, ".").replace(/٬/g, "").trim();
+}
+
+function numberValue(id){
+  const element = $(id);
+  const normalized = normalizeNumberText(element.value);
+  if(normalized === ""){ return NaN; }
+  return Number(normalized);
+}
+
+function formatNumber(value, digits=4){
+  if(value === null || value === undefined || !Number.isFinite(Number(value))){ return "—"; }
+  return Number(value).toFixed(digits);
+}
+
+function syncPair(rangeId, numberId){
+  const range = $(rangeId);
+  const number = $(numberId);
+  range.addEventListener("input", () => { number.value = range.value; scheduleSimulation(); });
+  number.addEventListener("input", () => {
+    const value = Number(normalizeNumberText(number.value));
+    if(Number.isFinite(value) && value >= Number(range.min) && value <= Number(range.max)){ range.value = value; }
+    scheduleSimulation();
+  });
+}
+
+/* ==========================================
+   PYODIDE INITIALIZATION
+========================================== */
+async function initializePython(){
+  const status = $("python-status");
+  const message = $("control-message");
+  try{
+    if(typeof loadPyodide !== "function" || typeof Plotly === "undefined"){ throw new Error("Could not load Pyodide or Plotly. Check your internet connection."); }
+    status.textContent = "Starting Python...";
+    status.className = "pill waiting";
+    /* Use the SAME Pyodide runtime version as Homework 1. */
+    pyodide = await loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/" });
+    status.textContent = "Loading PID model...";
+    /* Load our local Python model. */
+    const response = await fetch("./python/pid_control.py", { cache:"no-store" });
+    if(!response.ok){ throw new Error("Could not load python/pid_control.py (HTTP " + response.status + ")."); }
+    const pythonSource = await response.text();
+    /*
+      We only need the function definitions in the browser.
+      The local terminal test block:
+          if __name__ == "__main__":
+      should NOT run in Pyodide.
+    */
+    const modelSource = pythonSource.split('\nif __name__ == "__main__":')[0];
+    await pyodide.runPythonAsync(modelSource);
+    status.textContent = "Python ready";
+    status.className = "pill";
+    message.textContent = "Ready. Change any parameter to update the simulation live.";
+    message.className = "message success";
+    $("run-button").disabled = false;
+    /* Run the official homework checks and then render the default example. */
+    await runValidations();
+    await runSimulation();
+  }
+  catch(error){
+    console.error("PID Playground loading error:", error);
+    status.textContent = "Python error";
+    status.className = "pill error";
+    message.textContent = "Python could not start: " + error.message;
+    message.className = "message error";
+  }
+}
+
+/* ==========================================
+   PYTHON SIMULATION
+========================================== */
+async function getSimulation(){
+  const K = numberValue("K");
+  const tau = numberValue("tau");
+  const Kp = numberValue("Kp");
+  const Ki = numberValue("Ki");
+  const Kd = numberValue("Kd");
+  const setpoint = numberValue("setpoint");
+  const uMin = numberValue("u-min");
+  const uMax = numberValue("u-max");
+
+  if(!Number.isFinite(K) || !Number.isFinite(tau) || !Number.isFinite(Kp) || !Number.isFinite(Ki) || !Number.isFinite(Kd) || !Number.isFinite(setpoint) || !Number.isFinite(uMin) || !Number.isFinite(uMax)){ throw new Error("All values must be finite numbers."); }
+  if(K <= 0){ throw new Error("K must be greater than zero."); }
+  if(Kp < 0 || Ki < 0 || Kd < 0){ throw new Error("PID gains cannot be negative."); }
+  if(tau <= 0){ throw new Error("τ must be greater than zero."); }
+  if(setpoint <= 0){ throw new Error("Setpoint must be greater than zero for this version."); }
+  if(uMin >= uMax){ throw new Error("Minimum control limit must be smaller than maximum."); }
+
+  /*
+    We use Python's existing functions.
+    json.dumps is used so JavaScript receives
+    ordinary JSON instead of Pyodide proxy objects.
+  */
+  const pythonCode = `
+
+import json
+
+result = simulate_pid_control(
+    K=${K},
+    tau=${tau},
+    Kp=${Kp},
+    Ki=${Ki},
+    Kd=${Kd},
+    setpoint=${setpoint},
+    u_min=${uMin},
+    u_max=${uMax},
+    dt=0.001,
+    duration=8.0,
+    anti_windup=True
+)
+
+metric_result = calculate_metrics(
+    result["time"],
+    result["output"],
+    ${setpoint}
+)
+
+result.update(metric_result)
+
+json.dumps(result)
+
+`;
+
+  const jsonText = await pyodide.runPythonAsync(pythonCode);
+  return JSON.parse(jsonText);
+}
+
+/* ==========================================
+   RUN SIMULATION
+========================================== */
+async function runSimulation(){
+  if(!pyodide){ return; }
+  const message = $("control-message");
+  $("run-button").disabled = true;
+  message.textContent = "Running simulation...";
+  message.className = "message";
+  try{
+    const result = await getSimulation();
+    lastResult = result;
+    updateMetrics(result);
+    updateCharts(result);
+    updateRunDetails(result);
+    message.textContent = "Live simulation updated.";
+    message.className = "message success";
+  }
+  catch(error){
+    console.error(error);
+    message.textContent = error.message;
+    message.className = "message error";
+  }
+  finally{
+    $("run-button").disabled = false;
+  }
+}
+
+/* ==========================================
+   METRICS
+========================================== */
+function updateMetrics(result){
+  $("rise-time").textContent = result.rise_time === null ? "—" : formatNumber(result.rise_time, 3) + " s";
+  $("overshoot").textContent = formatNumber(result.overshoot_percent, 2) + "%";
+  $("settling-time").textContent = result.settling_time === null ? "—" : formatNumber(result.settling_time, 3) + " s";
+  $("steady-error").textContent = formatNumber(result.steady_state_error_percent, 3) + "%";
+}
+
+/* ==========================================
+   CHARTS
+========================================== */
+function updateCharts(result){
+  const setpoint = numberValue("setpoint");
+  const uMin = numberValue("u-min");
+  const uMax = numberValue("u-max");
+
+  /* Response chart */
+  const setpointTrace = { x:result.time, y:result.time.map(() => setpoint), type:"scatter", mode:"lines", name:"Setpoint", line:{ dash:"dash", width:2 } };
+  const outputTrace = { x:result.time, y:result.output, type:"scatter", mode:"lines", name:"Output", line:{ width:3 } };
+
+  Plotly.react(
+    "response-chart",
+    [setpointTrace, outputTrace],
+    {
+      margin:{ l:55, r:20, t:25, b:50 },
+      paper_bgcolor:"#ffffff",
+      plot_bgcolor:"#ffffff",
+      xaxis:{ title:"Time (s)", gridcolor:"#edf1f4" },
+      yaxis:{ title:"Output", gridcolor:"#edf1f4" },
+      legend:{ orientation:"h", x:0, y:1.12 },
+      hovermode:"x unified"
+    },
+    { responsive:true, displaylogo:false }
+  );
+
+  const controlValues = result.control;
+  const actualControlMin = Math.min(...controlValues);
+  const actualControlMax = Math.max(...controlValues);
+  let visibleMin = Math.min(actualControlMin, 0);
+  let visibleMax = Math.max(actualControlMax, 0);
+  let controlSpan = visibleMax - visibleMin;
+  if(controlSpan < 1){ controlSpan = 1; }
+  const padding = controlSpan * 0.20;
+  visibleMin -= padding;
+  visibleMax += padding;
+
+  /*
+    If actuator saturation actually happens,
+    include the active limit in the visible range.
+  */
+  const hitUpperLimit = result.control.some(value => Math.abs(value - uMax) < 1e-9);
+  const hitLowerLimit = result.control.some(value => Math.abs(value - uMin) < 1e-9);
+  if(hitUpperLimit){ visibleMax = Math.max(visibleMax, uMax + padding); }
+  if(hitLowerLimit){ visibleMin = Math.min(visibleMin, uMin - padding); }
+
+  /* Control chart */
+  const controlTrace = { x:result.time, y:result.control, type:"scatter", mode:"lines", name:"u(t)", line:{ width:2.5 } };
+  const upperTrace = { x:result.time, y:result.time.map(() => uMax), type:"scatter", mode:"lines", name:"Upper limit", line:{ dash:"dot", width:1.5 } };
+  const lowerTrace = { x:result.time, y:result.time.map(() => uMin), type:"scatter", mode:"lines", name:"Lower limit", line:{ dash:"dot", width:1.5 } };
+
+  Plotly.react(
+    "control-chart",
+    [controlTrace, upperTrace, lowerTrace],
+    {
+      margin:{ l:55, r:20, t:25, b:50 },
+      paper_bgcolor:"#ffffff",
+      plot_bgcolor:"#ffffff",
+      xaxis:{ title:"Time (s)", gridcolor:"#edf1f4" },
+      yaxis:{ title:"Control u(t)", gridcolor:"#edf1f4", range:[visibleMin, visibleMax] },
+      legend:{ orientation:"h", x:0, y:1.12 },
+      hovermode:"x unified",
+      annotations:[{ x:1, y:1.08, xref:"paper", yref:"paper", xanchor:"right", showarrow:false, text:"Actuator limits: " + uMin + " to " + uMax, font:{ size:10 } }]
+    },
+    { responsive:true, displaylogo:false }
+  );
+}
+
+/* ==========================================
+   RUN DETAILS
+========================================== */
+function updateRunDetails(result){
+  $("final-output").textContent = formatNumber(result.final_output, 4);
+  $("final-error").textContent = formatNumber(result.final_error, 5);
+  const hadSaturation = result.saturated.some(value => value === true);
+  $("saturation-status").textContent = hadSaturation ? "Reached limit" : "No saturation";
+}
+
+/* ==========================================
+   VALIDATIONS
+========================================== */
+async function runValidations(){
+  try{
+    const validationJSON = await pyodide.runPythonAsync(`
+
+import json
+
+p_check = p_validation_check()
+pi_check = pi_validation_check()
+
+json.dumps({
+    "p": p_check,
+    "pi": pi_check
+})
+
+`);
+    const checks = JSON.parse(validationJSON);
+
+    /* P validation */
+    const pTau = checks.p.closed_loop_tau;
+    const pError = checks.p.simulated_error_percent;
+    $("validation-p-result").textContent = "τcl = " + formatNumber(pTau,3) + " s, error = " + formatNumber(pError,2) + "%";
+    const pPass = Math.abs(pTau - 0.1) <= 0.001 && Math.abs(pError - 10) <= 0.1;
+    setValidationStatus("validation-p-status", pPass);
+
+    /* PI validation */
+    const omegaN = checks.pi.omega_n;
+    const zeta = checks.pi.zeta;
+    $("validation-pi-result").textContent = "ωn = " + formatNumber(omegaN,3) + " rad/s, ζ = " + formatNumber(zeta,3);
+    const piPass = Math.abs(omegaN - 1) <= 0.001 && Math.abs(zeta - 1) <= 0.001;
+    setValidationStatus("validation-pi-status", piPass);
+
+    /* PI zero-error validation */
+    const piError = checks.pi.steady_state_error_percent;
+    $("validation-error-result").textContent = formatNumber(piError, 4) + "%";
+    const errorPass = piError < 0.1;
+    setValidationStatus("validation-error-status", errorPass);
+  }
+  catch(error){
+    console.error("Validation failed:", error);
+  }
+}
+
+function setValidationStatus(id, passed){
+  const element = $(id);
+  element.textContent = passed ? "Pass" : "Fail";
+  element.className = passed ? "tag" : "tag fail";
+}
+
+/* ==========================================
+   PREDICTION
+========================================== */
+document.querySelectorAll(".prediction-option").forEach(button => {
+  button.addEventListener("click", () => {
+    selectedPrediction = button.dataset.answer;
+    document.querySelectorAll(".prediction-option").forEach(item => { item.classList.remove("selected"); });
+    button.classList.add("selected");
+  });
+});
+
+$("save-prediction").addEventListener("click", () => {
+  if(!selectedPrediction){
+    $("prediction-message").textContent = "Choose an answer first.";
+    $("prediction-message").className = "message warning";
+    return;
+  }
+  if(!lastResult){
+    $("prediction-message").textContent = "Run the simulation first.";
+    return;
+  }
+  if(lastResult.rise_time === null){
+    $("prediction-message").textContent = "The current response does not reach 90% of the setpoint, so rise time cannot be measured.";
+    $("prediction-message").className = "message warning";
+    return;
+  }
+  savedPrediction = selectedPrediction;
+  savedPredictionRiseTime = lastResult.rise_time;
+  savedPredictionKp = numberValue("Kp");
+  savedPredictionKi = numberValue("Ki");
+  savedPredictionKd = numberValue("Kd");
+  savedPredictionK = numberValue("K");
+  savedPredictionTau = numberValue("tau");
+  savedPredictionSetpoint = numberValue("setpoint");
+  $("prediction-message").textContent = "Prediction saved at Kp = " + savedPredictionKp + ". Now increase Kp, then press Check."
+  $("prediction-message").className = "message success";
+});
+
+$("check-prediction").addEventListener("click", () => {
+  if(!savedPrediction || savedPredictionRiseTime === null || savedPredictionKp === null || !lastResult || lastResult.rise_time === null){
+    $("prediction-message").textContent = "Save a prediction first, then increase Kp.";
+    $("prediction-message").className = "message warning";
+    return;
+  }
+
+  const currentKp = numberValue("Kp");
+  const currentKi = numberValue("Ki");
+  const currentKd = numberValue("Kd");
+  const currentK = numberValue("K");
+  const currentTau = numberValue("tau");
+  const currentSetpoint = numberValue("setpoint");
+
+  /*
+    The exercise specifically asks what happens
+    when Kp INCREASES.
+  */
+  if(currentKp <= savedPredictionKp){
+    $("prediction-message").textContent = "Kp has not increased yet. Saved Kp = " + savedPredictionKp + ", current Kp = " + currentKp + ".";
+    $("prediction-message").className = "message warning";
+    return;
+  }
+  const otherParametersChanged = currentKi !== savedPredictionKi || currentKd !== savedPredictionKd || currentK !== savedPredictionK || currentTau !== savedPredictionTau || currentSetpoint !== savedPredictionSetpoint;
+  if(otherParametersChanged){
+    $("prediction-message").textContent = "Keep K, τ, Ki, Kd and the setpoint unchanged. Only increase Kp before pressing Check.";
+    $("prediction-message").className = "message warning";
+    return;
+  }
+
+  const newRise = lastResult.rise_time;
+  let actual;
+  const tolerance = 0.001;
+  if(newRise < savedPredictionRiseTime - tolerance){ actual = "decrease"; }
+  else if(newRise > savedPredictionRiseTime + tolerance){ actual = "increase"; }
+  else{ actual = "same"; }
+
+  const correct = savedPrediction === actual;
+  const resultText = actual === "decrease" ? "decreased" : actual === "increase" ? "increased" : "stayed approximately the same";
+
+  $("prediction-message").textContent = correct
+    ? "Correct. Kp increased from " + savedPredictionKp + " to " + currentKp + ", and the measured rise time " + resultText + "."
+    : "Not this time. Kp increased from " + savedPredictionKp + " to " + currentKp + ", and the measured rise time " + resultText + ".";
+  $("prediction-message").className = correct ? "message success" : "message warning";
+});
+
+/* ==========================================
+   RESET
+========================================== */
+function resetValues(){
+  const defaults = { K:1, tau:1, Kp:2, Ki:1, Kd:0.5, setpoint:1, "u-min":-100, "u-max":100 };
+  Object.entries(defaults).forEach(([id,value]) => { $(id).value = value; });
+
+  $("K-range").value = 1;
+  $("tau-range").value = 1;
+  $("Kp-range").value = 2;
+  $("Ki-range").value = 1;
+  $("Kd-range").value = 0.5;
+  $("setpoint-range").value = 1;
+
+  selectedPrediction = null;
+  savedPrediction = null;
+  savedPredictionRiseTime = null;
+  savedPredictionKp = null;
+  savedPredictionKi = null;
+  savedPredictionKd = null;
+  savedPredictionK = null;
+  savedPredictionTau = null;
+  savedPredictionSetpoint = null;
+
+  document.querySelectorAll(".prediction-option").forEach(item => item.classList.remove("selected"));
+  $("prediction-message").textContent = "Choose your prediction before changing Kp.";
+  $("prediction-message").className = "message";
+  runSimulation();
+}
+
+/* ==========================================
+   EVENTS
+========================================== */
+syncPair("K-range", "K");
+syncPair("tau-range", "tau");
+syncPair("Kp-range", "Kp");
+syncPair("Ki-range", "Ki");
+syncPair("Kd-range", "Kd");
+syncPair("setpoint-range", "setpoint");
+$("u-min").addEventListener("input", scheduleSimulation);
+$("u-max").addEventListener("input", scheduleSimulation);
+$("run-button").addEventListener("click", runSimulation);
+$("reset-button").addEventListener("click", resetValues);
+
+/* ==========================================
+   START
+========================================== */
+initializePython();
+</script>
+</body>
+</html>
