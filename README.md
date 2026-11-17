@@ -19,6 +19,34 @@ All four modules are implemented, linked from the home page and published on Git
 
 Open the live toolkit, choose a module and wait for **Python ready**. Calculations run in your browser; no hardware, installation or account is required. An internet connection is needed to load the Python and plotting libraries.
 
+## Control Toolkit
+
+The same GitHub Pages site now also includes a separate **Control** area for controller-focused experiments. Control pages are kept separate from the four sensor-dynamics modules so the site can grow without tying its structure to a specific homework number.
+
+### P1: PID Playground
+
+**Owner:** Waad Melhem ([@WaadMelhem05](https://github.com/WaadMelhem05)) · **Tracking:** [#5](../../issues/5)
+
+**[Open P1 · PID Playground](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/pid-playground.html)**
+
+P1 implements a browser-based PID controller around the first-order plant
+
+```text
+tau * dy/dt + y = K * u
+```
+
+with live controls for **K, tau, Kp, Ki, Kd, setpoint and actuator limits**. The page shows the closed-loop block diagram, output versus setpoint, the actuator-limited control signal, rise time, overshoot, settling time and estimated steady-state error.
+
+The implementation uses Euler integration in `python/pid_control.py`, browser execution through Pyodide, actuator saturation, anti-windup, derivative-on-measurement with a low-pass derivative filter, live updates, Reset, and a **Predict, then check** interaction for increasing Kp.
+
+Validation includes the fixed P-only check `K=1, tau=1, Kp=9` with closed-loop time constant about **0.1 s** and steady-state error about **10%**, and the PI check `K=1, tau=1, Kp=1, Ki=1` with `omega_n=1 rad/s`, `zeta=1`, and near-zero step steady-state error. Saturation behavior was also checked with tighter actuator limits.
+
+Files:
+- `pid-playground.html`
+- `python/pid_control.py`
+
+The home page exposes this page under **Control → P1 · PID Playground**.
+
 Implementation and browser checks are separate from instructor acceptance and final submission. The remaining delivery checks are listed below.
 
 ## Module 1: using the time-response experiment
