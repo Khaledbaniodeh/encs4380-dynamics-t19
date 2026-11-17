@@ -89,6 +89,13 @@ a.mrow:hover{color:var(--cyan)}
 .to-guide{display:inline-flex;align-items:center;gap:10px;min-height:44px;margin-top:clamp(28px,4vh,40px);border-bottom:1px solid var(--line);font:600 12px/1 var(--body);letter-spacing:.14em;text-transform:uppercase;text-decoration:none}
 .to-guide svg{transform:rotate(90deg)}
 
+/* Homework 2 entry */
+.hw2-home{position:relative;z-index:1;background:var(--paper);color:var(--text);padding:0 var(--g) clamp(72px,10vh,120px)}
+.hw2-card{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:28px;padding:28px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.hw2-card h3{margin:6px 0 8px;font:500 clamp(24px,2.4vw,34px)/1.2 var(--body);letter-spacing:-.02em}
+.hw2-card p{margin:0;max-width:54em;color:var(--muted);font-size:15px;line-height:1.6}
+@media(max-width:700px){.hw2-card{grid-template-columns:1fr}.hw2-card .cta{justify-self:stretch;justify-content:space-between}}
+
 /* Module flight */
 .tunnel{position:relative;background:var(--paper)}
 .stage{position:relative;overflow:hidden;color:var(--light);padding:clamp(96px,14vh,140px) var(--g) clamp(64px,10vh,110px);background:radial-gradient(90% 60% at 52% 0%,#1a2130,transparent 70%),linear-gradient(#0a0d13,var(--ink) 55%,#0b1214)}
@@ -260,6 +267,7 @@ a.irow:hover{padding-left:12px}
    <li><a class="mrow" href="module-2.html"><b>02</b>First-order frequency response</a></li>
    <li><a class="mrow" href="module-3.html"><b>03</b>Second-order response</a></li>
    <li><span class="mrow is-soon" data-m4><b>04</b>Guess the sensor<em class="soon" data-m4-status="New">Coming soon</em></span></li>
+   <li><a class="mrow" href="pid-playground.html"><b>H2</b>P1 · PID Playground</a></li>
   </ul>
   <a href="#about">About</a>
  </nav>
@@ -300,6 +308,19 @@ a.irow:hover{padding-left:12px}
   <div>
    <p class="lead">Every sensor needs time to catch up with the world it measures. Dynamics Lab lets you change an input and watch the response unfold, using the first- and second-order models from ENCS4380.</p>
    <a class="to-guide" href="#learn">New to sensors? Read the short guide<svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></a>
+  </div>
+ </div>
+</section>
+
+<section class="hw2-home" id="homework-2" data-tone="light" aria-labelledby="hw2-title">
+ <div class="wrap">
+  <p class="label">Homework 2 · Control</p>
+  <div class="hw2-card">
+   <div>
+    <h3 id="hw2-title">P1 · PID Playground</h3>
+    <p>Experiment with proportional, integral and derivative control around a first-order plant. Change the gains, compare the response with the setpoint and inspect the actuator-limited control signal.</p>
+   </div>
+   <a class="cta dark" href="pid-playground.html">Open P1<span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></a>
   </div>
  </div>
 </section>
