@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>PID Playground · Dynamics Lab</title>
-<meta name="description" content="Interactive PID Playground for ENCS4380 Homework 2 · Team T19.">
+<meta name="description" content="Interactive PID Playground for ENCS4380 · Team T19.">
 <meta name="theme-color" content="#14243a">
 <!-- Plotly - same version used by Homework 1 -->
 <script src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script>
@@ -42,6 +42,11 @@ h1{margin:0 0 10px;font-size:clamp(28px,3.2vw,40px);line-height:1.15;letter-spac
 .pill{display:inline-block;border-radius:100px;padding:7px 11px;background:#e4f2ee;color:#0d6f60;font-size:11px;font-weight:650;}
 .pill.waiting{background:#eef1f5;color:#677485;}
 .pill.error{background:#fff0ec;color:#af4027;}
+.section-nav{display:flex;gap:26px;align-items:center;overflow-x:auto;margin:6px 0 26px;padding:0 0 13px;border-bottom:1px solid var(--line);scrollbar-width:thin;}
+.section-nav a{flex:none;color:var(--muted);font-size:12px;padding:8px 0;text-decoration:none;border-bottom:2px solid transparent;}
+.section-nav a:hover,.section-nav a:focus-visible{color:var(--ink);text-decoration:none;}
+.section-nav a:first-child{color:var(--ink);font-weight:700;border-bottom-color:var(--teal);}
+.section-anchor{scroll-margin-top:18px;}
 /* PANELS */
 .panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);min-width:0;box-shadow:0 2px 3px rgba(20,36,58,.02);}
 .workspace{display:grid;grid-template-columns:320px minmax(0,1fr);gap:22px;align-items:start;}
@@ -139,12 +144,12 @@ footer{margin-top:28px;padding-top:17px;border-top:1px solid var(--line);color:#
       <div class="brand-mark">C</div>
       <div><a href="index.html">Dynamics Lab</a><small>ENCS4380 · Team T19</small></div>
     </div>
-    <div class="topbar-meta">Homework 2 <b>P1 · PID Playground</b></div>
+    <div class="topbar-meta">Control Toolkit <b>P1 · PID Playground</b></div>
   </div>
 </header>
 <main>
-  <div class="breadcrumb"><a href="index.html">Home</a><span>›</span><span>Control</span><span>›</span><strong>PID Playground</strong></div>
-  <p class="eyebrow">Homework 2 · Control</p>
+  <div class="breadcrumb"><a href="index.html">← All controls</a><span>/</span><span>P1 · PID Playground</span></div>
+  <p class="eyebrow">ENCS4380 / CONTROL P1</p>
   <h1>PID Playground</h1>
   <p class="intro">Experiment with a PID controller around a first-order plant. Change the plant parameters, controller gains and setpoint, then compare the output with the target and observe how the control signal changes.</p>
   <div class="status-row">
@@ -152,11 +157,18 @@ footer{margin-top:28px;padding-top:17px;border-top:1px solid var(--line);color:#
     <span class="pill">Euler simulation</span>
     <span class="pill">Anti-windup enabled</span>
   </div>
-  <div class="workspace">
+  <nav class="section-nav" aria-label="PID Playground sections">
+    <a href="#experiment">Experiment</a>
+    <a href="#block-diagram">Block Diagram</a>
+    <a href="#response">Response</a>
+    <a href="#prediction">Prediction</a>
+    <a href="#validation">Validation</a>
+  </nav>
+  <div class="workspace section-anchor" id="experiment">
     <!-- CONTROLS -->
     <aside class="panel controls">
       <h2>Parameters</h2>
-      <p class="desc">Start with the first-order plant from Homework 1. Change one parameter at a time to see its effect.</p>
+      <p class="desc">Start with the first-order plant model. Change one parameter at a time to see its effect.</p>
       <!-- Plant type -->
       <div class="field">
         <label for="plant-type">Plant type</label>
@@ -210,7 +222,7 @@ footer{margin-top:28px;padding-top:17px;border-top:1px solid var(--line);color:#
         <article class="panel metric"><span class="metric-label">Steady-state error</span><strong id="steady-error" class="metric-value">—</strong><small>estimated at end of simulation</small></article>
       </div>
       <!-- Block diagram -->
-      <article class="panel diagram-panel">
+      <article class="panel diagram-panel section-anchor" id="block-diagram">
         <h2>Closed-loop block diagram</h2>
         <p>The output is measured and fed back to calculate the next error.</p>
         <div class="block-diagram">
@@ -227,7 +239,7 @@ footer{margin-top:28px;padding-top:17px;border-top:1px solid var(--line);color:#
         </div>
       </article>
       <!-- Output chart -->
-      <article class="panel chart-panel">
+      <article class="panel chart-panel section-anchor" id="response">
         <header><div><h2>Output vs setpoint</h2><p>The target is shown with the simulated plant output.</p></div></header>
         <div id="response-chart" class="chart"></div>
       </article>
@@ -248,7 +260,7 @@ footer{margin-top:28px;padding-top:17px;border-top:1px solid var(--line);color:#
     </section>
   </div>
   <!-- PREDICT THEN CHECK -->
-  <section class="section">
+  <section class="section section-anchor" id="prediction">
     <div class="section-heading"><h2>Predict, then check</h2><p>Keep Ki and Kd fixed. What do you expect when Kp increases?</p></div>
     <article class="panel prediction">
       <strong>Increasing Kp will usually make the rise time:</strong>
@@ -262,8 +274,8 @@ footer{margin-top:28px;padding-top:17px;border-top:1px solid var(--line);color:#
     </article>
   </section>
   <!-- VALIDATION -->
-  <section class="section">
-    <div class="section-heading"><h2>Homework validation checks</h2><p>Fixed checks from the Homework 2 brief.</p></div>
+  <section class="section section-anchor" id="validation">
+    <div class="section-heading"><h2>Validation checks</h2><p>Fixed checks for the PID control requirements.</p></div>
     <article class="panel validation">
       <div class="table-wrap">
         <table>
@@ -277,7 +289,7 @@ footer{margin-top:28px;padding-top:17px;border-top:1px solid var(--line);color:#
       </div>
     </article>
   </section>
-  <footer><span>ENCS4380 Interfacing Techniques · Team T19</span><span>Homework 2 · PID Control Toolkit</span></footer>
+  <footer><span>ENCS4380 Interfacing Techniques · Team T19</span><span>PID Control Toolkit</span></footer>
 </main>
 <script>
 /* ==========================================
@@ -364,7 +376,7 @@ async function initializePython(){
     message.textContent = "Ready. Change any parameter to update the simulation live.";
     message.className = "message success";
     $("run-button").disabled = false;
-    /* Run the official homework checks and then render the default example. */
+    /* Run the fixed validation checks and then render the default example. */
     await runValidations();
     await runSimulation();
   }
