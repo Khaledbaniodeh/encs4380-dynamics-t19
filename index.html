@@ -36,6 +36,7 @@ a{color:inherit}svg,canvas{display:block}
 .nav-btn[aria-expanded=true] svg{transform:rotate(180deg)}
 .menu{position:absolute;top:64px;right:var(--g);width:min(380px,calc(100vw - 32px));margin:0;padding:4px 22px;list-style:none;background:rgba(12,15,21,.95);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);color:var(--light);border-radius:3px;box-shadow:0 24px 60px rgba(0,0,0,.35);animation:drop .35s var(--ease)}
 .menu[hidden]{display:none}
+.control-wrap{position:relative}.control-menu{right:0;width:min(320px,calc(100vw - 32px))}
 .mrow{display:flex;align-items:baseline;gap:16px;padding:17px 0;border-bottom:1px solid rgba(255,255,255,.09);font-size:15px;line-height:1.3;text-decoration:none}
 .menu li:last-child .mrow{border-bottom:0}
 .mrow b{min-width:22px;font:600 11px/1 var(--body);letter-spacing:.1em;color:var(--dim)}
@@ -268,7 +269,12 @@ a.irow:hover{padding-left:12px}
    <li><a class="mrow" href="module-3.html"><b>03</b>Second-order response</a></li>
    <li><span class="mrow is-soon" data-m4><b>04</b>Guess the sensor<em class="soon" data-m4-status="New">Coming soon</em></span></li>
   </ul>
-  <a href="#control">Control</a>
+  <div class="control-wrap">
+   <button class="nav-btn" id="control-btn" type="button" aria-expanded="false" aria-controls="control-menu">Control<svg viewBox="0 0 12 12" aria-hidden="true"><path d="m2.5 4.5 3.5 3.5 3.5-3.5"/></svg></button>
+   <ul class="menu control-menu" id="control-menu" hidden>
+    <li><a class="mrow" href="pid-playground.html"><b>P1</b>PID Playground</a></li>
+   </ul>
+  </div>
   <a href="#about">About</a>
  </nav>
 </header>
@@ -308,19 +314,6 @@ a.irow:hover{padding-left:12px}
   <div>
    <p class="lead">Every sensor needs time to catch up with the world it measures. Dynamics Lab lets you change an input and watch the response unfold, using the first- and second-order models from ENCS4380.</p>
    <a class="to-guide" href="#learn">New to sensors? Read the short guide<svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></a>
-  </div>
- </div>
-</section>
-
-<section class="hw2-home" id="control" data-tone="light" aria-labelledby="hw2-title">
- <div class="wrap">
-  <p class="label">Control Toolkit</p>
-  <div class="hw2-card">
-   <div>
-    <h3 id="hw2-title">P1 · PID Playground</h3>
-    <p>Experiment with proportional, integral and derivative control around a first-order plant. Change the gains, compare the response with the setpoint and inspect the actuator-limited control signal.</p>
-   </div>
-   <a class="cta dark" href="pid-playground.html">Open P1<span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></a>
   </div>
  </div>
 </section>
@@ -529,6 +522,15 @@ menu.addEventListener("click", function (e) { if (e.target.closest("a")) setMenu
 menu.addEventListener("focusout", function (e) { if (e.relatedTarget && !menu.contains(e.relatedTarget) && e.relatedTarget !== btn) setMenu(false); });
 document.addEventListener("click", function (e) { if (!menu.hidden && !menu.contains(e.target) && !btn.contains(e.target)) setMenu(false); });
 document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !menu.hidden) { setMenu(false); btn.focus(); } });
+
+/* Control menu */
+var controlBtn = $("#control-btn"), controlMenu = $("#control-menu");
+function setControlMenu(open) { controlBtn.setAttribute("aria-expanded", String(open)); controlMenu.hidden = !open; }
+controlBtn.addEventListener("click", function () { setControlMenu(controlMenu.hidden); });
+controlMenu.addEventListener("click", function (e) { if (e.target.closest("a")) setControlMenu(false); });
+controlMenu.addEventListener("focusout", function (e) { if (e.relatedTarget && !controlMenu.contains(e.relatedTarget) && e.relatedTarget !== controlBtn) setControlMenu(false); });
+document.addEventListener("click", function (e) { if (!controlMenu.hidden && !controlMenu.contains(e.target) && !controlBtn.contains(e.target)) setControlMenu(false); });
+document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !controlMenu.hidden) { setControlMenu(false); controlBtn.focus(); } });
 
 /* Elements */
 var hdr = $("#hdr"), hero = $("#top"), heroIn = $(".hero-in"), bars = $$(".wipe i"), toned = $$("main [data-tone], .foot");
