@@ -26,6 +26,7 @@ The same GitHub Pages site now includes a separate **Control** area for controll
 | Part | Experiment | Owner | Tracking |
 | --- | --- | --- | --- |
 | [P1](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/pid-playground.html) | PID Playground: first-order plant, live PID tuning, actuator limits and response metrics | Waad Melhem ([@WaadMelhem05](https://github.com/WaadMelhem05)) | [#5](../../issues/5) |
+| [P2](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/slow-sensor.html) | A slow sensor in the loop: true output versus measured feedback | Khaled Bani Oudeh ([@Khaledbaniodeh](https://github.com/Khaledbaniodeh)) | [#6](../../issues/6) |
 
 Each Control part should be added to this table when its implementation, tracking issue and live page are ready.
 
@@ -105,6 +106,49 @@ The tested cases include:
 - `python/pid_control.py`
 
 Implementation and browser checks are separate from instructor acceptance and final submission. The remaining delivery checks are listed below.
+
+## P2: A slow sensor in the loop
+
+**[Open P2](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/slow-sensor.html)**, or choose **Control → P2** on the home page. Owner: Khaled Bani Oudeh; [tracking issue #6](../../issues/6).
+
+P2 adds a first-order sensor **inside** the feedback loop. The PID controller uses the sensor reading `ym`, while the chart shows both the true plant output `y` (blue) and the measured output (orange).
+
+```text
+Plant:  tau * dy/dt + y = K * u
+Sensor: tau_s * dym/dt + ym = y
+Error:  e = r - ym
+u_raw = Kp*e + Ki*integral(e) - Kd*dym/dt
+u = clip(u_raw, u_min, u_max)
+```
+
+All states start at zero. Our own Python RK4 loop advances the plant, sensor and integral states. Saturation uses conditional integration: freeze the integral only when it would push further into a limit. With `tau_s=0`, the measurement equals the true output; the code resolves the ideal-feedback derivative algebraically. As in P1, D acts on the measurement. Unlike P1's filtered finite difference, P2 obtains that derivative directly from its deterministic, noise-free sensor model. Commands and outputs use model units, not a calibrated motor/PWM model.
+
+### Try P2
+
+1. Wait for **Python ready**. Start with **Fast sensor** (`tau_s=0.05 s`).
+2. Choose **Slow sensor** (`1 s`) and then **Oscillating loop** (`3 s`). These buttons keep the same plant `K=tau=1`, PI gains `Kp=2, Ki=4, Kd=0`, setpoint 1, command limits ±100 and 30-second window.
+3. Compare the blue true output and orange reading. The examples give approximately **9.93%, 127.38% and 285.13%** true-output overshoot respectively. This demonstrates the effect for these gains; increasing lag does not universally increase overshoot for every controller.
+4. Move the same-instant inspector to read `y`, `ym` and their signed gap. This gap differs from the controller error `r-ym` and the true tracking error `r-y`.
+5. Optionally overlay the output with ideal feedback, or expand the control-command chart. Advanced settings include plant parameters, signed/zero setpoint, duration and command limits.
+6. For **Predict, then check**, save a prediction at the fast setting, then increase **only** the sensor time constant. Other parameter changes invalidate the comparison. Differences within 0.5 percentage points count as similar. Overshoot is N/A for a zero setpoint.
+
+The motion label describes the displayed time window; it is not a mathematical stability certificate. Overshoot is measured over all internal RK4 steps, rather than only the retained plotting points. The internal solver step is separate from P3's digital-controller sampling time.
+
+### P2 verification — 19 November 2026
+
+Thirteen P2 numerical tests cover independent P-only and PI closed forms, the coupled plant/sensor closed form, fourth-order convergence, lag/oscillation, signed and zero setpoints, finite D responses, input validation, command limits and anti-windup. Five fixed homework reference checks are also displayed on the page with expected, computed and tolerance values. The checks use ideal feedback and do not change with the P2 sliders.
+
+```sh
+python -m unittest discover -s tests -p test_slow_sensor.py -v
+```
+
+Desktop browser checks cover runtime loading, presets, prediction, ideal-feedback overlay, command clipping and validation. Narrow layouts at 320/390 px were checked for page overflow and readable charts. **A physical-phone check remains pending** in issue #6. P1 and HW1 source files are unchanged by this addition; the home-page change is one P2 entry in the existing Control menu.
+
+The dedicated [P2 workflow](.github/workflows/p2-regression.yml) runs these tests. The repository-wide test run also exposes a **pre-existing** Module 4 integration-helper test failure: `test_build_changes_has_all_expected_files` expects 10 changes, while the helper on starting commit `9b68bda` returns 9. That unrelated test/helper is preserved; a passing P2 check does not mean the entire repository suite is green.
+
+![P2: true output and measured feedback with a slow sensor](docs/screenshots/p2-desktop.jpg)
+
+P2 files: `slow-sensor.html`, `js/slow_sensor.js`, `python/slow_sensor.py`, and `tests/test_slow_sensor.py`. ChatGPT assisted with implementation, explanations and automated/browser verification; the owner should review and understand each part before the discussion. These checks do not establish instructor acceptance or final submission.
 
 ## Module 1: using the time-response experiment
 
