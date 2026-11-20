@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Dynamics Lab — How sensors respond to change</title>
-<meta name="description" content="Dynamics Lab: interactive experiments on how sensors respond to changing inputs. An ENCS4380 project by Team T19, Birzeit University.">
+<title>Dynamics Lab — Sensor dynamics and PID control</title>
+<meta name="description" content="Dynamics Lab: interactive experiments on how sensors respond to changing inputs, and how PID feedback makes a system faster and more accurate. An ENCS4380 project by Team T19, Birzeit University.">
 <meta name="theme-color" content="#06080b">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,7 +36,6 @@ a{color:inherit}svg,canvas{display:block}
 .nav-btn[aria-expanded=true] svg{transform:rotate(180deg)}
 .menu{position:absolute;top:64px;right:var(--g);width:min(380px,calc(100vw - 32px));margin:0;padding:4px 22px;list-style:none;background:rgba(12,15,21,.95);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);color:var(--light);border-radius:3px;box-shadow:0 24px 60px rgba(0,0,0,.35);animation:drop .35s var(--ease)}
 .menu[hidden]{display:none}
-.control-wrap{position:relative}.control-menu{right:0;width:min(320px,calc(100vw - 32px))}
 .mrow{display:flex;align-items:baseline;gap:16px;padding:17px 0;border-bottom:1px solid rgba(255,255,255,.09);font-size:15px;line-height:1.3;text-decoration:none}
 .menu li:last-child .mrow{border-bottom:0}
 .mrow b{min-width:22px;font:600 11px/1 var(--body);letter-spacing:.1em;color:var(--dim)}
@@ -89,13 +88,6 @@ a.mrow:hover{color:var(--cyan)}
 .lead{margin:0;max-width:25em;font:500 clamp(24px,2.6vw,40px)/1.2 var(--body);letter-spacing:-.022em}
 .to-guide{display:inline-flex;align-items:center;gap:10px;min-height:44px;margin-top:clamp(28px,4vh,40px);border-bottom:1px solid var(--line);font:600 12px/1 var(--body);letter-spacing:.14em;text-transform:uppercase;text-decoration:none}
 .to-guide svg{transform:rotate(90deg)}
-
-/* Homework 2 entry */
-.hw2-home{position:relative;z-index:1;background:var(--paper);color:var(--text);padding:0 var(--g) clamp(72px,10vh,120px)}
-.hw2-card{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:28px;padding:28px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.hw2-card h3{margin:6px 0 8px;font:500 clamp(24px,2.4vw,34px)/1.2 var(--body);letter-spacing:-.02em}
-.hw2-card p{margin:0;max-width:54em;color:var(--muted);font-size:15px;line-height:1.6}
-@media(max-width:700px){.hw2-card{grid-template-columns:1fr}.hw2-card .cta{justify-self:stretch;justify-content:space-between}}
 
 /* Module flight */
 .tunnel{position:relative;background:var(--paper)}
@@ -252,6 +244,288 @@ a.irow:hover{padding-left:12px}
 @media (max-width:560px){.nav>a,.brand small,.k2{display:none}.display{font-size:17.5vw}.hero-in{padding-bottom:210px}}
 @media (max-height:700px){.cap-d{display:none}}
 @media (max-aspect-ratio:4/5){.hero-art{transform:translateX(26vh)}}
+
+/* ── Homework 2 additions ──────────────────────────────────────
+   New, scoped classes only. The rules above are unchanged; where an
+   existing component needed a variant, a modifier class is added here. */
+:root{--mint:#7fe9bd;--mint-ink:#1b6e51;--ochre:#f2c260;--ochre-ink:#7d5a0e;--p1-ink:#9a5414}
+
+/* Header: room for Control and My system */
+@media (max-width:1100px){.nav .nav-sys{display:none}}
+@media (max-width:900px){.nav .home-phone-open span{display:none}}
+@media (max-width:700px){.nav .nav-about{display:none}}
+
+/* Grouped modules menu */
+.menu.menu-groups{display:grid;grid-template-columns:1fr 1fr;column-gap:36px;width:min(680px,calc(100vw - 32px));padding:6px 24px 12px;max-height:calc(100vh - 84px);max-height:calc(100dvh - 84px);overflow-y:auto;overscroll-behavior:contain}
+.menu.menu-groups[hidden]{display:none}
+.mgroup{margin:0 0 6px;padding:0;list-style:none}
+.mhead{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;margin-top:8px;border-bottom:1px solid rgba(255,255,255,.2);color:var(--dim);font:600 10px/1.3 var(--body);letter-spacing:.16em;text-transform:uppercase;text-decoration:none}
+.mhead .arrow{width:12px;height:12px;transform:rotate(90deg)}
+a.mhead:hover{color:var(--light)}
+.menu-groups .mrow{padding:14px 0}
+.menu-groups .mrow b{min-width:26px}
+@media (max-width:640px){.menu.menu-groups{grid-template-columns:1fr}}
+
+/* Hero: scene strip, pause control and the scene-1 fade */
+/* The hero must never scroll internally (its wipe slabs overflow on purpose). Now that it
+   holds focusable controls, clip instead of hiding so focus can't shift it. */
+@supports (overflow:clip){.hero{overflow:clip}}
+.scn{position:absolute;z-index:3;right:var(--g);bottom:calc(clamp(22px,4vh,40px) + 62px);display:none;grid-template-columns:auto auto auto;grid-template-areas:"now ticks pause";justify-content:end;align-items:center;gap:0 10px;color:var(--dim);text-align:right;--scn:#9fdcff}
+.fx .scn{display:grid}
+.motion .scn{animation:fade 1.2s .9s var(--ease) both}
+.scn-now{grid-area:now;margin:0;color:#c9ced6;font:600 10px/1.4 var(--body);letter-spacing:.16em;text-transform:uppercase}
+.scn-now b{margin-right:10px;font-weight:600;color:var(--scn);transition:color 1.2s var(--ease)}
+.scn-ticks{grid-area:ticks;display:flex}
+.scn-ticks button{position:relative;width:28px;height:32px;padding:0;border:0;background:none;cursor:pointer}
+.scn-ticks i{position:absolute;left:5px;right:5px;top:15px;height:2px;overflow:hidden;border-radius:1px;background:rgba(255,255,255,.22)}
+.scn-ticks i::after{content:"";position:absolute;inset:0;background:var(--scn);transform:scaleX(var(--p,0));transform-origin:left}
+.scn-ticks button[aria-current=true] i{background:rgba(255,255,255,.42)}
+.scn-ticks button:hover i{background:rgba(255,255,255,.6)}
+.scn-pause{grid-area:pause;display:inline-flex;align-items:center;gap:8px;min-height:32px;margin-left:2px;padding:0 13px;border:1px solid rgba(255,255,255,.24);border-radius:16px;background:rgba(6,8,11,.4);color:#dfe3e8;font:600 10px/1 var(--body);letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:border-color .3s var(--ease)}
+.scn-pause:hover{border-color:rgba(255,255,255,.55)}
+.scn-pause svg{width:9px;height:10px;fill:currentColor}
+.scn-pause .i-play,.paused .scn-pause .i-pause{display:none}
+.paused .scn-pause .i-play{display:block}
+html:not(.motion) .scn-pause{display:none}
+.paused .cue i{animation-play-state:paused}
+@media (max-width:820px){
+ .scn{top:74px;bottom:auto;left:var(--g);right:var(--g);width:auto;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"ticks now pause";justify-content:stretch;gap:0 8px;text-align:left}
+ .scn-ticks button{width:24px;height:40px}.scn-ticks i{left:4px;right:4px;top:19px}
+ .scn-now{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.scn-now b{margin-right:8px}
+ .scn-pause{justify-content:center;width:40px;min-height:40px;margin:0;padding:0;border-radius:50%}
+ .scn-pause span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+}
+
+/* Intro: the three-part learning path */
+.path{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:clamp(56px,9vh,96px) 0 0;padding:0;list-style:none;border-top:1px solid var(--line)}
+.path li{border-left:1px solid var(--line)}
+.path li:first-child{border-left:0}
+.path a{display:flex;flex-direction:column;gap:12px;height:100%;padding:26px clamp(18px,2.4vw,34px) 30px;text-decoration:none;transition:background .35s var(--ease)}
+.path li:first-child a{padding-left:0}
+.path a:hover{background:rgba(21,23,27,.035)}
+.path-k{font:600 11px/1.3 var(--body);letter-spacing:.16em;text-transform:uppercase;color:var(--pc)}
+.path-t{font:700 clamp(36px,3.8vw,60px)/.92 var(--display);text-transform:uppercase}
+.path-q{max-width:22em;color:var(--muted);font-size:15px;line-height:1.55}
+.path-c{display:inline-flex;align-items:center;gap:10px;margin-top:auto;padding-top:6px;font:600 11px/1.3 var(--body);letter-spacing:.14em;text-transform:uppercase}
+.path-c .arrow{transform:rotate(90deg);transition:transform .35s var(--ease)}
+.path a:hover .path-c .arrow{transform:rotate(90deg) translateX(3px)}
+@media (max-width:820px){.path{grid-template-columns:1fr}.path li{border-left:0;border-top:1px solid var(--line)}.path li:first-child{border-top:0}.path a,.path li:first-child a{padding:24px 0}}
+
+/* Status chip shared by Part 2 and My system */
+.status{display:inline-flex;align-items:center;gap:9px;padding:7px 11px;border:1px solid rgba(21,23,27,.2);border-radius:2px;color:#4f545b;font:600 10px/1 var(--body);letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;margin:0}
+.status::before{content:"";width:6px;height:6px;border-radius:50%;background:#c58a2e}
+
+/* Part 2 · PID control — chapter opening */
+.ctl{position:relative;z-index:1;background:var(--paper);color:var(--text);padding:clamp(96px,14vh,160px) var(--g) clamp(84px,12vh,140px)}
+.ctl-top{display:flex;justify-content:space-between;gap:20px;padding-top:20px;border-top:1px solid var(--line)}
+.ctl-top .label{color:var(--mint-ink)}
+.ctl-meta{margin:0;color:var(--muted);font:500 11px/1.4 var(--body);letter-spacing:.12em;text-transform:uppercase}
+.ctl-head{display:grid;grid-template-columns:1.05fr 1fr;gap:clamp(28px,5vw,72px);align-items:end;margin:clamp(40px,7vh,64px) 0 0}
+.ctl-kicker{margin:0 0 18px;color:var(--mint-ink);font:600 11px/1.4 var(--body);letter-spacing:.16em;text-transform:uppercase}
+.ctl-title{margin:0;font:700 clamp(64px,8vw,128px)/.92 var(--display);letter-spacing:-.015em;text-transform:uppercase}
+.ctl-title span{display:block;color:#3f7d66}
+.ctl-lead p{margin:0 0 14px;max-width:34em;color:#4c5157;font-size:clamp(17px,1.45vw,20px);line-height:1.65}
+.ctl-lead p:last-child{margin:0;color:var(--text)}
+@media (max-width:820px){.ctl-head{grid-template-columns:1fr;gap:26px}}
+@media (max-width:560px){.ctl-meta{display:none}.ctl-title{font-size:clamp(56px,15vw,78px)}}
+
+/* Part 2 · the experiment viewer. One dark instrument on the paper page:
+   selectors and Previous / Next on top, the loop and an animated preview,
+   and the selected experiment's text and entry button beside it. On phones
+   the same pieces stack in the same order. */
+.wb-how{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin:clamp(40px,6vh,60px) 0 14px;color:var(--muted);font-size:15px;line-height:1.55}
+.wb-how b{color:var(--mint-ink);font:600 11px/1.4 var(--body);letter-spacing:.16em;text-transform:uppercase}
+.wb{position:relative;display:grid;grid-template-columns:minmax(0,1.32fr) minmax(0,1fr);grid-template-areas:"bar bar" "vis text" "foot foot";gap:18px clamp(22px,3vw,44px);padding:16px clamp(14px,2vw,26px) 12px;overflow:hidden;isolation:isolate;border-radius:4px;background:#091010;color:var(--light);box-shadow:0 50px 100px -50px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.07);--acc:127,233,189}
+.wb[data-sel=p2]{--acc:111,227,212}.wb[data-sel=p3]{--acc:195,240,124}.wb[data-sel=p4]{--acc:214,239,228}
+.wb-light{position:absolute;inset:0;z-index:-1;opacity:0;pointer-events:none;transition:opacity 1.1s var(--ease)}
+.wb-light.l1{background:radial-gradient(34% 30% at 20% 26%,rgba(127,233,189,.16),transparent 72%),radial-gradient(40% 50% at 82% 60%,rgba(127,233,189,.05),transparent 70%)}
+.wb-light.l2{background:radial-gradient(34% 30% at 32% 42%,rgba(111,227,212,.16),transparent 72%),radial-gradient(40% 50% at 82% 60%,rgba(111,227,212,.05),transparent 70%)}
+.wb-light.l3{background:radial-gradient(34% 30% at 30% 24%,rgba(195,240,124,.13),transparent 72%),radial-gradient(40% 50% at 82% 60%,rgba(195,240,124,.05),transparent 70%)}
+.wb-light.l4{background:radial-gradient(34% 30% at 44% 24%,rgba(214,239,228,.12),transparent 72%),radial-gradient(40% 50% at 82% 60%,rgba(214,239,228,.045),transparent 70%)}
+.wb[data-sel=p1] .l1,.wb[data-sel=p2] .l2,.wb[data-sel=p3] .l3,.wb[data-sel=p4] .l4{opacity:1}
+/* top bar: four selectors, then Previous · position · Next */
+.wb-bar{grid-area:bar;display:flex;align-items:stretch;gap:14px}
+.wb-tabs{flex:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.wb-tab{position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:6px;min-height:56px;margin:0;padding:10px 26px 10px 12px;border:1px solid rgba(255,255,255,.12);border-radius:3px;background:rgba(255,255,255,.025);color:#b9c6c1;text-align:left;cursor:pointer;transition:border-color .4s var(--ease),background-color .4s var(--ease),color .4s var(--ease)}
+.wb-tab b{font:600 11px/1 var(--body);letter-spacing:.14em;color:#8ea39b;transition:color .4s var(--ease)}
+.wb-tab span{font:500 14px/1.2 var(--body)}
+.wb-tab:hover{border-color:rgba(255,255,255,.3);color:#eef4f1}
+.wb-tab[aria-selected=true]{border-color:rgba(var(--c),.8);background:rgba(var(--c),.12);color:#fff}
+.wb-tab[aria-selected=true] b{color:rgb(var(--c))}
+.wb-tab[aria-selected=true]::after{content:"";position:absolute;left:12px;right:12px;bottom:-1px;height:2px;background:rgb(var(--c))}
+.wb i.live,.wb i.dev{display:inline-block;flex:none;width:7px;height:7px;border-radius:50%;background:#7fe9bd;vertical-align:1px}
+.wb i.dev{background:#e0a24f}
+.wb-tab i{position:absolute;top:11px;right:11px}
+.wb-nav{display:flex;align-items:center;gap:8px}
+.wb-arrow{display:grid;place-items:center;width:44px;height:44px;padding:0;border:1px solid rgba(255,255,255,.2);border-radius:50%;background:transparent;color:#e8f0ec;cursor:pointer;transition:border-color .3s var(--ease),opacity .3s var(--ease)}
+.wb-arrow:hover{border-color:rgba(var(--acc),.8)}
+.wb-prev .arrow{transform:rotate(180deg)}
+.wb-arrow[aria-disabled=true]{opacity:.3;cursor:default}
+.wb-arrow[aria-disabled=true]:hover{border-color:rgba(255,255,255,.2)}
+.wb-count{min-width:64px;margin:0;color:#9fb0a8;font:600 11px/1 var(--body);letter-spacing:.14em;text-align:center;text-transform:uppercase;white-space:nowrap}
+.wb-count b{color:rgb(var(--acc));font-weight:600;transition:color .4s var(--ease)}
+/* the visual: loop above, preview below */
+.wb-vis{grid-area:vis;display:flex;flex-direction:column;gap:14px;min-width:0}
+.wb-loop svg{display:block;width:100%;height:auto;max-height:28vh;overflow:visible}
+.wb-loop .wl-compact{display:none}
+@media (max-width:1180px){.wb-loop .wl-wide{display:none}.wb-loop .wl-compact{display:block}}
+.wl-f{fill:none;stroke:#7f9c91;stroke-width:1.4}
+.wl-r{fill:none;stroke:#62c79f;stroke-width:1.5}
+.wl-sum{fill:none;stroke:#7fe9bd;stroke-width:1.4}
+.wl-dot{fill:#7fe9bd}
+.wl-sym{fill:#b9cfc6;font:italic 17px/1 Georgia,serif}
+.wl-sub{fill:#a9bab3;font:400 13px/1 var(--body)}
+.wl-n rect{fill:rgba(255,255,255,.025);stroke:rgba(190,215,205,.32);stroke-width:1.2;transition:fill .5s var(--ease),stroke .5s var(--ease)}
+.wl-n{opacity:.62;transition:opacity .5s var(--ease),filter .5s var(--ease)}
+.wl-tag{fill:#a2b5ad;font:600 12px/1 var(--body);letter-spacing:.14em;transition:fill .5s var(--ease)}
+.wl-name{fill:#e4ece8;font:500 15px/1 var(--body)}
+.wl-compact .wl-tag{font-size:12px}.wl-compact .wl-name{font-size:15px}.wl-compact .wl-sub{font-size:14px}
+.wb[data-sel=p1] .wl-n.ctl,.wb[data-sel=p2] .wl-n.sns,.wb[data-sel=p3] .wl-n.smp,.wb[data-sel=p4] .wl-n.plt{opacity:1;filter:drop-shadow(0 0 12px rgba(var(--acc),.45))}
+.wb[data-sel=p1] .wl-n.ctl rect,.wb[data-sel=p2] .wl-n.sns rect,.wb[data-sel=p3] .wl-n.smp rect,.wb[data-sel=p4] .wl-n.plt rect{fill:rgba(var(--acc),.14);stroke:rgb(var(--acc))}
+.wb[data-sel=p1] .wl-n.ctl .wl-tag,.wb[data-sel=p2] .wl-n.sns .wl-tag,.wb[data-sel=p3] .wl-n.smp .wl-tag,.wb[data-sel=p4] .wl-n.plt .wl-tag{fill:rgb(var(--acc))}
+.wl-pf,.wl-pr{fill:none;stroke:#f2fff9;stroke-width:3;stroke-linecap:round;stroke-dasharray:2.5 97.5;opacity:0}
+.motion .wl-pf{opacity:.95;animation:wlrun 3.2s linear infinite}
+.motion .wl-pr{opacity:.8;animation:wlrun 3.2s linear -1.6s infinite}
+.motion .wb[data-sel=p2] .wl-pr{stroke-dasharray:9 91;animation-duration:5.6s;opacity:.6}
+.motion .wb[data-sel=p3] .wl-pf{animation-timing-function:steps(14,end)}
+.paused .wl-pf,.paused .wl-pr,.wb-idle .wl-pf,.wb-idle .wl-pr{animation-play-state:paused}
+@keyframes wlrun{from{stroke-dashoffset:0}to{stroke-dashoffset:-100}}
+.wb-scope{position:relative;display:flex;flex-direction:column;border:1px solid rgba(255,255,255,.08);border-radius:3px;background:rgba(0,0,0,.28)}
+.wb-scope-head{display:flex;justify-content:space-between;gap:12px;padding:10px 12px 0;font:600 11px/1.4 var(--body);letter-spacing:.16em;text-transform:uppercase}
+.wb-scope-k{color:#8ea39b}
+.wb-scope-t{color:rgb(var(--acc));text-align:right;transition:color .5s var(--ease)}
+.wb-cv{display:block;width:100%;height:clamp(240px,34vh,340px)}
+.wb-read{min-height:38px;padding:0 12px 10px}
+.wb-read>div{display:none;flex-wrap:wrap;align-items:center;gap:6px 8px}
+.wb[data-sel=p1] .wb-read>[data-for=p1],.wb[data-sel=p2] .wb-read>[data-for=p2],.wb[data-sel=p3] .wb-read>[data-for=p3],.wb[data-sel=p4] .wb-read>[data-for=p4]{display:flex}
+.wb-read span{padding:5px 9px;border:1px solid rgba(255,255,255,.14);border-radius:2px;color:#bccbc5;font:600 11px/1.2 var(--body);letter-spacing:.12em;text-transform:uppercase;transition:border-color .4s var(--ease),color .4s var(--ease),background-color .4s var(--ease)}
+.wb-read span.hot{border-color:rgba(var(--acc),.8);background:rgba(var(--acc),.12);color:#fff}
+.wb-read .wb-k{border:0;padding-left:0}
+.wb-read .wb-k::before{content:"";display:inline-block;width:18px;margin-right:8px;vertical-align:3px;border-top:2px solid #e8fff6}
+.wb-read .wb-k.dash::before{border-top:2px dashed rgba(232,255,246,.7)}
+.wb-read code{color:#e8f6d2;font:500 12.5px/1.5 ui-monospace,"SFMono-Regular",Consolas,monospace;overflow-wrap:anywhere}
+.wb-read [data-c]::before{content:"·";display:inline-block;width:12px;color:#8ea39b}
+.wb-read [data-c].pass{border-color:rgba(127,233,189,.7);color:#dfffee}
+.wb-read [data-c].pass::before{content:"✓";color:#7fe9bd}
+.wb-read [data-c].fail{border-color:rgba(224,162,79,.7);color:#ffe3bd}
+.wb-read [data-c].fail::before{content:"✕";color:#e0a24f}
+/* the text for the selected experiment, in the same viewer */
+.wb-panels{grid-area:text;display:flex;flex-direction:column;min-width:0;padding-left:clamp(0px,2vw,28px);border-left:1px solid rgba(255,255,255,.08)}
+.wb-panel{display:flex;flex-direction:column;height:100%;outline-offset:6px}
+.wb-js .wb-panel[hidden]{display:none}
+.wb-panel+.wb-panel{margin-top:34px}
+.wb-js .wb-panel+.wb-panel{margin-top:0}
+.motion .wb-panel.enter{animation:wbin .5s var(--ease) both}
+@keyframes wbin{from{opacity:0;transform:translate3d(0,10px,0)}}
+.wb-tag{display:flex;align-items:center;gap:10px;margin:4px 0 14px;color:#9fb0a8;font:600 11px/1.4 var(--body);letter-spacing:.14em;text-transform:uppercase}
+.wb-tag b{color:rgb(var(--acc))}
+.wb-tag i{margin-left:8px}
+.wb-panel h3{margin:0 0 12px;color:#f3f1ec;font:500 clamp(28px,2.5vw,38px)/1.12 var(--body);letter-spacing:-.025em}
+.wb-text{margin:0 0 18px;color:#d3dcd8;font-size:17px;line-height:1.62}
+.wb-spec{display:grid;gap:12px;margin:0 0 16px;padding:16px 0 0;border-top:1px solid rgba(255,255,255,.1)}
+.wb-spec div{display:grid;grid-template-columns:96px minmax(0,1fr);gap:14px}
+.wb-spec dt{color:#8ea39b;font:600 11px/1.6 var(--body);letter-spacing:.12em;text-transform:uppercase}
+.wb-spec dd{margin:0;color:#e3eae7;font-size:15px;line-height:1.6}
+.wb-note{margin:0 0 20px;color:#8ea39b;font-size:13px;line-height:1.55}
+.wb-act{margin-top:auto}
+.wb-go{align-self:flex-start}
+.wb-soon{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:0;color:#9fb0a8;font-size:14px}
+.wb .status{border-color:rgba(255,255,255,.24);color:#e3e7ea}
+.wb a.status{border-color:var(--light);background:var(--light);color:var(--ink);text-decoration:none}
+a.status{border-color:var(--text);background:var(--text);color:var(--light);text-decoration:none}
+a.status::before{background:var(--mint)}
+.wb-foot{grid-area:foot;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.07);color:#7f948c;font:400 12px/1.4 var(--body)}
+.wb-foot p{margin:0}
+.wb-foot i{margin:0 4px 0 10px}
+.wb-pause{display:inline-flex;align-items:center;gap:8px;min-height:32px;padding:0 12px;border:1px solid rgba(255,255,255,.2);border-radius:16px;background:transparent;color:#dfe8e4;font:600 10px/1 var(--body);letter-spacing:.14em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+.wb-pause:hover{border-color:rgba(255,255,255,.5)}
+.wb-pause svg{width:9px;height:10px;fill:currentColor}
+.wb-pause .i-play,.paused .wb-pause .i-pause{display:none}
+.paused .wb-pause .i-play{display:block}
+html:not(.motion) .wb-pause{display:none}
+@media (max-width:899px){
+ .wb{grid-template-columns:1fr;grid-template-areas:"bar" "vis" "text" "foot";gap:16px}
+ .wb-bar{flex-direction:column;gap:10px}
+ .wb-nav{justify-content:space-between}
+ .wb-loop svg{max-height:none}
+ .wb-cv{height:230px}
+ .wb-panels{padding:4px 0 0;border-left:0;border-top:1px solid rgba(255,255,255,.08)}
+ .wb-panel{padding-top:14px}
+ .wb-act{margin-top:6px}
+}
+@media (max-width:560px){
+ .wb{margin:0 calc(var(--g) * -1 + 8px);padding:12px 12px 10px}
+ .wb-tabs{gap:6px}
+ .wb-tab{min-height:60px;padding:9px 8px;gap:5px}
+ .wb-tab span{font-size:12px;line-height:1.15}
+ .wb-tab i{top:9px;right:8px}
+ .wb-scope-head{flex-direction:column;gap:2px}
+ .wb-scope-t{text-align:left}
+ .wb-foot{flex-wrap:wrap}
+ .wb-spec div{grid-template-columns:1fr;gap:2px}
+}
+
+/* Applied · My system */
+.sys{position:relative;z-index:1;overflow:hidden;color:var(--light);padding:clamp(96px,14vh,160px) var(--g) clamp(90px,12vh,140px);background:radial-gradient(60% 55% at 80% 38%,rgba(242,194,96,.13),transparent 70%),radial-gradient(50% 50% at 8% 100%,rgba(242,194,96,.06),transparent 70%),linear-gradient(#0c0b08,var(--ink) 55%,#0d0c08)}
+.sys-top{display:flex;justify-content:space-between;gap:20px;padding-top:20px;border-top:1px solid rgba(255,255,255,.14)}
+.sys-meta{margin:0;color:var(--dim);font:500 11px/1.4 var(--body);letter-spacing:.12em;text-transform:uppercase}
+.sys-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:clamp(36px,5vw,84px);align-items:center;margin-top:clamp(44px,7vh,76px)}
+.sys-title{margin:0 0 26px;font:700 clamp(58px,7vw,112px)/.92 var(--display);text-transform:uppercase}
+.sys-title span{display:block;color:var(--ochre)}
+.sys-lead{margin:0;max-width:32em;color:#c3c8d0;font-size:clamp(16px,1.3vw,19px);line-height:1.65}
+.sys-steps{margin:34px 0 0;padding:0;list-style:none;border-top:1px solid rgba(255,255,255,.14)}
+.sys-steps li{display:grid;grid-template-columns:46px minmax(0,1fr);column-gap:16px;padding:18px 0;border-bottom:1px solid rgba(255,255,255,.1)}
+.sys-steps b{grid-row:span 2;font:700 28px/1 var(--display);color:var(--ochre)}
+.sys-steps h3{margin:0 0 4px;font:500 17px/1.3 var(--body)}
+.sys-steps p{margin:0;color:#aab0ba;font-size:14px;line-height:1.6}
+.sys-cta{display:flex;flex-wrap:wrap;align-items:center;gap:14px 22px;margin:30px 0 0}
+.sys-cta p{margin:0;color:#8f96a1;font-size:13px;line-height:1.6;max-width:30em}
+.sys-link{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:0 16px;border:1px solid rgba(255,255,255,.22);border-radius:2px;color:#d4d9df;font:600 11px/1 var(--body);letter-spacing:.14em;text-transform:uppercase;text-decoration:none}
+.sys-link::before{content:"";width:6px;height:6px;border-radius:50%;background:#c58a2e}
+a.sys-link{border-color:var(--light);background:var(--light);color:var(--ink)}
+a.sys-link::before{background:var(--ochre-ink)}
+.sys-art{margin:0}
+.ms-stage{position:relative}
+.ms-stage>svg{display:block;width:100%;height:auto;border-radius:3px;box-shadow:0 40px 90px -34px rgba(0,0,0,.8)}
+.sys-art figcaption{margin-top:14px;color:#8f96a1;font-size:12px;line-height:1.6}
+@media (max-width:900px){.sys-grid{grid-template-columns:1fr}}
+@media (max-width:560px){.sys-meta{display:none}.sys-title{font-size:clamp(52px,13.5vw,72px)}}
+
+/* Field guide: grouped learning path and the feedback example */
+.guide .g-fb{grid-template-columns:1.15fr 1fr;border-top:0}
+.guide .g-copy-r{padding:40px 0 40px 44px}
+.guide .g-key.open::before{border-top:2px solid #8996a6}
+.guide .g-key.fb::before{border-top:3px solid var(--mint)}
+.guide .g-group{display:flex;align-items:center;gap:14px;margin:34px 0 0;padding-bottom:12px;color:var(--muted);font:600 11px/1.4 var(--body);letter-spacing:.16em;text-transform:uppercase}
+.guide .g-group:first-of-type{margin-top:0}
+.guide .g-group::after{content:"";flex:1;height:1px;background:var(--line)}
+.guide .g-path .g-row{display:grid;grid-template-columns:48px minmax(0,1fr) 18px;gap:14px;padding:26px 0;border-top:1px solid var(--line);align-items:start}
+.guide .g-path .is-dev .g-name{color:#4c5157}
+.guide .g-path .status{margin-top:14px}
+.guide .g-path a .status{display:none}
+@media(max-width:820px){.guide .g-copy-r{padding:28px 0 28px 28px}.guide .g-path .g-row{grid-template-columns:36px minmax(0,1fr) 14px;gap:10px}}
+@media(max-width:560px){.guide .g-fb{grid-template-columns:1fr}.guide .g-copy-r{padding:28px 0}.guide .g-path .g-row{padding:23px 0;grid-template-columns:38px minmax(0,1fr) 16px;gap:14px}}
+
+/* Gentle reveal for the new sections (motion only) */
+.motion.rv-on .rv{opacity:0;transform:translate3d(0,26px,0);transition:opacity .9s var(--ease),transform .9s var(--ease);transition-delay:calc(var(--i,0) * 90ms)}
+.motion.rv-on .rv.in{opacity:1;transform:none}
+.guide .g-path span.g-row .arrow{visibility:hidden}
+
+/* My system: readable diagram labels and the small Replay control (shown only with script and motion) */
+.ms-lab{fill:#f6e3bb;font:500 15px/1 var(--body);paint-order:stroke;stroke:#0c0a06;stroke-width:4px;stroke-linejoin:round}
+.ms-replay{position:absolute;left:12px;bottom:12px;display:none;align-items:center;gap:7px;min-height:32px;padding:0 12px 0 10px;border:1px solid rgba(242,194,96,.3);border-radius:3px;background:rgba(12,10,6,.55);color:#e9d9b0;font:600 10px/1 var(--body);letter-spacing:.14em;text-transform:uppercase;cursor:pointer;opacity:.82;transition:opacity .3s var(--ease),border-color .3s var(--ease),color .3s var(--ease)}
+.ms-js .ms-replay{display:inline-flex}
+html:not(.motion) .ms-replay{display:none}
+.ms-replay:hover,.ms-replay:focus-visible{opacity:1;border-color:rgba(242,194,96,.65);color:#fff4dc}
+.ms-replay svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:560px){.ms-lab{font-size:21px}}
+/* guide diagrams: larger labels on phones, where the SVG is scaled down */
+@media (max-width:560px){.guide .g-diagram svg text{font-size:19px}}
+
+/* Header: a subtle readable backdrop once the page is scrolled */
+.hdr::before{content:"";position:absolute;inset:0;z-index:-1;opacity:0;pointer-events:none;background:rgba(6,8,11,.66);-webkit-backdrop-filter:blur(12px) saturate(1.15);backdrop-filter:blur(12px) saturate(1.15);border-bottom:1px solid rgba(255,255,255,.07);transition:opacity .35s var(--ease),background-color .45s var(--ease),border-color .45s var(--ease)}
+.hdr[data-tone=light]::before{background:rgba(239,238,233,.82);border-bottom-color:rgba(21,23,27,.08)}
+.hdr.hdr-solid::before{opacity:1}
 </style>
 </head>
 <body>
@@ -263,20 +537,33 @@ a.irow:hover{padding-left:12px}
  <nav class="nav" aria-label="Main">
   <button class="nav-btn home-phone-open" id="home-phone-open" type="button" aria-label="Open on phone" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 5h4M11 19h2"/></svg><span>Open on phone</span></button>
   <button class="nav-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="menu">Modules<svg viewBox="0 0 12 12" aria-hidden="true"><path d="m2.5 4.5 3.5 3.5 3.5-3.5"/></svg></button>
-  <ul class="menu" id="menu" hidden>
-   <li><a class="mrow" href="module-1.html"><b>01</b>First-order time response</a></li>
-   <li><a class="mrow" href="module-2.html"><b>02</b>First-order frequency response</a></li>
-   <li><a class="mrow" href="module-3.html"><b>03</b>Second-order response</a></li>
-   <li><span class="mrow is-soon" data-m4><b>04</b>Guess the sensor<em class="soon" data-m4-status="New">Coming soon</em></span></li>
-  </ul>
-  <div class="control-wrap">
-   <button class="nav-btn" id="control-btn" type="button" aria-expanded="false" aria-controls="control-menu">Control<svg viewBox="0 0 12 12" aria-hidden="true"><path d="m2.5 4.5 3.5 3.5 3.5-3.5"/></svg></button>
-   <ul class="menu control-menu" id="control-menu" hidden>
-    <li><a class="mrow" href="pid-playground.html"><b>P1</b>PID Playground</a></li>
-          <li><a class="mrow" href="slow-sensor.html"><b>P2</b>A slow sensor in the loop</a></li>
-   </ul>
+  <div class="menu menu-groups" id="menu" hidden>
+   <div class="mcol">
+    <a class="mhead" href="#modules">Part 1 · Sensor dynamics<svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></a>
+    <ul class="mgroup">
+     <li><a class="mrow" href="module-1.html"><b>01</b>First-order time response</a></li>
+     <li><a class="mrow" href="module-2.html"><b>02</b>First-order frequency response</a></li>
+     <li><a class="mrow" href="module-3.html"><b>03</b>Second-order response</a></li>
+     <li><span class="mrow is-soon" data-m4><b>04</b>Guess the sensor<em class="soon" data-m4-status="New">Coming soon</em></span></li>
+    </ul>
+   </div>
+   <div class="mcol">
+    <a class="mhead" href="#control">Part 2 · PID control<svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></a>
+    <ul class="mgroup">
+     <li><a class="mrow" href="pid-playground.html"><b>P1</b>PID playground</a></li>
+     <li><a class="mrow" href="slow-sensor.html"><b>P2</b>A slow sensor in the loop</a></li>
+     <li><span class="mrow is-soon" data-mod="p3"><b>P3</b>Digital PID<em class="soon" data-mod-status="">In development</em></span></li>
+     <li><span class="mrow is-soon" data-mod="p4"><b>P4</b>Tuning challenge<em class="soon" data-mod-status="">In development</em></span></li>
+    </ul>
+    <a class="mhead" href="#my-system">Applied · My system<svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></a>
+    <ul class="mgroup">
+     <li><span class="mrow is-soon" data-mod="sys"><b>MS</b>WALL-E’s drive motor<em class="soon" data-mod-status="">In development</em></span></li>
+    </ul>
+   </div>
   </div>
-  <a href="#about">About</a>
+  <a href="#control">Control</a>
+  <a class="nav-sys" href="#my-system">My system</a>
+  <a class="nav-about" href="#about">About</a>
  </nav>
 </header>
 
@@ -292,19 +579,30 @@ a.irow:hover{padding-left:12px}
   <rect width="1600" height="900" fill="url(#hl)"/>
   <rect y="700" width="1600" height="200" fill="url(#hf)"/>
   <path d="M0 760H1600M0 840H1600" stroke="#fff" stroke-opacity=".05"/>
+  <g class="s1">
   <path d="M0 700H430V180H1600" stroke="#fff" stroke-opacity=".2" stroke-width="1.2" stroke-dasharray="3 10"/>
   <g class="ghost" stroke="#9fdcff" stroke-width="1.4" stroke-opacity=".26"><path class="draw d2" d="M0 700 L430 700 L436 662.4 L458 546.4 L480 458.3 L502 391.4 L524 340.6 L546 302 L568 272.6 L590 250.4 L612 233.5 L634 220.6 L656 210.8 L678 203.4 L700 197.8 L722 193.5 L744 190.3 L766 187.8 L788 185.9 L810 184.5 L832 183.4 L854 182.6 L876 182 L898 181.5 L920 181.1 L942 180.9 L964 180.7 L986 180.5 L1008 180.4 L1030 180.3 L1052 180.2 L1074 180.2 L1096 180.1 L1118 180.1 L1140 180.1 L1162 180.1 L1184 180H1580"/><path class="draw d3" d="M0 700 L430 700 L436 691.9 L458 663.1 L480 635.9 L502 610.2 L524 586 L546 563.2 L568 541.6 L590 521.3 L612 502.1 L634 484 L656 466.9 L678 450.8 L700 435.5 L722 421.1 L744 407.6 L766 394.8 L788 382.7 L810 371.3 L832 360.5 L854 350.4 L876 340.8 L898 331.8 L920 323.2 L942 315.2 L964 307.6 L986 300.4 L1008 293.6 L1030 287.2 L1052 281.2 L1074 275.5 L1096 270.1 L1118 265.1 L1140 260.3 L1162 255.8 L1184 251.5 L1206 247.5 L1228 243.7 L1250 240.1 L1272 236.7 L1294 233.5 L1316 230.5 L1338 227.7 L1360 225 L1382 222.5 L1404 220.1 L1426 217.8 L1448 215.7 L1470 213.7 L1492 211.8 L1514 210 L1536 208.3 L1558 206.7 L1580 205.2"/></g>
   <path class="draw" d="M0 700 L430 700 L436 683.8 L458 628.7 L480 579.7 L502 536 L524 497.1 L546 462.4 L568 431.5 L590 404 L612 379.5 L634 357.7 L656 338.3 L678 321 L700 305.6 L722 291.8 L744 279.6 L766 268.7 L788 259 L810 250.4 L832 242.7 L854 235.8 L876 229.7 L898 224.3 L920 219.4 L942 215.1 L964 211.3 L986 207.9 L1008 204.8 L1030 202.1 L1052 199.7 L1074 197.5 L1096 195.6 L1118 193.9 L1140 192.4 L1162 191 L1184 189.8 L1206 188.8 L1228 187.8 L1250 186.9 L1272 186.2 L1294 185.5 L1316 184.9 L1338 184.4 L1360 183.9 L1382 183.5 L1404 183.1 L1426 182.8 L1448 182.4 L1470 182.2 L1492 181.9 L1514 181.7 L1536 181.5 L1558 181.4 L1580 181.2" stroke="#59c8ff" stroke-width="16" stroke-opacity=".45" filter="url(#glow)"/>
   <path class="draw" d="M0 700 L430 700 L436 683.8 L458 628.7 L480 579.7 L502 536 L524 497.1 L546 462.4 L568 431.5 L590 404 L612 379.5 L634 357.7 L656 338.3 L678 321 L700 305.6 L722 291.8 L744 279.6 L766 268.7 L788 259 L810 250.4 L832 242.7 L854 235.8 L876 229.7 L898 224.3 L920 219.4 L942 215.1 L964 211.3 L986 207.9 L1008 204.8 L1030 202.1 L1052 199.7 L1074 197.5 L1096 195.6 L1118 193.9 L1140 192.4 L1162 191 L1184 189.8 L1206 188.8 L1228 187.8 L1250 186.9 L1272 186.2 L1294 185.5 L1316 184.9 L1338 184.4 L1360 183.9 L1382 183.5 L1404 183.1 L1426 182.8 L1448 182.4 L1470 182.2 L1492 181.9 L1514 181.7 L1536 181.5 L1558 181.4 L1580 181.2" stroke="#f1fbff" stroke-width="2.6"/>
   <circle class="head" cx="1580" cy="181" r="64" fill="url(#hh)"/>
+  </g>
  </svg>
  <div class="hero-in">
-  <h1 id="hero-title"><span class="kicker label">Dynamics Lab<span class="k2"> · Sensor dynamics, made visible</span></span><span class="display"><span><i>Nothing is</i></span><span><i>instant.</i></span></span></h1>
+  <h1 id="hero-title"><span class="kicker label">Dynamics Lab<span class="k2"> · Sensor dynamics &amp; PID control</span></span><span class="display"><span><i>Nothing is</i></span><span><i>instant.</i></span></span></h1>
  </div>
  <div class="hero-foot">
-  <p>Interactive experiments that show how a sensor follows a changing input — and why its reading lags, settles or overshoots.</p>
+  <p>Interactive experiments that show how a sensor follows a changing input, and how feedback makes a system faster and more accurate.</p>
   <a class="cue" href="#about">Scroll to explore<i></i></a>
   <a class="cta" href="module-1.html">Start with Module 1<span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></a>
+ </div>
+ <p class="sr">The background alternates between two scenes: a sensor reading slowly catching up with a step, and a feedback loop that measures the output, compares it with a target and corrects it, so the response locks on quickly and recovers from a disturbance.</p>
+ <div class="scn" id="scn" role="group" aria-label="Background scenes">
+  <p class="scn-now" aria-hidden="true"><b class="scn-num">01</b><span class="scn-name">Response</span></p>
+  <div class="scn-ticks">
+   <button type="button" aria-label="Show background scene 1 of 2: a sensor reading catching up with a step" aria-current="true"><i></i></button>
+   <button type="button" aria-label="Show background scene 2 of 2: a feedback loop locking a response onto its target" aria-current="false"><i></i></button>
+  </div>
+  <button class="scn-pause" id="scn-pause" type="button"><svg class="i-pause" viewBox="0 0 9 10" aria-hidden="true"><path d="M0 0h3v10H0zM6 0h3v10H6z"/></svg><svg class="i-play" viewBox="0 0 9 10" aria-hidden="true"><path d="M0 0l9 5-9 5z"/></svg><span>Pause motion</span></button>
  </div>
  <div class="wipe" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 </section>
@@ -313,16 +611,23 @@ a.irow:hover{padding-left:12px}
  <div class="wrap rule">
   <h2 class="label" id="about-title">What this is</h2>
   <div>
-   <p class="lead">Every sensor needs time to catch up with the world it measures. Dynamics Lab lets you change an input and watch the response unfold, using the first- and second-order models from ENCS4380.</p>
+   <p class="lead">Every sensor needs time to catch up with the world it measures, and every controller has to live with that. Dynamics Lab lets you change an input and watch the response unfold, then close the loop and tune it, using the models from ENCS4380.</p>
    <a class="to-guide" href="#learn">New to sensors? Read the short guide<svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></a>
   </div>
+ </div>
+ <div class="wrap">
+  <ol class="path" aria-label="Learning path">
+   <li class="rv" style="--pc:var(--p1-ink)"><a href="#modules"><span class="path-k">Part 1 · Homework 1</span><span class="path-t">Sensor dynamics</span><span class="path-q">How slow is it? Four experiments on how a sensor follows a changing input.</span><span class="path-c">Modules 01–04<svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></a></li>
+   <li class="rv" style="--i:1;--pc:var(--mint-ink)"><a href="#control"><span class="path-k">Part 2 · Homework 2</span><span class="path-t">PID control</span><span class="path-q">How do we make it faster and more accurate? Four experiments with feedback.</span><span class="path-c">Experiments P1–P4<svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></a></li>
+   <li class="rv" style="--i:2;--pc:var(--ochre-ink)"><a href="#my-system"><span class="path-k">Applied · Homework 2</span><span class="path-t">My system</span><span class="path-q">Does the design hold on a real plant? WALL-E’s drive motor: measured, modelled, then given a speed loop.</span><span class="path-c">WALL-E’s drive motor<svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></a></li>
+  </ol>
  </div>
 </section>
 
 <section class="tunnel" id="modules" data-tone="dark" aria-labelledby="modules-title">
  <div class="stage">
   <canvas class="bg" aria-hidden="true"></canvas>
-  <div class="stage-head"><h2 class="label" id="modules-title">The modules</h2><p class="hint">Scroll to travel · ← → to step</p><p class="count" id="count" aria-hidden="true">01 / 04</p></div>
+  <div class="stage-head"><h2 class="label" id="modules-title">Part 1 · Sensor dynamics</h2><p class="hint">Scroll to travel · ← → to step</p><p class="count" id="count" aria-hidden="true">01 / 04</p></div>
   <ol class="plates">
    <li class="plate">
     <a class="plate-img" href="module-1.html" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
@@ -421,13 +726,202 @@ a.irow:hover{padding-left:12px}
  </div>
 </section>
 
+<!-- ── Part 2 · PID control: the experiment viewer (Homework 2) ──
+     One viewer holds everything: selectors with Previous / Next and a
+     position indicator, the feedback loop and an animated preview, and the
+     selected experiment's title, explanation, availability and Open
+     button. The same interaction is used on desktop and phones. -->
+<section class="ctl" id="control" data-tone="light" aria-labelledby="control-title">
+ <div class="wrap">
+  <div class="ctl-top"><h2 class="label" id="control-title">Part 2 · PID control</h2><p class="ctl-meta">Homework 2 · Four experiments</p></div>
+  <header class="ctl-head">
+   <div>
+    <p class="ctl-kicker">From watching to steering</p>
+    <p class="ctl-title" aria-hidden="true">Close<span>the loop.</span></p>
+   </div>
+   <div class="ctl-lead">
+    <p>In Part 1 you watched systems respond: a reading that lags, a sine that comes back late, a spring that rings, and the τ, ζ and ωn that describe them.</p>
+    <p>Part 2 turns that around. Measure the output, compare it with a target, and let a controller correct the difference, so the system responds the way you choose. Each experiment changes one part of the same loop, and keeps the “Predict, then check” box.</p>
+   </div>
+  </header>
+
+  <p class="wb-how"><b>How to explore</b><span>Choose P1–P4, or step through them with Previous and Next. Each preview illustrates the idea; Open starts the live experiment.</span></p>
+
+  <div class="wb" id="control-modules" data-sel="p1">
+   <span class="wb-light l1" aria-hidden="true"></span><span class="wb-light l2" aria-hidden="true"></span><span class="wb-light l3" aria-hidden="true"></span><span class="wb-light l4" aria-hidden="true"></span>
+
+   <div class="wb-bar">
+    <div class="wb-tabs" role="tablist" aria-label="Homework 2 experiments">
+     <button class="wb-tab" type="button" role="tab" id="wb-tab-p1" data-exp="p1" aria-selected="true" aria-controls="wb-p1" tabindex="0" style="--c:127,233,189"><b>P1</b><span>PID playground</span><i class="live" aria-hidden="true"></i><em class="sr"> (published)</em></button>
+     <button class="wb-tab" type="button" role="tab" id="wb-tab-p2" data-exp="p2" aria-selected="false" aria-controls="wb-p2" tabindex="-1" style="--c:111,227,212"><b>P2</b><span>Slow sensor</span><i class="live" aria-hidden="true"></i><em class="sr"> (published)</em></button>
+     <button class="wb-tab" type="button" role="tab" id="wb-tab-p3" data-exp="p3" aria-selected="false" aria-controls="wb-p3" tabindex="-1" style="--c:195,240,124"><b>P3</b><span>Digital PID</span><i class="dev" aria-hidden="true"></i><em class="sr"> (in development)</em></button>
+     <button class="wb-tab" type="button" role="tab" id="wb-tab-p4" data-exp="p4" aria-selected="false" aria-controls="wb-p4" tabindex="-1" style="--c:214,239,228"><b>P4</b><span>Tuning challenge</span><i class="dev" aria-hidden="true"></i><em class="sr"> (in development)</em></button>
+    </div>
+    <div class="wb-nav">
+     <button class="wb-arrow wb-prev" type="button" aria-label="Previous experiment" aria-disabled="true"><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></button>
+     <p class="wb-count" aria-hidden="true"><b>P1</b> of 4</p>
+     <button class="wb-arrow wb-next" type="button" aria-label="Next experiment: P2, a slow sensor in the loop"><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></button>
+    </div>
+   </div>
+
+   <div class="wb-vis" aria-hidden="true">
+    <div class="wb-loop">
+     <svg class="wl-wide" viewBox="0 0 720 220" focusable="false">
+      <path class="wl-f" d="M8 90H52M86 90H112M246 90H270M396 90H420M550 90H676"/>
+      <path class="wl-f" d="M45 85L52 90L45 95M105 85L112 90L105 95M263 85L270 90L263 95M413 85L420 90L413 95M669 85L676 90L669 95"/>
+      <path class="wl-r" d="M612 90V182H434M304 182H70V108"/>
+      <path class="wl-r" d="M441 177L434 182L441 187M65 115L70 108L75 115"/>
+      <circle class="wl-sum" cx="70" cy="90" r="16"/><circle class="wl-dot" cx="612" cy="90" r="3.5"/>
+      <text class="wl-sym" x="10" y="78">r</text><text class="wl-sub" x="8" y="114">setpoint</text>
+      <text class="wl-sub" x="44" y="80">+</text><text class="wl-sub" x="80" y="124">−</text>
+      <text class="wl-sym" x="686" y="96">y</text><text class="wl-sub" x="626" y="114">output</text>
+      <g class="wl-n ctl"><rect x="114" y="60" width="132" height="60" rx="3"/><text class="wl-tag" x="128" y="82">P1</text><text class="wl-name" x="128" y="106">PID controller</text></g>
+      <g class="wl-n smp"><rect x="272" y="60" width="124" height="60" rx="3"/><text class="wl-tag" x="286" y="82">P3</text><text class="wl-name" x="286" y="106">Sample &amp; hold</text></g>
+      <g class="wl-n plt"><rect x="422" y="60" width="128" height="60" rx="3"/><text class="wl-tag" x="436" y="82">P4</text><text class="wl-name" x="436" y="106">Plant ?</text></g>
+      <g class="wl-n sns"><rect x="304" y="156" width="130" height="52" rx="3"/><text class="wl-tag" x="318" y="176">P2</text><text class="wl-name" x="318" y="199">Sensor</text></g>
+      <path class="wl-pf" pathLength="100" d="M86 90H612"/>
+      <path class="wl-pr" pathLength="100" d="M612 90V182H70V108"/>
+     </svg>
+     <svg class="wl-compact" viewBox="0 0 360 184" focusable="false">
+      <path class="wl-f" d="M4 70H22M46 70H58M134 70H146M210 70H222M294 70H350"/>
+      <path class="wl-f" d="M17 66L22 70L17 74M53 66L58 70L53 74M141 66L146 70L141 74M217 66L222 70L217 74M345 66L350 70L345 74"/>
+      <path class="wl-r" d="M318 70V150H226M134 150H34V82"/>
+      <path class="wl-r" d="M231 146L226 150L231 154M30 87L34 82L38 87"/>
+      <circle class="wl-sum" cx="34" cy="70" r="12"/><circle class="wl-dot" cx="318" cy="70" r="3"/>
+      <text class="wl-sym" x="4" y="58">r</text><text class="wl-sym" x="336" y="58">y</text>
+      <text class="wl-sub" x="16" y="58">+</text><text class="wl-sub" x="44" y="98">−</text>
+      <g class="wl-n ctl"><rect x="60" y="48" width="74" height="44" rx="3"/><text class="wl-tag" x="68" y="64">P1</text><text class="wl-name" x="68" y="84">PID</text></g>
+      <g class="wl-n smp"><rect x="148" y="48" width="62" height="44" rx="3"/><text class="wl-tag" x="156" y="64">P3</text><text class="wl-name" x="156" y="84">S/H</text></g>
+      <g class="wl-n plt"><rect x="224" y="48" width="70" height="44" rx="3"/><text class="wl-tag" x="232" y="64">P4</text><text class="wl-name" x="232" y="84">Plant?</text></g>
+      <g class="wl-n sns"><rect x="134" y="128" width="92" height="44" rx="3"/><text class="wl-tag" x="142" y="144">P2</text><text class="wl-name" x="142" y="164">Sensor</text></g>
+      <path class="wl-pf" pathLength="100" d="M46 70H318"/>
+      <path class="wl-pr" pathLength="100" d="M318 70V150H34V82"/>
+     </svg>
+    </div>
+    <div class="wb-scope">
+     <div class="wb-scope-head"><span class="wb-scope-k">Preview · illustration</span><span class="wb-scope-t">First-order plant · P, PI, PID</span></div>
+     <canvas class="wb-cv"></canvas>
+     <div class="wb-read">
+      <div data-for="p1"><span data-m="rt">Rise time</span><span data-m="os">Overshoot</span><span data-m="st">Settling time</span><span data-m="sse">Steady-state error</span></div>
+      <div data-for="p2"><span class="wb-k solid">True output</span><span class="wb-k dash">Sensor reading</span></div>
+      <div data-for="p3"><code>u[k] = Kp·e[k] + Ki·Ts·Σe[j] + Kd·(e[k] − e[k−1]) / Ts</code></div>
+      <div data-for="p4"><span data-c="os">Overshoot ≤ 10%</span><span data-c="st">Settling time limit</span><span data-c="ss">Zero steady-state error</span></div>
+     </div>
+    </div>
+   </div>
+
+   <div class="wb-panels">
+    <div class="wb-panel" role="tabpanel" id="wb-p1" data-exp="p1" aria-labelledby="wb-tab-p1" tabindex="0">
+     <p class="wb-tag"><b>P1</b>Controller<i class="live" aria-hidden="true"></i><span>Published</span></p>
+     <h3>PID playground</h3>
+     <p class="wb-text">A first-order plant under PID control. Change one gain at a time and watch the output, the control signal and four response metrics update.</p>
+     <dl class="wb-spec">
+      <div><dt>You change</dt><dd>Plant gain K and time constant τ, Kp, Ki, Kd, the setpoint and the control limits.</dd></div>
+      <div><dt>You see</dt><dd>The loop’s block diagram, output against setpoint, the control signal u(t) within its limits, and rise time, overshoot, settling time and steady-state error.</dd></div>
+     </dl>
+     <p class="wb-note">The preview uses P1’s own model and the gains from its validation checks and demo.</p>
+     <div class="wb-act"><a class="cta wb-go" href="pid-playground.html">Open P1<span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></a></div>
+    </div>
+    <div class="wb-panel" role="tabpanel" id="wb-p2" data-exp="p2" aria-labelledby="wb-tab-p2" tabindex="0">
+     <p class="wb-tag"><b>P2</b>Sensor<i class="live" aria-hidden="true"></i><span>Published</span></p>
+     <h3>A slow sensor in the loop</h3>
+     <p class="wb-text">Part 1’s lag comes back inside the loop. A first-order sensor sits in the feedback path, so the controller acts on a delayed reading. It only controls what the sensor says.</p>
+     <dl class="wb-spec">
+      <div><dt>You change</dt><dd>The sensor’s time constant τs, plus the PID gains.</dd></div>
+      <div><dt>You see</dt><dd>The true output and what the sensor reports on the same plot. As τs grows, the overshoot grows until the loop oscillates.</dd></div>
+     </dl>
+     <p class="wb-note">The preview uses P2’s default gains with three sensor time constants.</p>
+     <div class="wb-act"><a class="cta wb-go" href="slow-sensor.html">Open P2<span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></a></div>
+    </div>
+    <div class="wb-panel" role="tabpanel" id="wb-p3" data-exp="p3" aria-labelledby="wb-tab-p3" tabindex="0">
+     <p class="wb-tag"><b>P3</b>Sampling<i class="dev" aria-hidden="true"></i><span>In development</span></p>
+     <h3>Digital PID</h3>
+     <p class="wb-text">The controller as it would run on an Arduino: it sees the error only every Ts and holds its output in between.</p>
+     <dl class="wb-spec">
+      <div><dt>You change</dt><dd>The sampling time Ts, the gains, and anti-windup on or off.</dd></div>
+      <div><dt>You see</dt><dd>The stair-step control signal, how performance falls as Ts grows, and the Arduino loop code for the current gains, with a copy button.</dd></div>
+     </dl>
+     <p class="wb-note">The preview is a textbook illustration from the brief; this experiment is not published yet.</p>
+     <div class="wb-act"><p class="wb-soon"><span class="status">In development</span> Opens here once it is published.</p></div>
+    </div>
+    <div class="wb-panel" role="tabpanel" id="wb-p4" data-exp="p4" aria-labelledby="wb-tab-p4" tabindex="0">
+     <p class="wb-tag"><b>P4</b>Challenge<i class="dev" aria-hidden="true"></i><span>In development</span></p>
+     <h3>Tuning challenge</h3>
+     <p class="wb-text">A hidden random plant, reused from Part 1’s Module 4, and a specification to meet by tuning the gains.</p>
+     <dl class="wb-spec">
+      <div><dt>You change</dt><dd>The PID gains.</dd></div>
+      <div><dt>You see</dt><dd>A spec such as overshoot ≤ 10%, a settling time limit and zero steady-state error, with pass or fail on each part and a score.</dd></div>
+     </dl>
+     <p class="wb-note">The preview is a textbook illustration from the brief; this experiment is not published yet.</p>
+     <div class="wb-act"><p class="wb-soon"><span class="status">In development</span> Opens here once it is published.</p></div>
+    </div>
+   </div>
+
+   <div class="wb-foot"><p>Previews are illustrations, not live results. <i class="live" aria-hidden="true"></i> Published <i class="dev" aria-hidden="true"></i> In development</p><button class="wb-pause" type="button"><svg class="i-pause" viewBox="0 0 9 10" aria-hidden="true"><path d="M0 0h3v10H0zM6 0h3v10H6z"/></svg><svg class="i-play" viewBox="0 0 9 10" aria-hidden="true"><path d="M0 0l9 5-9 5z"/></svg><span>Pause motion</span></button></div>
+   <p class="sr" id="wb-live" aria-live="polite"></p>
+  </div>
+ </div>
+</section>
+
+<!-- ── Applied · My system (Homework 2) ──────────────────────── -->
+<section class="sys" id="my-system" data-tone="dark" aria-labelledby="sys-title">
+ <div class="wrap">
+  <div class="sys-top"><h2 class="label" id="sys-title">Applied · My system</h2><p class="sys-meta">Homework 2 · WALL-E, our Micromouse</p></div>
+  <div class="sys-grid">
+   <div class="sys-copy rv">
+    <p class="sys-title" aria-hidden="true">WALL-E’s<span>drive motor.</span></p>
+    <p class="sys-lead">Everything above, applied to one real plant: the drive motor of our Micromouse, WALL-E. We measure it, model it, choose a specification, then design its speed loop.</p>
+    <ol class="sys-steps">
+     <li><b>01</b><h3>Plant model</h3><p>K and τ from a PWM step test logged with the wheel encoder, and where every number came from.</p></li>
+     <li><b>02</b><h3>Specification</h3><p>The course aims for a damping ratio between 0.6 and 0.8, with the PWM command kept within 0–100%. The page explains the spec we chose and why it matters for the robot.</p></li>
+     <li><b>03</b><h3>Design</h3><p>Our final gains, the simulated response and the generated Arduino code.</p></li>
+    </ol>
+    <div class="sys-cta"><span class="sys-link is-dev" data-mod="sys"><span data-mod-status="Open My system">My system page · In development</span></span><p>No measured values are shown here until that page publishes them.</p></div>
+   </div>
+   <figure class="sys-art rv" style="--i:1">
+    <div class="ms-stage">
+    <svg id="ms-svg" viewBox="0 0 560 420" role="img" aria-label="Illustration: an encoder wheel, and a sampled speed response rising to its setpoint while the PWM command steps down from its 100 percent limit.">
+     <defs><linearGradient id="msg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#211b0e"/><stop offset=".6" stop-color="#0c0a06"/><stop offset="1" stop-color="#1a150b"/></linearGradient><radialGradient id="msl" cx=".27" cy=".5" r=".7"><stop offset="0" stop-color="#f2c260" stop-opacity=".2"/><stop offset="1" stop-color="#f2c260" stop-opacity="0"/></radialGradient><clipPath id="ms-clip"><rect id="ms-clip-r" x="292" y="30" width="262" height="360"/></clipPath></defs>
+     <rect width="560" height="420" fill="url(#msg)"/><rect width="560" height="420" fill="url(#msl)"/>
+     <g fill="none" stroke-linecap="round">
+      <circle cx="150" cy="214" r="112" stroke="#f2c260" stroke-opacity=".14" stroke-width="16"/>
+      <circle cx="150" cy="214" r="94" stroke="#f6d999" stroke-opacity=".45" stroke-width="1.2"/>
+      <g id="ms-wheel" stroke="#ffe2a6" stroke-opacity=".75" stroke-width="5"><path d="M212.0 214.0L230.0 214.0M209.9 230.0L227.3 234.7M203.7 245.0L219.3 254.0M193.8 257.8L206.6 270.6M181.0 267.7L190.0 283.3M166.0 273.9L170.7 291.3M150.0 276.0L150.0 294.0M134.0 273.9L129.3 291.3M119.0 267.7L110.0 283.3M106.2 257.8L93.4 270.6M96.3 245.0L80.7 254.0M90.1 230.0L72.7 234.7M88.0 214.0L70.0 214.0M90.1 198.0L72.7 193.3M96.3 183.0L80.7 174.0M106.2 170.2L93.4 157.4M119.0 160.3L110.0 144.7M134.0 154.1L129.3 136.7M150.0 152.0L150.0 134.0M166.0 154.1L170.7 136.7M181.0 160.3L190.0 144.7M193.8 170.2L206.6 157.4M203.7 183.0L219.3 174.0M209.9 198.0L227.3 193.3"/></g>
+      <circle cx="150" cy="214" r="20" stroke="#f6d999" stroke-opacity=".5" stroke-width="1.2"/>
+      <rect id="ms-flash" x="136" y="117" width="28" height="50" rx="4" fill="#ffe7b8" fill-opacity="0" stroke="none"/>
+      <rect x="139" y="120" width="22" height="44" rx="3" stroke="#fff4dc" stroke-opacity=".75" stroke-width="1.2"/>
+      <path id="ms-link-pwm" d="M298 330C270 336 252 318 239 290" stroke="#f2c260" stroke-opacity=".22" stroke-width="1.1" stroke-dasharray="2 5"/>
+      <path id="ms-link-enc" d="M163 136C212 118 258 146 294 186" stroke="#f2c260" stroke-opacity=".22" stroke-width="1.1" stroke-dasharray="2 5"/>
+      <path d="M300 70H540" stroke="#fff" stroke-opacity=".3" stroke-width="1.2" stroke-dasharray="3 6"/>
+      <path d="M300 300H540" stroke="#f2c260" stroke-opacity=".45" stroke-dasharray="2 5"/>
+      <path d="M300 360H540" stroke="#fff" stroke-opacity=".08" stroke-dasharray="2 6"/>
+      <g id="ms-trace" clip-path="url(#ms-clip)">
+       <path d="M300.0 220.0 L301.2 215.2 L302.4 210.6 L303.5 206.0 L304.7 201.5 L305.9 197.2 L307.1 192.9 L307.1 192.9 L308.3 188.6 L309.4 184.5 L310.6 180.5 L311.8 176.5 L313.0 172.6 L314.2 168.8 L314.2 168.8 L315.3 165.1 L316.5 161.4 L317.7 157.8 L318.9 154.3 L320.1 150.8 L321.2 147.4 L321.2 147.4 L322.4 144.1 L323.6 140.9 L324.8 137.7 L326.0 134.6 L327.1 131.5 L328.3 128.5 L328.3 128.5 L329.5 125.7 L330.7 123.0 L331.9 120.3 L333.0 117.6 L334.2 115.1 L335.4 112.5 L335.4 112.5 L336.6 110.2 L337.8 107.9 L338.9 105.6 L340.1 103.4 L341.3 101.2 L342.5 99.1 L342.5 99.1 L343.7 97.2 L344.8 95.4 L346.0 93.6 L347.2 91.9 L348.4 90.2 L349.6 88.5 L349.6 88.5 L350.7 87.1 L351.9 85.8 L353.1 84.4 L354.3 83.1 L355.5 81.9 L356.6 80.6 L356.6 80.6 L357.8 79.7 L359.0 78.7 L360.2 77.8 L361.4 76.9 L362.5 76.0 L363.7 75.2 L363.7 75.2 L364.9 74.5 L366.1 73.9 L367.3 73.3 L368.4 72.7 L369.6 72.2 L370.8 71.6 L370.8 71.6 L372.0 71.2 L373.2 70.8 L374.3 70.5 L375.5 70.1 L376.7 69.8 L377.9 69.5 L377.9 69.5 L379.1 69.3 L380.2 69.1 L381.4 68.9 L382.6 68.7 L383.8 68.5 L385.0 68.3 L385.0 68.3 L386.1 68.3 L387.3 68.2 L388.5 68.1 L389.7 68.1 L390.9 68.0 L392.0 67.9 L392.0 67.9 L393.2 67.9 L394.4 67.9 L395.6 67.9 L396.8 67.9 L397.9 67.9 L399.1 67.9 L399.1 67.9 L400.3 68.0 L401.5 68.0 L402.7 68.0 L403.8 68.1 L405.0 68.1 L406.2 68.2 L406.2 68.2 L407.4 68.2 L408.6 68.3 L409.7 68.3 L410.9 68.4 L412.1 68.4 L413.3 68.5 L413.3 68.5 L414.5 68.5 L415.6 68.6 L416.8 68.7 L418.0 68.7 L419.2 68.8 L420.4 68.8 L420.4 68.8 L421.5 68.9 L422.7 68.9 L423.9 69.0 L425.1 69.0 L426.3 69.1 L427.4 69.2 L427.4 69.2 L428.6 69.2 L429.8 69.2 L431.0 69.3 L432.2 69.3 L433.3 69.4 L434.5 69.4 L434.5 69.4 L435.7 69.5 L436.9 69.5 L438.1 69.5 L439.2 69.6 L440.4 69.6 L441.6 69.6 L441.6 69.6 L442.8 69.7 L444.0 69.7 L445.1 69.7 L446.3 69.7 L447.5 69.8 L448.7 69.8 L448.7 69.8 L449.9 69.8 L451.0 69.8 L452.2 69.8 L453.4 69.9 L454.6 69.9 L455.8 69.9 L455.8 69.9 L456.9 69.9 L458.1 69.9 L459.3 69.9 L460.5 69.9 L461.7 70.0 L462.8 70.0 L462.8 70.0 L464.0 70.0 L465.2 70.0 L466.4 70.0 L467.6 70.0 L468.7 70.0 L469.9 70.0 L469.9 70.0 L471.1 70.0 L472.3 70.0 L473.5 70.0 L474.6 70.0 L475.8 70.0 L477.0 70.0 L477.0 70.0 L478.2 70.0 L479.4 70.0 L480.5 70.0 L481.7 70.0 L482.9 70.0 L484.1 70.0 L484.1 70.0 L485.3 70.0 L486.4 70.0 L487.6 70.0 L488.8 70.0 L490.0 70.0 L491.2 70.0 L491.2 70.0 L492.3 70.0 L493.5 70.0 L494.7 70.0 L495.9 70.0 L497.1 70.0 L498.2 70.0 L498.2 70.0 L499.4 70.0 L500.6 70.0 L501.8 70.0 L503.0 70.0 L504.1 70.0 L505.3 70.0 L505.3 70.0 L506.5 70.0 L507.7 70.0 L508.9 70.0 L510.0 70.0 L511.2 70.0 L512.4 70.0 L512.4 70.0 L513.6 70.0 L514.8 70.0 L515.9 70.0 L517.1 70.0 L518.3 70.0 L519.5 70.0 L519.5 70.0 L520.7 70.0 L521.8 70.0 L523.0 70.0 L524.2 70.0 L525.4 70.0 L526.6 70.0 L526.6 70.0 L527.7 70.0 L528.9 70.0 L530.1 70.0 L531.3 70.0 L532.5 70.0 L533.6 70.0" stroke="#ffe7b8" stroke-opacity=".35" stroke-width="1.1"/>
+       <path d="M300.0 300.0 H307.1 V300.0 H314.2 V300.0 H321.2 V300.0 H328.3 V301.8 H335.4 V303.4 H342.5 V306.4 H349.6 V309.8 H356.6 V313.1 H363.7 V315.9 H370.8 V318.2 H377.9 V319.9 H385.0 V321.2 H392.0 V322.0 H399.1 V322.5 H406.2 V322.8 H413.3 V322.9 H420.4 V322.9 H427.4 V322.9 H434.5 V322.8 H441.6 V322.8 H448.7 V322.7 H455.8 V322.6 H462.8 V322.6 H469.9 V322.6 H477.0 V322.5 H484.1 V322.5 H491.2 V322.5 H498.2 V322.5 H505.3 V322.5 H512.4 V322.5 H519.5 V322.5 H526.6 V322.5 H533.6" stroke="#e7a93c" stroke-width="7" stroke-opacity=".55" filter="url(#glow)"/>
+       <path d="M300.0 300.0 H307.1 V300.0 H314.2 V300.0 H321.2 V300.0 H328.3 V301.8 H335.4 V303.4 H342.5 V306.4 H349.6 V309.8 H356.6 V313.1 H363.7 V315.9 H370.8 V318.2 H377.9 V319.9 H385.0 V321.2 H392.0 V322.0 H399.1 V322.5 H406.2 V322.8 H413.3 V322.9 H420.4 V322.9 H427.4 V322.9 H434.5 V322.8 H441.6 V322.8 H448.7 V322.7 H455.8 V322.6 H462.8 V322.6 H469.9 V322.6 H477.0 V322.5 H484.1 V322.5 H491.2 V322.5 H498.2 V322.5 H505.3 V322.5 H512.4 V322.5 H519.5 V322.5 H526.6 V322.5 H533.6" stroke="#fff3da" stroke-width="1.8"/>
+      </g>
+     </g>
+     <circle cx="150" cy="214" r="4" fill="#f6d999"/>
+     <g id="ms-dots" clip-path="url(#ms-clip)"><g fill="#f2c260" opacity=".7" filter="url(#glow)"><circle cx="300.0" cy="220" r="2.8"/><circle cx="307.1" cy="192.9" r="2.8"/><circle cx="314.2" cy="168.8" r="2.8"/><circle cx="321.2" cy="147.4" r="2.8"/><circle cx="328.3" cy="128.5" r="2.8"/><circle cx="335.4" cy="112.5" r="2.8"/><circle cx="342.5" cy="99.1" r="2.8"/><circle cx="349.6" cy="88.5" r="2.8"/><circle cx="356.6" cy="80.6" r="2.8"/><circle cx="363.7" cy="75.2" r="2.8"/><circle cx="370.8" cy="71.6" r="2.8"/><circle cx="377.9" cy="69.5" r="2.8"/><circle cx="385.0" cy="68.3" r="2.8"/><circle cx="392.0" cy="67.9" r="2.8"/><circle cx="399.1" cy="67.9" r="2.8"/><circle cx="406.2" cy="68.2" r="2.8"/><circle cx="413.3" cy="68.5" r="2.8"/><circle cx="420.4" cy="68.8" r="2.8"/><circle cx="427.4" cy="69.2" r="2.8"/><circle cx="434.5" cy="69.4" r="2.8"/><circle cx="441.6" cy="69.6" r="2.8"/><circle cx="448.7" cy="69.8" r="2.8"/><circle cx="455.8" cy="69.9" r="2.8"/><circle cx="462.8" cy="70.0" r="2.8"/><circle cx="469.9" cy="70.0" r="2.8"/><circle cx="477.0" cy="70.0" r="2.8"/><circle cx="484.1" cy="70.0" r="2.8"/><circle cx="491.2" cy="70.0" r="2.8"/><circle cx="498.2" cy="70.0" r="2.8"/><circle cx="505.3" cy="70.0" r="2.8"/><circle cx="512.4" cy="70.0" r="2.8"/><circle cx="519.5" cy="70.0" r="2.8"/><circle cx="526.6" cy="70.0" r="2.8"/></g><g fill="#fff3da"><circle cx="300.0" cy="220" r="2.8"/><circle cx="307.1" cy="192.9" r="2.8"/><circle cx="314.2" cy="168.8" r="2.8"/><circle cx="321.2" cy="147.4" r="2.8"/><circle cx="328.3" cy="128.5" r="2.8"/><circle cx="335.4" cy="112.5" r="2.8"/><circle cx="342.5" cy="99.1" r="2.8"/><circle cx="349.6" cy="88.5" r="2.8"/><circle cx="356.6" cy="80.6" r="2.8"/><circle cx="363.7" cy="75.2" r="2.8"/><circle cx="370.8" cy="71.6" r="2.8"/><circle cx="377.9" cy="69.5" r="2.8"/><circle cx="385.0" cy="68.3" r="2.8"/><circle cx="392.0" cy="67.9" r="2.8"/><circle cx="399.1" cy="67.9" r="2.8"/><circle cx="406.2" cy="68.2" r="2.8"/><circle cx="413.3" cy="68.5" r="2.8"/><circle cx="420.4" cy="68.8" r="2.8"/><circle cx="427.4" cy="69.2" r="2.8"/><circle cx="434.5" cy="69.4" r="2.8"/><circle cx="441.6" cy="69.6" r="2.8"/><circle cx="448.7" cy="69.8" r="2.8"/><circle cx="455.8" cy="69.9" r="2.8"/><circle cx="462.8" cy="70.0" r="2.8"/><circle cx="469.9" cy="70.0" r="2.8"/><circle cx="477.0" cy="70.0" r="2.8"/><circle cx="484.1" cy="70.0" r="2.8"/><circle cx="491.2" cy="70.0" r="2.8"/><circle cx="498.2" cy="70.0" r="2.8"/><circle cx="505.3" cy="70.0" r="2.8"/><circle cx="512.4" cy="70.0" r="2.8"/><circle cx="519.5" cy="70.0" r="2.8"/><circle cx="526.6" cy="70.0" r="2.8"/></g></g>
+     <circle id="ms-cur" cx="300" cy="220" r="6" fill="none" stroke="#fff3da" stroke-width="1.3" opacity="0"/>
+     <g id="ms-pulses" fill="#fff1cf"><circle r="2.2" opacity="0"/><circle r="2.2" opacity="0"/><circle r="2.2" opacity="0"/><circle r="2.2" opacity="0"/><circle r="2.2" opacity="0"/><circle r="2.2" opacity="0"/><circle r="2.2" opacity="0"/><circle r="2.2" opacity="0"/><circle r="2.2" opacity="0"/><circle r="2.2" opacity="0"/></g>
+     <g class="ms-lab"><text x="170" y="116">encoder</text><text x="540" y="56" text-anchor="end">wheel speed</text><text x="540" y="290" text-anchor="end">PWM ≤ 100%</text></g>
+    </svg>
+    <button class="ms-replay" type="button" aria-label="Replay the illustration’s short animation"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8a4.5 4.5 0 1 0 1.4-3.3M3.2 2.4v2.8H6"/></svg><span>Replay</span></button>
+    </div>
+    <figcaption>Illustration only, not measured data: a sampled speed loop with the PWM command capped at 100%. After each short animation, it holds the finished picture for three seconds, then repeats automatically; the held frame is a presentation pause, not a motor that has stopped. The My system page will use WALL-E’s measured K and τ and our own gains.</figcaption>
+   </figure>
+  </div>
+ </div>
+</section>
+
 <!-- ── Guide for newcomers (added section) ───────────────────── -->
 <section class="guide" id="learn" data-tone="light" aria-labelledby="learn-title">
  <div class="wrap">
   <div class="g-topline"><p class="label">The field guide</p><span class="g-meta">Understand it. Then explore it.</span></div>
   <header class="g-head">
    <h2 class="g-title" id="learn-title">A change.<span>A response.</span></h2>
-   <p class="g-lead">The world changes. A sensor takes time to follow. Dynamics Lab makes that response visible through four browser-based experiments. Start here — no sensor hardware or prior experience needed.</p>
+   <p class="g-lead">The world changes. A sensor takes time to follow. Dynamics Lab makes that response visible, then shows how feedback makes a system faster and more accurate. Start here — no sensor hardware or prior experience needed.</p>
   </header>
 
   <div class="g-example">
@@ -466,12 +960,51 @@ a.irow:hover{padding-left:12px}
    <div class="g-lag"><span class="g-unit">Ramp time lag · seconds</span><h4>How far behind?</h4><p>During steady ramp tracking, compare when the ideal reading and the output reach the same value. This time gap describes the response after its initial transient; the sensor starts responding immediately.</p></div>
   </div>
 
-  <div class="g-path-head"><h3>Four experiments.<br>One learning path.</h3><p>Build your intuition in Modules 1–3, then put it to the test with an unknown sensor in Module 4.</p></div>
-  <ol class="g-path" aria-label="All modules">
+  <div class="g-example g-fb">
+   <figure class="g-diagram">
+    <div class="g-legend"><span class="g-key">Setpoint</span><span class="g-key open">Without control</span><span class="g-key fb">With P control, Kp = 9</span></div>
+    <svg viewBox="0 0 480 250" role="img" aria-label="The first-order system with K = 1 and tau = 1 second reaches 95 percent of its target after 3 seconds. With proportional control, Kp = 9, it responds ten times faster but settles 10 percent below the setpoint.">
+     <g stroke="#b9c4d0" stroke-opacity=".1"><path d="M30 50H458M30 100H458M30 150H458M30 200H458M137 30V218M244 30V218M351 30V218"/></g>
+     <path d="M30 218H458" stroke="#8996a6" stroke-opacity=".4"/>
+     <path d="M30 218V50H458" fill="none" stroke="#b5bfcb" stroke-width="2" stroke-dasharray="5 6"/>
+     <path d="M30.00 218.00 L32.14 214.67 L34.28 211.41 L36.42 208.22 L38.56 205.08 L40.70 202.01 L42.84 199.00 L44.98 196.05 L47.12 193.16 L49.26 190.33 L51.40 187.55 L53.54 184.82 L55.68 182.15 L57.82 179.54 L59.96 176.97 L62.10 174.46 L64.24 171.99 L66.38 169.58 L68.52 167.21 L70.66 164.89 L72.80 162.61 L74.94 160.38 L77.08 158.20 L79.22 156.06 L81.36 153.96 L83.50 151.90 L85.64 149.88 L87.78 147.90 L89.92 145.96 L92.06 144.06 L94.20 142.20 L96.34 140.37 L98.48 138.59 L100.62 136.83 L102.76 135.11 L104.90 133.43 L107.04 131.77 L109.18 130.16 L111.32 128.57 L113.46 127.01 L115.60 125.49 L117.74 123.99 L119.88 122.53 L122.02 121.09 L124.16 119.68 L126.30 118.30 L128.44 116.95 L130.58 115.63 L132.72 114.33 L134.86 113.05 L137.00 111.80 L139.14 110.58 L141.28 109.38 L143.42 108.20 L145.56 107.05 L147.70 105.92 L149.84 104.82 L151.98 103.73 L154.12 102.67 L156.26 101.62 L158.40 100.60 L160.54 99.60 L162.68 98.62 L164.82 97.65 L166.96 96.71 L169.10 95.79 L171.24 94.88 L173.38 93.99 L175.52 93.12 L177.66 92.27 L179.80 91.43 L181.94 90.61 L184.08 89.80 L186.22 89.02 L188.36 88.24 L190.50 87.49 L192.64 86.74 L194.78 86.02 L196.92 85.30 L199.06 84.60 L201.20 83.92 L203.34 83.25 L205.48 82.59 L207.62 81.94 L209.76 81.31 L211.90 80.69 L214.04 80.08 L216.18 79.49 L218.32 78.90 L220.46 78.33 L222.60 77.77 L224.74 77.22 L226.88 76.68 L229.02 76.15 L231.16 75.64 L233.30 75.13 L235.44 74.63 L237.58 74.14 L239.72 73.66 L241.86 73.20 L244.00 72.74 L246.14 72.29 L248.28 71.84 L250.42 71.41 L252.56 70.99 L254.70 70.57 L256.84 70.17 L258.98 69.77 L261.12 69.37 L263.26 68.99 L265.40 68.61 L267.54 68.25 L269.68 67.89 L271.82 67.53 L273.96 67.18 L276.10 66.84 L278.24 66.51 L280.38 66.18 L282.52 65.86 L284.66 65.55 L286.80 65.24 L288.94 64.94 L291.08 64.64 L293.22 64.35 L295.36 64.07 L297.50 63.79 L299.64 63.52 L301.78 63.25 L303.92 62.99 L306.06 62.73 L308.20 62.48 L310.34 62.23 L312.48 61.99 L314.62 61.75 L316.76 61.52 L318.90 61.29 L321.04 61.07 L323.18 60.85 L325.32 60.63 L327.46 60.42 L329.60 60.22 L331.74 60.01 L333.88 59.82 L336.02 59.62 L338.16 59.43 L340.30 59.24 L342.44 59.06 L344.58 58.88 L346.72 58.71 L348.86 58.53 L351.00 58.36 L353.14 58.20 L355.28 58.04 L357.42 57.88 L359.56 57.72 L361.70 57.57 L363.84 57.42 L365.98 57.27 L368.12 57.13 L370.26 56.99 L372.40 56.85 L374.54 56.71 L376.68 56.58 L378.82 56.45 L380.96 56.32 L383.10 56.20 L385.24 56.07 L387.38 55.95 L389.52 55.84 L391.66 55.72 L393.80 55.61 L395.94 55.50 L398.08 55.39 L400.22 55.28 L402.36 55.18 L404.50 55.07 L406.64 54.97 L408.78 54.87 L410.92 54.78 L413.06 54.68 L415.20 54.59 L417.34 54.50 L419.48 54.41 L421.62 54.32 L423.76 54.24 L425.90 54.15 L428.04 54.07 L430.18 53.99 L432.32 53.91 L434.46 53.83 L436.60 53.76 L438.74 53.68 L440.88 53.61 L443.02 53.54 L445.16 53.47 L447.30 53.40 L449.44 53.33 L451.58 53.27 L453.72 53.20 L455.86 53.14 L458.00 53.08" fill="none" stroke="#8996a6" stroke-width="2.2" stroke-linecap="round"/>
+     <path d="M30.00 218.00 L31.07 203.61 L32.14 190.59 L33.21 178.81 L34.28 168.15 L35.35 158.51 L36.42 149.78 L38.56 134.74 L40.70 122.42 L42.84 112.34 L46.05 100.54 L49.26 91.79 L53.54 83.55 L57.82 78.03 L62.10 74.33 L67.45 71.37 L72.80 69.57 L83.50 67.82 L94.20 67.17 L115.60 66.85 L137.00 66.81 L190.50 66.80 L244.00 66.80 L351.00 66.80 L458.00 66.80" fill="none" stroke="#7fe9bd" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+     <circle cx="351" cy="58.4" r="4" fill="#8996a6"/><circle cx="40.7" cy="122.4" r="4" fill="#7fe9bd"/>
+     <path d="M446 50V66.8M442 50H450M442 66.8H450" stroke="#7fe9bd" stroke-width="1.4"/>
+     <g fill="#aab6c4" font-family="Inter Tight,Arial,sans-serif" font-size="13"><text x="351" y="36" text-anchor="middle">95% after 3 s</text><text x="52" y="127">τ = 0.1 s</text><text x="436" y="88" text-anchor="end">10% short</text><text x="137" y="238" text-anchor="middle">1 s</text><text x="244" y="238" text-anchor="middle">2 s</text><text x="351" y="238" text-anchor="middle">3 s</text></g>
+    </svg>
+    <figcaption>The first-order system from Part 1 (K = 1, τ = 1 s) on its own, and inside a loop with a proportional controller. Both curves are the closed-form step responses.</figcaption>
+   </figure>
+   <div class="g-copy g-copy-r">
+    <p class="g-kicker">Part 2, in one example</p>
+    <h3>A slow system.<br>A controller that pushes.</h3>
+    <p>On its own, the system needs 3 s to reach 95% of its target. Close the loop with a proportional controller, Kp = 9, and the time constant drops to τ / (1 + K·Kp) = 0.1 s, ten times faster. But it settles 10% short.</p>
+    <p>An integral term removes that remaining error. A derivative term reacts to how fast the output is changing; whether it helps depends on the plant and the gains, which P1 lets you test one gain at a time.</p>
+    <dl class="g-terms">
+     <div><dt>Setpoint</dt><dd>The target the controller is asked to reach.</dd></div>
+     <div><dt>Error</dt><dd>The setpoint minus what the sensor reports. It is all the controller can see.</dd></div>
+    </dl>
+   </div>
+  </div>
+
+  <div class="g-path-head"><h3>Two parts.<br>One learning path.</h3><p>Build your intuition for sensors in Part 1, close the loop in Part 2, then apply the design to WALL-E’s drive motor.</p></div>
+  <p class="g-group">Part 1 · Sensor dynamics</p>
+  <ol class="g-path" aria-label="Part 1 modules">
    <li style="--module-color:#9a5414"><a href="module-1.html"><span class="g-num">01</span><span><span class="g-name">First-order time response</span><span class="g-desc">Step and ramp inputs. Explore gain, time constant, remaining error and how a reading catches up.</span></span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></a></li>
    <li style="--module-color:#236780"><a href="module-2.html"><span class="g-num">02</span><span><span class="g-name">First-order frequency response</span><span class="g-desc">Repeating inputs. Discover why faster changes reduce the output amplitude and increase its phase lag.</span></span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></a></li>
    <li style="--module-color:#725591"><a href="module-3.html"><span class="g-num">03</span><span><span class="g-name">Second-order response</span><span class="g-desc">Damping and natural frequency. See why a response can overshoot, oscillate and eventually settle.</span></span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></a></li>
    <li style="--module-color:#4f6562"><a href="module-4.html"><span class="g-num">04</span><span><span class="g-name">Guess the sensor</span><span class="g-desc">A noisy response, hidden parameters. Estimate them, reveal the true curve and build your session score.</span></span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></a></li>
+  </ol>
+  <p class="g-group">Part 2 · PID control</p>
+  <ol class="g-path" aria-label="Part 2 experiments">
+   <li style="--module-color:#1b6e51"><a href="pid-playground.html"><span class="g-num">P1</span><span><span class="g-name">PID playground</span><span class="g-desc">Add P, then I, then D, and see what each does to rise time, overshoot, settling time and steady-state error.</span></span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></a></li>
+   <li style="--module-color:#1b6e51"><a href="slow-sensor.html"><span class="g-num">P2</span><span><span class="g-name">A slow sensor in the loop</span><span class="g-desc">Part 1’s lag comes back: a slow sensor in the feedback path pushes the loop towards oscillation.</span></span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></a></li>
+   <li style="--module-color:#1b6e51"><span class="g-row is-dev" data-mod="p3"><span class="g-num">P3</span><span><span class="g-name">Digital PID</span><span class="g-desc">The controller as it runs on an Arduino: a stair-step command, anti-windup and the effect of the sampling time.</span><span class="status" data-mod-status="">In development</span></span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></li>
+   <li style="--module-color:#1b6e51"><span class="g-row is-dev" data-mod="p4"><span class="g-num">P4</span><span><span class="g-name">Tuning challenge</span><span class="g-desc">A hidden plant and a specification. Pass or fail on each part, and a score.</span><span class="status" data-mod-status="">In development</span></span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></li>
+  </ol>
+  <p class="g-group">Applied · My system</p>
+  <ol class="g-path" aria-label="Applied design">
+   <li style="--module-color:#7d5a0e"><span class="g-row is-dev" data-mod="sys"><span class="g-num">MS</span><span><span class="g-name">WALL-E’s drive motor</span><span class="g-desc">Our own plant: a measured K and τ, a chosen specification, the final gains, the simulated response and the Arduino code.</span><span class="status" data-mod-status="">In development</span></span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></li>
   </ol>
 
   <div class="g-start"><div><h3>Your first experiment starts here.</h3><p>Open Module 1, choose Step, and change the time constant.</p></div><a class="cta dark" href="module-1.html">Start experimenting<span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></a></div>
@@ -523,15 +1056,6 @@ menu.addEventListener("click", function (e) { if (e.target.closest("a")) setMenu
 menu.addEventListener("focusout", function (e) { if (e.relatedTarget && !menu.contains(e.relatedTarget) && e.relatedTarget !== btn) setMenu(false); });
 document.addEventListener("click", function (e) { if (!menu.hidden && !menu.contains(e.target) && !btn.contains(e.target)) setMenu(false); });
 document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !menu.hidden) { setMenu(false); btn.focus(); } });
-
-/* Control menu */
-var controlBtn = $("#control-btn"), controlMenu = $("#control-menu");
-function setControlMenu(open) { controlBtn.setAttribute("aria-expanded", String(open)); controlMenu.hidden = !open; }
-controlBtn.addEventListener("click", function () { setControlMenu(controlMenu.hidden); });
-controlMenu.addEventListener("click", function (e) { if (e.target.closest("a")) setControlMenu(false); });
-controlMenu.addEventListener("focusout", function (e) { if (e.relatedTarget && !controlMenu.contains(e.relatedTarget) && e.relatedTarget !== controlBtn) setControlMenu(false); });
-document.addEventListener("click", function (e) { if (!controlMenu.hidden && !controlMenu.contains(e.target) && !controlBtn.contains(e.target)) setControlMenu(false); });
-document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !controlMenu.hidden) { setControlMenu(false); controlBtn.focus(); } });
 
 /* Elements */
 var hdr = $("#hdr"), hero = $("#top"), heroIn = $(".hero-in"), bars = $$(".wipe i"), toned = $$("main [data-tone], .foot");
@@ -795,6 +1319,7 @@ function heroSize() {
     motes = [];
     for (var i = 0; i < n; i++) motes.push({ x: Math.random(), y: Math.random(), r: 0.5 + Math.random() * 1.3, v: 0.006 + Math.random() * 0.014, p: Math.random() * 6.283, a: 0.08 + Math.random() * 0.22 });
   }
+  sceneLayout();
 }
 function heroDraw(t, live) {
   if (!hctx) return;
@@ -859,11 +1384,11 @@ function heroDraw(t, live) {
 }
 function heroLoop(now) {
   var dt = hlast ? Math.min(0.25, (now - hlast) / 1000) : 1 / 60;
-  hlast = now; ht += dt; heroDraw(ht, true);
+  hlast = now; ht += dt; st += dt; sceneRender(ht, true);
   hraf = requestAnimationFrame(heroLoop);
 }
 function heroSync() {                               // run only while visible, on screen and not wiped away
-  var on = motion && !!hctx && hVis && !document.hidden && heroP < 0.985;
+  var on = motion && !!hctx && hVis && !document.hidden && heroP < 0.985 && !paused;
   if (on && !hraf) { hlast = 0; hraf = requestAnimationFrame(heroLoop); }
   else if (!on && hraf) { cancelAnimationFrame(hraf); hraf = 0; }
 }
@@ -871,6 +1396,255 @@ if (hctx && "IntersectionObserver" in window) {
   new IntersectionObserver(function (en) { hVis = en[en.length - 1].isIntersecting; heroSync(); }).observe(hero);
 }
 document.addEventListener("visibilitychange", heroSync);
+
+/* ── Hero scenes (Homework 2) ──────────────────────────────────
+   Two scenes share the canvas and alternate about every 15 s.
+   1 · Response — the original atmosphere above, drawn by heroDraw()
+       unchanged. It is always the scene the page opens on.
+   2 · Feedback control — the same step, now inside a loop: a dashed target
+       with its tolerance band, a controlled response that rises fast,
+       overshoots a little, locks on and recovers from a disturbance, the
+       error between them lit as a curtain of thin bars, and the measurement
+       returning along the floor, through the sensor, to the summing
+       junction where the step begins.
+   Scene 2 uses scene 1's horizontal geometry (hx), so the step sits in the
+   same place in both. Its curves come from a second-order closed loop
+   (ζ = 0.6, about 9.5% overshoot) with integral action rejecting the
+   disturbance; they are illustrations, so no axes or numbers are drawn.
+   The title, buttons and navigation never move. */
+var SCN = [
+  { name: "Response", hint: "a sensor reading catching up with a step", dur: 18, still: 8, col: [127, 224, 255] },
+  { name: "Feedback control", hint: "a feedback loop locking a response onto its target", dur: 18, still: 5.4, col: [116, 234, 184] }
+];
+var XF = 2.5, SSTART = [], SCYCLE = 0;
+(function () { var s = 0; for (var i = 0; i < SCN.length; i++) { SSTART.push(s); s += SCN[i].dur - XF; } SCYCLE = s; })();
+var st = XF, paused = false, jumpFrom = -1, jumpLocal = 0, lay = null, s1op = "", stripI = -1;
+var s1g = $(".hero-art .s1"), scnBox = $("#scn"), pauseBtn = $("#scn-pause"), scnTicks = $$(".scn-ticks button");
+var scnNum = $(".scn-num"), scnName = $(".scn-name");
+
+function sm(x) { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); }
+function tint(c, k) { return [c[0] + (255 - c[0]) * k, c[1] + (255 - c[1]) * k, c[2] + (255 - c[2]) * k]; }
+
+/* The controlled response in scene 1's design space (1600 × 900): the step
+   is applied at x = 430, the target is y = 150 and the floor is y = 700.
+   60 design px = 1 unit of model time; ωn = 1.212 puts 2% settling 330 px
+   after the step. A load disturbance at x = 1120 is rejected by the loop. */
+var FB = (function () {
+  var z = 0.6, wn = 1.212, wd = wn * Math.sqrt(1 - z * z), ph = Math.acos(z), pts = [], x, t, r, d;
+  for (x = 260; x <= 1520; x += 4) {
+    t = (x - 430) / 60;
+    r = t <= 0 ? 0 : 1 - Math.exp(-z * wn * t) / Math.sqrt(1 - z * z) * Math.sin(wd * t + ph);
+    d = x <= 1120 ? 0 : -0.31 * Math.exp(-0.9 * (x - 1120) / 60) * Math.sin(1.3 * (x - 1120) / 60);
+    pts.push([x, 700 - 550 * (r + d)]);
+  }
+  return { pts: pts, tgt: 150, floor: 700, ret: 760, step: 430, end: 1520, settle: 760, sensor: 1000 };
+})();
+
+/* Layout: scene 2's vertical map keeps the target, the junction and the
+   return path clear of the header, the scene strip and the description. */
+function sceneLayout() {
+  if (!hctx) return;
+  var d = $(".display"), kick = $(".kicker"), foot = $(".hero-foot"), fp = $(".hero-foot p");
+  var dT = heroIn.offsetTop + d.offsetTop, dH = d.offsetHeight, kT = heroIn.offsetTop + kick.offsetTop;
+  var fs = parseFloat(getComputedStyle(d).fontSize) || 120;
+  hctx.save(); hctx.font = "700 " + fs + "px Antonio, 'Arial Narrow', sans-serif";
+  var tw = Math.max(hctx.measureText("NOTHING IS").width, hctx.measureText("INSTANT.").width); hctx.restore();
+  var wide = hW > 820, fTop = foot.offsetTop + (fp ? fp.offsetTop : 0), y0, y1;
+  if (wide) { y0 = hy(FB.tgt); y1 = Math.min(hy(FB.ret), (scnBox ? scnBox.offsetTop : hH) - 14); }
+  else { y0 = (scnBox ? scnBox.offsetTop + scnBox.offsetHeight : 0.14 * hH) + 46; y1 = Math.min(hy(FB.ret), fTop - 16); }
+  if (y1 - y0 < 120) y1 = y0 + 120;
+  lay = { wide: wide, y0: y0, k: (y1 - y0) / (FB.ret - FB.tgt), s: Math.max(hs, 0.5),
+          q: { x: hW / 2, y: (kT + dT + dH) / 2, rx: Math.min(hW * 0.62, tw / 2 + hW * 0.05), ry: (dT + dH - kT) / 2 + 26 } };
+}
+function fy(y) { return lay.y0 + (y - FB.tgt) * lay.k; }   // scene 2's vertical map
+
+function quiet(c, s) {                            // soften whatever is drawn behind the title and its kicker
+  if (!lay || s <= 0) return;
+  var q = lay.q, g;
+  c.save(); c.globalCompositeOperation = "destination-out"; c.translate(q.x, q.y); c.scale(1, q.ry / q.rx);
+  g = c.createRadialGradient(0, 0, 0, 0, 0, q.rx);
+  g.addColorStop(0, "rgba(0,0,0," + (0.6 * s).toFixed(3) + ")"); g.addColorStop(0.72, "rgba(0,0,0," + (0.38 * s).toFixed(3) + ")"); g.addColorStop(1, "rgba(0,0,0,0)");
+  c.fillStyle = g; c.fillRect(-q.rx, -q.rx, q.rx * 2, q.rx * 2); c.restore();
+}
+function atmos(c, w, col) {                       // the shared glow and drifting motes, tinted for the scene
+  var t = ht, R2 = Math.max(hW, hH), g, i, m, mx, my;
+  c.globalCompositeOperation = "lighter";
+  var gx = hW * (0.64 + 0.05 * Math.sin(t * 0.27)), gy = hH * (0.24 + 0.05 * Math.cos(t * 0.21));
+  g = c.createRadialGradient(gx, gy, 0, gx, gy, R2 * 0.62); g.addColorStop(0, rgb(col, 0.12 * w)); g.addColorStop(1, rgb(col, 0));
+  c.fillStyle = g; c.fillRect(0, 0, hW, hH);
+  var bx = hW * (0.2 + 0.06 * Math.cos(t * 0.19)), by = hH * (0.8 + 0.04 * Math.sin(t * 0.23));
+  g = c.createRadialGradient(bx, by, 0, bx, by, R2 * 0.5); g.addColorStop(0, rgb([90, 200, 210], 0.07 * w)); g.addColorStop(1, rgb([90, 200, 210], 0));
+  c.fillStyle = g; c.fillRect(0, 0, hW, hH);
+  c.fillStyle = rgb(tint(col, 0.65));
+  for (i = 0; i < motes.length; i++) {
+    m = motes[i]; my = ((m.y - t * m.v) % 1 + 1) % 1; mx = m.x + 0.012 * Math.sin(t * 0.5 + m.p);
+    c.globalAlpha = m.a * (0.6 + 0.4 * Math.sin(t * 1.3 + m.p)) * w; c.beginPath(); c.arc(mx * hW, my * hH, m.r, 0, 6.283); c.fill();
+  }
+  c.globalAlpha = 1;
+}
+function glow(c, p, col, w, lw) {                 // a soft three-pass stroke instead of a blur filter
+  c.strokeStyle = rgb(col, 0.08 * w); c.lineWidth = lw * 7; c.stroke(p);
+  c.strokeStyle = rgb(col, 0.22 * w); c.lineWidth = lw * 2.8; c.stroke(p);
+  c.strokeStyle = rgb(tint(col, 0.75), 0.96 * w); c.lineWidth = lw; c.stroke(p);
+}
+function spark(c, x, y, r, col, a) {
+  var g = c.createRadialGradient(x, y, 0, x, y, r);
+  g.addColorStop(0, "rgba(255,255,255," + a.toFixed(3) + ")"); g.addColorStop(0.3, rgb(col, 0.5 * a)); g.addColorStop(1, rgb(col, 0));
+  c.fillStyle = g; c.fillRect(x - r, y - r, r * 2, r * 2);
+}
+
+/* 2 · Feedback control. A pulse runs the loop every 9.6 s: up the response
+   (6 s), then back along the return path (3.2 s), dragging through the
+   sensor, and flashes the junction when it arrives. */
+function scFeedback(c, lt, w) {
+  var col = SCN[1].col, P = FB.pts, n = P.length, s = lay.s, e = sm(lt / XF), i, k, x, y;
+  var reveal = 260 + 1260 * sm((lt - 0.2) / 2.2);
+  atmos(c, w, col); c.globalCompositeOperation = "lighter"; c.lineCap = "round"; c.lineJoin = "round";
+  var xs = hx(FB.step), yT = fy(FB.tgt), yF = fy(FB.floor), yR = fy(FB.ret), xE = hx(FB.end);
+  /* target: the dashed setpoint step, then a soft tolerance band (±2%) once the response has settled */
+  c.setLineDash([3, 9]); c.strokeStyle = rgb([235, 250, 244], 0.42 * w); c.lineWidth = 1.2;
+  c.beginPath(); c.moveTo(0, yF); c.lineTo(xs, yF); c.lineTo(xs, yT); c.lineTo(hx(Math.min(reveal, 1600)), yT); c.stroke(); c.setLineDash([]);
+  var bh = Math.max(3, 0.02 * (FB.floor - FB.tgt) * lay.k), bx0 = hx(FB.settle), bx1 = hx(Math.min(reveal, 1600));
+  if (bx1 > bx0) {
+    var gb = c.createLinearGradient(bx0, 0, bx1, 0); gb.addColorStop(0, rgb(col, 0)); gb.addColorStop(0.18, rgb(col, 0.13 * w)); gb.addColorStop(1, rgb(col, 0.07 * w));
+    c.fillStyle = gb; c.fillRect(bx0, yT - bh, bx1 - bx0, bh * 2);
+  }
+  /* the pulse's position this frame */
+  var cyc = ((lt - 0.6) % 9.6 + 9.6) % 9.6, fwd = lt >= 0.6 && cyc < 6, u = fwd ? cyc / 6 : 0, ci = Math.min(n - 1, Math.round(u * (n - 1))), cx = P[ci][0];
+  /* a soft pool of light travels with the pulse, so the scene is lit from where the signal is */
+  if (fwd) {
+    var lpx = hx(cx), lpy = fy(P[ci][1]), lr = Math.max(hW, hH) * 0.3, lg = c.createRadialGradient(lpx, lpy, 0, lpx, lpy, lr);
+    lg.addColorStop(0, rgb(col, 0.1 * w)); lg.addColorStop(0.5, rgb(col, 0.03 * w)); lg.addColorStop(1, rgb(col, 0));
+    c.fillStyle = lg; c.fillRect(lpx - lr, lpy - lr, lr * 2, lr * 2);
+  }
+  /* error curtain: a bar from the target to the response every 8 px, lit in the pulse's wake;
+     each bar is brighter at the response end and fades towards the target */
+  for (i = 44; i < n; i += 2) {
+    x = P[i][0]; if (x > reveal) break;
+    var err = (P[i][1] - FB.tgt) / (FB.floor - FB.tgt), mag = Math.min(1, Math.abs(err) * 1.6);
+    if (mag < 0.012) continue;
+    var wake = fwd && x <= cx ? Math.exp(-(cx - x) / 140) : 0;
+    var ba = (0.05 + 0.1 * mag + 0.42 * wake * mag) * w, bc = err < 0 ? tint(col, 0.35) : col, xb = hx(x), yb = fy(P[i][1]), ym = yT + (yb - yT) * 0.45;
+    c.lineWidth = 1;
+    c.strokeStyle = rgb(bc, ba * 0.35); c.beginPath(); c.moveTo(xb, yT); c.lineTo(xb, ym); c.stroke();
+    c.strokeStyle = rgb(bc, ba); c.beginPath(); c.moveTo(xb, ym); c.lineTo(xb, yb); c.stroke();
+  }
+  /* the response itself: faint in full, bright up to the reveal */
+  var full = new Path2D(), lit = new Path2D();
+  for (i = 0; i < n; i++) { x = hx(P[i][0]); y = fy(P[i][1]); if (i) full.lineTo(x, y); else full.moveTo(x, y); if (P[i][0] <= reveal) { if (i) lit.lineTo(x, y); else lit.moveTo(x, y); } }
+  c.strokeStyle = rgb(col, 0.16 * w); c.lineWidth = 1.2; c.stroke(full);
+  glow(c, lit, col, w, 2.2);
+  /* return path: from the output, down the right side, back along the floor, up into the junction */
+  var rr = 28 * s, xr = Math.min(hx(FB.end + 46), hW - 10), ret = new Path2D();
+  ret.moveTo(xE, yT); ret.lineTo(xr - rr, yT); ret.arcTo(xr, yT, xr, yT + rr, rr); ret.lineTo(xr, yR - rr); ret.arcTo(xr, yR, xr - rr, yR, rr);
+  ret.lineTo(xs + rr, yR); ret.arcTo(xs, yR, xs, yR - rr, rr); ret.lineTo(xs, yF + 16 * s);
+  c.setLineDash([2, 7]); c.strokeStyle = rgb(col, 0.32 * w * e); c.lineWidth = 1.2; c.stroke(ret); c.setLineDash([]);
+  for (k = 1; k <= 4; k++) {                      // chevrons pointing back along the floor
+    var ax = xs + (xr - xs) * k / 5, hd = 6 * Math.max(s, 0.8);
+    c.strokeStyle = rgb(col, 0.42 * w * e); c.beginPath(); c.moveTo(ax + hd, yR - hd * 0.8); c.lineTo(ax, yR); c.lineTo(ax + hd, yR + hd * 0.8); c.stroke();
+  }
+  var sx = hx(FB.sensor), sw = 58 * Math.max(s, 0.7), sh = 22 * Math.max(s, 0.7);
+  /* the pulse on the return trip: slower through the sensor, where a slow sensor would add lag */
+  var back = !fwd && lt >= 0.6 && cyc < 9.2, glowS = 0;
+  if (back) {
+    var segs = [[xE, yT, xr, yT], [xr, yT, xr, yR], [xr, yR, xs, yR], [xs, yR, xs, yF + 16 * s]], L = 0, j;
+    for (j = 0; j < 4; j++) L += Math.abs(segs[j][2] - segs[j][0]) + Math.abs(segs[j][3] - segs[j][1]);
+    var f = (cyc - 6) / 3.2, d0 = L * f, slow = 0;
+    for (k = 0; k < 12; k++) {
+      var dd = d0 - k * (glowS ? 11 : 5), q = null, acc = 0;
+      if (dd < 0) break;
+      for (j = 0; j < 4; j++) { var sl = Math.abs(segs[j][2] - segs[j][0]) + Math.abs(segs[j][3] - segs[j][1]); if (dd <= acc + sl) { var ff = (dd - acc) / sl; q = [segs[j][0] + (segs[j][2] - segs[j][0]) * ff, segs[j][1] + (segs[j][3] - segs[j][1]) * ff]; break; } acc += sl; }
+      if (!q) continue;
+      if (k === 0 && Math.abs(q[1] - yR) < 1 && Math.abs(q[0] - sx) < sw / 2) glowS = 1;
+      spark(c, q[0], q[1], k ? 8 * Math.max(s, 0.7) : 16 * Math.max(s, 0.7), col, (k ? 0.55 * (1 - k / 12) : 1) * w);
+    }
+  }
+  c.fillStyle = rgb(col, (0.05 + 0.1 * glowS) * w * e); c.strokeStyle = rgb(col, (0.45 + 0.4 * glowS) * w * e); c.lineWidth = 1.1;
+  c.beginPath(); if (c.roundRect) c.roundRect(sx - sw / 2, yR - sh / 2, sw, sh, 4); else c.rect(sx - sw / 2, yR - sh / 2, sw, sh); c.fill(); c.stroke();
+  c.beginPath(); c.moveTo(sx - sw * 0.28, yR + sh * 0.18); c.lineTo(sx - sw * 0.08, yR + sh * 0.18); c.lineTo(sx - sw * 0.08, yR - sh * 0.18); c.lineTo(sx + sw * 0.3, yR - sh * 0.18); c.stroke();
+  /* summing junction where the step begins; it flashes as each measurement arrives */
+  var flash = lt >= 0.6 && cyc >= 9.2 ? 1 - (cyc - 9.2) / 0.4 : 0, rj = 15 * Math.max(s, 0.75);
+  c.strokeStyle = rgb(tint(col, 0.3), (0.7 + 0.3 * flash) * w * e); c.lineWidth = 1.4; c.beginPath(); c.arc(xs, yF, rj, 0, 6.2832); c.stroke();
+  c.beginPath(); c.moveTo(xs - rj * 0.45, yF); c.lineTo(xs + rj * 0.45, yF); c.moveTo(xs, yF - rj * 0.45); c.lineTo(xs, yF + rj * 0.45); c.stroke();
+  if (flash > 0) { c.strokeStyle = rgb(col, 0.5 * flash * w); c.beginPath(); c.arc(xs, yF, rj * (1.4 + (1 - flash) * 3), 0, 6.2832); c.stroke(); }
+  /* the pulse on its way up the response, and a soft lock-on flash where it first settles */
+  if (fwd) {
+    var tail = new Path2D(), i0 = Math.max(0, ci - 70);
+    for (i = i0; i <= ci; i++) { x = hx(P[i][0]); y = fy(P[i][1]); if (i > i0) tail.lineTo(x, y); else tail.moveTo(x, y); }
+    var gt = c.createLinearGradient(hx(P[i0][0]), 0, hx(cx), 0); gt.addColorStop(0, rgb(col, 0)); gt.addColorStop(1, rgb([235, 255, 246], 0.9 * w));
+    c.strokeStyle = gt; c.lineWidth = 3; c.stroke(tail);
+    spark(c, hx(cx), fy(P[ci][1]), 30 * Math.max(s, 0.6), col, w);
+    var lk = (cx - FB.settle) / 90;
+    if (lk > 0 && lk < 1) spark(c, hx(FB.settle), yT, 90 * s * (0.6 + lk), col, 0.45 * (1 - lk) * w);
+  }
+  c.globalCompositeOperation = "source-over";
+}
+var DRAW = [null, scFeedback];
+
+/* Timeline: scene i runs for dur seconds and overlaps the next by XF. */
+function mixAt(tau) {
+  tau = ((tau % SCYCLE) + SCYCLE) % SCYCLE;
+  var j = SCN.length - 1; while (j > 0 && SSTART[j] > tau) j--;
+  var lt = tau - SSTART[j]; if (lt >= XF) return [{ i: j, lt: lt, w: 1 }];
+  var m = sm(lt / XF), p, lp;
+  if (jumpFrom >= 0) { p = jumpFrom; lp = jumpLocal + lt; }
+  else { p = (j + SCN.length - 1) % SCN.length; lp = j === 0 ? tau + SCYCLE - SSTART[p] : tau - SSTART[p]; }
+  return p === j ? [{ i: j, lt: lt, w: 1 }] : [{ i: p, lt: lp, w: 1 - m }, { i: j, lt: lt, w: m }];
+}
+function primary(parts) { return parts.length > 1 && parts[0].w > parts[1].w ? parts[0] : parts[parts.length - 1]; }
+
+function sceneRender(t, live) {
+  if (!hctx) return;
+  var parts = mixAt(st), c = hctx, w0 = 0, k;
+  if (parts.length === 1) jumpFrom = -1;
+  for (k = 0; k < parts.length; k++) if (parts[k].i === 0) w0 = parts[k].w;
+  if (w0 > 0) {
+    heroDraw(t, live);                            // scene 1, exactly as before
+    if (w0 < 1) {
+      c.setTransform(1, 0, 0, 1, 0, 0); c.globalCompositeOperation = "destination-out"; c.globalAlpha = 1 - w0;
+      c.fillStyle = "#000"; c.fillRect(0, 0, hcv.width, hcv.height); c.globalAlpha = 1; c.globalCompositeOperation = "source-over";
+    }
+  } else { c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, hcv.width, hcv.height); }
+  if (lay) {
+    c.setTransform(hd, 0, 0, hd, 0, 0);
+    for (k = 0; k < parts.length; k++) if (parts[k].i > 0) DRAW[parts[k].i](c, parts[k].lt, parts[k].w);
+    quiet(c, (1 - w0) * 0.9);
+    c.globalCompositeOperation = "source-over"; c.globalAlpha = 1; c.setLineDash([]);
+  }
+  var op = w0.toFixed(2); if (op !== s1op && s1g) { s1op = op; s1g.style.opacity = op; }
+  stripSync(primary(parts));
+}
+function heroStill() { sceneRender(motion ? ht : 5, motion); }
+
+function stripSync(p) {
+  if (!scnBox) return;
+  if (p.i !== stripI) {
+    stripI = p.i;
+    scnNum.textContent = pad(p.i + 1); scnName.textContent = SCN[p.i].name;
+    scnBox.style.setProperty("--scn", rgb(tint(SCN[p.i].col, 0.15)));
+    scnTicks.forEach(function (b, i) { b.setAttribute("aria-current", String(i === p.i)); if (i !== p.i) b.style.setProperty("--p", "0"); });
+  }
+  scnTicks[p.i].style.setProperty("--p", clamp(p.lt / (SCN[p.i].dur - XF), 0, 1).toFixed(3));
+}
+function goScene(i) {
+  var cur = primary(mixAt(st));
+  if (hraf) { if (cur.i === i) return; jumpFrom = cur.i; jumpLocal = cur.lt; st = SSTART[i]; }
+  else { jumpFrom = -1; st = SSTART[i] + Math.min(SCN[i].still, SCN[i].dur - XF - 0.05); heroStill(); }
+}
+scnTicks.forEach(function (b, i) { b.addEventListener("click", function () { goScene(i); }); });
+
+/* Pause: stops the hero, the scroll cue and the Part 2 animations, and is
+   remembered on this device. Reduced-motion users get still frames anyway. */
+try { paused = localStorage.getItem("dynamics-lab-motion") === "paused"; } catch (err) { paused = false; }
+function setPaused(v) {
+  paused = v; root.classList.toggle("paused", v);
+  if (pauseBtn) pauseBtn.querySelector("span").textContent = v ? "Play motion" : "Pause motion";
+  try { localStorage.setItem("dynamics-lab-motion", v ? "paused" : "playing"); } catch (err) { /* storage unavailable: the choice lasts for this visit */ }
+  heroSync(); if (!hraf) heroStill();
+}
+root.classList.toggle("paused", paused);
+if (pauseBtn) { pauseBtn.querySelector("span").textContent = paused ? "Play motion" : "Pause motion"; pauseBtn.addEventListener("click", function () { setPaused(!paused); }); }
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (hctx) { heroSize(); if (!hraf) heroStill(); } });
 
 function setMode() {
   motion = !reduce.matches && !!window.requestAnimationFrame && !!ctx;
@@ -884,26 +1658,27 @@ function setMode() {
     stage.style.removeProperty("--accent"); stage.style.removeProperty("--glow"); uiKey = "";
     heroIn.removeAttribute("style"); bars.concat(imgs, fogs, caps).forEach(function (el) { el.removeAttribute("style"); });
     caps.forEach(function (c) { c.classList.remove("on"); }); heroP = 0; tone();
-    heroSync(); heroDraw(5, false);
+    heroSync(); heroStill();
   }
 }
 window.addEventListener("scroll", function () { if (motion) kick(); else tone(); }, { passive: true });
 window.addEventListener("resize", function () {
-  if (hctx) { heroSize(); if (!motion) heroDraw(5, false); }
+  if (hctx) { heroSize(); if (!hraf) heroStill(); }
   if (motion) { measure(); lastKey = ""; kick(); }
 });
 window.addEventListener("load", function () {
-  if (hctx) { heroSize(); if (!motion) heroDraw(5, false); }
+  if (hctx) { heroSize(); if (!hraf) heroStill(); }
   if (motion) { measure(); kick(); }
 });
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (motion) { measure(); kick(); } });
 if (reduce.addEventListener) reduce.addEventListener("change", setMode); else if (reduce.addListener) reduce.addListener(setMode);
 setMode();
+if (hctx && !hraf) heroStill();
 })();
 </script>
 <dialog class="home-phone-dialog" id="home-phone-dialog" aria-labelledby="home-phone-title">
  <div class="home-phone-head"><div><p class="label">Dynamics Lab · Mobile</p><h2 id="home-phone-title">Open on your phone.</h2></div><button class="home-phone-close" id="home-phone-close" type="button" aria-label="Close phone instructions" autofocus>×</button></div>
- <p>Scan this code with your phone’s camera, then tap the link. All four experiments open in your browser — no app installation needed.</p>
+ <p>Scan this code with your phone’s camera, then tap the link. Every experiment opens in your browser — no app installation needed.</p>
  <div class="home-phone-qr"><svg role="img" aria-label="QR code for the live toolkit" width="32.8mm" height="32.8mm" version="1.1" viewBox="0 0 32.8 32.8" xmlns="http://www.w3.org/2000/svg"><path d="M3.2,3.2H4V4H3.2zM4,3.2H4.8V4H4zM4.8,3.2H5.6V4H4.8zM5.6,3.2H6.4V4H5.6zM6.4,3.2H7.2V4H6.4zM7.2,3.2H8V4H7.2zM8,3.2H8.8V4H8zM10.4,3.2H11.2V4H10.4zM17.6,3.2H18.4V4H17.6zM18.4,3.2H19.2V4H18.4zM19.2,3.2H20V4H19.2zM21.6,3.2H22.4V4H21.6zM24,3.2H24.8V4H24zM24.8,3.2H25.6V4H24.8zM25.6,3.2H26.4V4H25.6zM26.4,3.2H27.2V4H26.4zM27.2,3.2H28V4H27.2zM28,3.2H28.8V4H28zM28.8,3.2H29.6V4H28.8zM3.2,4H4V4.8H3.2zM8,4H8.8V4.8H8zM11.2,4H12V4.8H11.2zM15.2,4H16V4.8H15.2zM17.6,4H18.4V4.8H17.6zM19.2,4H20V4.8H19.2zM20.8,4H21.6V4.8H20.8zM24,4H24.8V4.8H24zM28.8,4H29.6V4.8H28.8zM3.2,4.8H4V5.6H3.2zM4.8,4.8H5.6V5.6H4.8zM5.6,4.8H6.4V5.6H5.6zM6.4,4.8H7.2V5.6H6.4zM8,4.8H8.8V5.6H8zM9.6,4.8H10.4V5.6H9.6zM10.4,4.8H11.2V5.6H10.4zM11.2,4.8H12V5.6H11.2zM12,4.8H12.8V5.6H12zM14.4,4.8H15.2V5.6H14.4zM19.2,4.8H20V5.6H19.2zM20,4.8H20.8V5.6H20zM24,4.8H24.8V5.6H24zM25.6,4.8H26.4V5.6H25.6zM26.4,4.8H27.2V5.6H26.4zM27.2,4.8H28V5.6H27.2zM28.8,4.8H29.6V5.6H28.8zM3.2,5.6H4V6.4H3.2zM4.8,5.6H5.6V6.4H4.8zM5.6,5.6H6.4V6.4H5.6zM6.4,5.6H7.2V6.4H6.4zM8,5.6H8.8V6.4H8zM9.6,5.6H10.4V6.4H9.6zM11.2,5.6H12V6.4H11.2zM12.8,5.6H13.6V6.4H12.8zM15.2,5.6H16V6.4H15.2zM16.8,5.6H17.6V6.4H16.8zM17.6,5.6H18.4V6.4H17.6zM19.2,5.6H20V6.4H19.2zM20.8,5.6H21.6V6.4H20.8zM22.4,5.6H23.2V6.4H22.4zM24,5.6H24.8V6.4H24zM25.6,5.6H26.4V6.4H25.6zM26.4,5.6H27.2V6.4H26.4zM27.2,5.6H28V6.4H27.2zM28.8,5.6H29.6V6.4H28.8zM3.2,6.4H4V7.2H3.2zM4.8,6.4H5.6V7.2H4.8zM5.6,6.4H6.4V7.2H5.6zM6.4,6.4H7.2V7.2H6.4zM8,6.4H8.8V7.2H8zM9.6,6.4H10.4V7.2H9.6zM10.4,6.4H11.2V7.2H10.4zM11.2,6.4H12V7.2H11.2zM12,6.4H12.8V7.2H12zM12.8,6.4H13.6V7.2H12.8zM13.6,6.4H14.4V7.2H13.6zM14.4,6.4H15.2V7.2H14.4zM15.2,6.4H16V7.2H15.2zM16,6.4H16.8V7.2H16zM16.8,6.4H17.6V7.2H16.8zM18.4,6.4H19.2V7.2H18.4zM20,6.4H20.8V7.2H20zM21.6,6.4H22.4V7.2H21.6zM24,6.4H24.8V7.2H24zM25.6,6.4H26.4V7.2H25.6zM26.4,6.4H27.2V7.2H26.4zM27.2,6.4H28V7.2H27.2zM28.8,6.4H29.6V7.2H28.8zM3.2,7.2H4V8H3.2zM8,7.2H8.8V8H8zM9.6,7.2H10.4V8H9.6zM10.4,7.2H11.2V8H10.4zM11.2,7.2H12V8H11.2zM12.8,7.2H13.6V8H12.8zM13.6,7.2H14.4V8H13.6zM14.4,7.2H15.2V8H14.4zM17.6,7.2H18.4V8H17.6zM20,7.2H20.8V8H20zM20.8,7.2H21.6V8H20.8zM24,7.2H24.8V8H24zM28.8,7.2H29.6V8H28.8zM3.2,8H4V8.8H3.2zM4,8H4.8V8.8H4zM4.8,8H5.6V8.8H4.8zM5.6,8H6.4V8.8H5.6zM6.4,8H7.2V8.8H6.4zM7.2,8H8V8.8H7.2zM8,8H8.8V8.8H8zM9.6,8H10.4V8.8H9.6zM11.2,8H12V8.8H11.2zM12.8,8H13.6V8.8H12.8zM14.4,8H15.2V8.8H14.4zM16,8H16.8V8.8H16zM17.6,8H18.4V8.8H17.6zM19.2,8H20V8.8H19.2zM20.8,8H21.6V8.8H20.8zM22.4,8H23.2V8.8H22.4zM24,8H24.8V8.8H24zM24.8,8H25.6V8.8H24.8zM25.6,8H26.4V8.8H25.6zM26.4,8H27.2V8.8H26.4zM27.2,8H28V8.8H27.2zM28,8H28.8V8.8H28zM28.8,8H29.6V8.8H28.8zM9.6,8.8H10.4V9.6H9.6zM10.4,8.8H11.2V9.6H10.4zM12,8.8H12.8V9.6H12zM16,8.8H16.8V9.6H16zM17.6,8.8H18.4V9.6H17.6zM19.2,8.8H20V9.6H19.2zM20,8.8H20.8V9.6H20zM22.4,8.8H23.2V9.6H22.4zM3.2,9.6H4V10.4H3.2zM4.8,9.6H5.6V10.4H4.8zM5.6,9.6H6.4V10.4H5.6zM6.4,9.6H7.2V10.4H6.4zM7.2,9.6H8V10.4H7.2zM8,9.6H8.8V10.4H8zM12,9.6H12.8V10.4H12zM12.8,9.6H13.6V10.4H12.8zM13.6,9.6H14.4V10.4H13.6zM14.4,9.6H15.2V10.4H14.4zM16.8,9.6H17.6V10.4H16.8zM17.6,9.6H18.4V10.4H17.6zM20.8,9.6H21.6V10.4H20.8zM21.6,9.6H22.4V10.4H21.6zM22.4,9.6H23.2V10.4H22.4zM24,9.6H24.8V10.4H24zM24.8,9.6H25.6V10.4H24.8zM25.6,9.6H26.4V10.4H25.6zM26.4,9.6H27.2V10.4H26.4zM27.2,9.6H28V10.4H27.2zM4.8,10.4H5.6V11.2H4.8zM11.2,10.4H12V11.2H11.2zM12,10.4H12.8V11.2H12zM12.8,10.4H13.6V11.2H12.8zM13.6,10.4H14.4V11.2H13.6zM16,10.4H16.8V11.2H16zM16.8,10.4H17.6V11.2H16.8zM17.6,10.4H18.4V11.2H17.6zM18.4,10.4H19.2V11.2H18.4zM19.2,10.4H20V11.2H19.2zM20,10.4H20.8V11.2H20zM21.6,10.4H22.4V11.2H21.6zM24,10.4H24.8V11.2H24zM24.8,10.4H25.6V11.2H24.8zM26.4,10.4H27.2V11.2H26.4zM27.2,10.4H28V11.2H27.2zM28.8,10.4H29.6V11.2H28.8zM3.2,11.2H4V12H3.2zM4,11.2H4.8V12H4zM4.8,11.2H5.6V12H4.8zM7.2,11.2H8V12H7.2zM8,11.2H8.8V12H8zM8.8,11.2H9.6V12H8.8zM11.2,11.2H12V12H11.2zM12,11.2H12.8V12H12zM13.6,11.2H14.4V12H13.6zM14.4,11.2H15.2V12H14.4zM15.2,11.2H16V12H15.2zM16,11.2H16.8V12H16zM17.6,11.2H18.4V12H17.6zM20,11.2H20.8V12H20zM22.4,11.2H23.2V12H22.4zM25.6,11.2H26.4V12H25.6zM27.2,11.2H28V12H27.2zM28,11.2H28.8V12H28zM4.8,12H5.6V12.8H4.8zM6.4,12H7.2V12.8H6.4zM7.2,12H8V12.8H7.2zM8.8,12H9.6V12.8H8.8zM9.6,12H10.4V12.8H9.6zM10.4,12H11.2V12.8H10.4zM11.2,12H12V12.8H11.2zM12,12H12.8V12.8H12zM13.6,12H14.4V12.8H13.6zM15.2,12H16V12.8H15.2zM16,12H16.8V12.8H16zM19.2,12H20V12.8H19.2zM20,12H20.8V12.8H20zM20.8,12H21.6V12.8H20.8zM23.2,12H24V12.8H23.2zM24,12H24.8V12.8H24zM25.6,12H26.4V12.8H25.6zM26.4,12H27.2V12.8H26.4zM27.2,12H28V12.8H27.2zM28,12H28.8V12.8H28zM28.8,12H29.6V12.8H28.8zM3.2,12.8H4V13.6H3.2zM4,12.8H4.8V13.6H4zM4.8,12.8H5.6V13.6H4.8zM7.2,12.8H8V13.6H7.2zM8,12.8H8.8V13.6H8zM8.8,12.8H9.6V13.6H8.8zM9.6,12.8H10.4V13.6H9.6zM12.8,12.8H13.6V13.6H12.8zM14.4,12.8H15.2V13.6H14.4zM15.2,12.8H16V13.6H15.2zM16,12.8H16.8V13.6H16zM16.8,12.8H17.6V13.6H16.8zM17.6,12.8H18.4V13.6H17.6zM19.2,12.8H20V13.6H19.2zM20.8,12.8H21.6V13.6H20.8zM21.6,12.8H22.4V13.6H21.6zM25.6,12.8H26.4V13.6H25.6zM26.4,12.8H27.2V13.6H26.4zM28,12.8H28.8V13.6H28zM28.8,12.8H29.6V13.6H28.8zM4.8,13.6H5.6V14.4H4.8zM5.6,13.6H6.4V14.4H5.6zM7.2,13.6H8V14.4H7.2zM8.8,13.6H9.6V14.4H8.8zM10.4,13.6H11.2V14.4H10.4zM12.8,13.6H13.6V14.4H12.8zM13.6,13.6H14.4V14.4H13.6zM15.2,13.6H16V14.4H15.2zM16.8,13.6H17.6V14.4H16.8zM17.6,13.6H18.4V14.4H17.6zM18.4,13.6H19.2V14.4H18.4zM19.2,13.6H20V14.4H19.2zM20,13.6H20.8V14.4H20zM21.6,13.6H22.4V14.4H21.6zM23.2,13.6H24V14.4H23.2zM24,13.6H24.8V14.4H24zM24.8,13.6H25.6V14.4H24.8zM26.4,13.6H27.2V14.4H26.4zM27.2,13.6H28V14.4H27.2zM28,13.6H28.8V14.4H28zM28.8,13.6H29.6V14.4H28.8zM3.2,14.4H4V15.2H3.2zM4.8,14.4H5.6V15.2H4.8zM5.6,14.4H6.4V15.2H5.6zM6.4,14.4H7.2V15.2H6.4zM8,14.4H8.8V15.2H8zM15.2,14.4H16V15.2H15.2zM16,14.4H16.8V15.2H16zM16.8,14.4H17.6V15.2H16.8zM19.2,14.4H20V15.2H19.2zM22.4,14.4H23.2V15.2H22.4zM23.2,14.4H24V15.2H23.2zM24,14.4H24.8V15.2H24zM24.8,14.4H25.6V15.2H24.8zM26.4,14.4H27.2V15.2H26.4zM27.2,14.4H28V15.2H27.2zM28,14.4H28.8V15.2H28zM6.4,15.2H7.2V16H6.4zM9.6,15.2H10.4V16H9.6zM12,15.2H12.8V16H12zM13.6,15.2H14.4V16H13.6zM15.2,15.2H16V16H15.2zM17.6,15.2H18.4V16H17.6zM19.2,15.2H20V16H19.2zM20,15.2H20.8V16H20zM23.2,15.2H24V16H23.2zM24,15.2H24.8V16H24zM26.4,15.2H27.2V16H26.4zM27.2,15.2H28V16H27.2zM4,16H4.8V16.8H4zM4.8,16H5.6V16.8H4.8zM7.2,16H8V16.8H7.2zM8,16H8.8V16.8H8zM10.4,16H11.2V16.8H10.4zM13.6,16H14.4V16.8H13.6zM15.2,16H16V16.8H15.2zM16,16H16.8V16.8H16zM16.8,16H17.6V16.8H16.8zM18.4,16H19.2V16.8H18.4zM20.8,16H21.6V16.8H20.8zM22.4,16H23.2V16.8H22.4zM23.2,16H24V16.8H23.2zM24.8,16H25.6V16.8H24.8zM25.6,16H26.4V16.8H25.6zM28.8,16H29.6V16.8H28.8zM3.2,16.8H4V17.6H3.2zM7.2,16.8H8V17.6H7.2zM9.6,16.8H10.4V17.6H9.6zM11.2,16.8H12V17.6H11.2zM12,16.8H12.8V17.6H12zM16,16.8H16.8V17.6H16zM16.8,16.8H17.6V17.6H16.8zM17.6,16.8H18.4V17.6H17.6zM18.4,16.8H19.2V17.6H18.4zM19.2,16.8H20V17.6H19.2zM21.6,16.8H22.4V17.6H21.6zM24,16.8H24.8V17.6H24zM24.8,16.8H25.6V17.6H24.8zM26.4,16.8H27.2V17.6H26.4zM27.2,16.8H28V17.6H27.2zM28.8,16.8H29.6V17.6H28.8zM8,17.6H8.8V18.4H8zM9.6,17.6H10.4V18.4H9.6zM10.4,17.6H11.2V18.4H10.4zM12,17.6H12.8V18.4H12zM12.8,17.6H13.6V18.4H12.8zM13.6,17.6H14.4V18.4H13.6zM14.4,17.6H15.2V18.4H14.4zM15.2,17.6H16V18.4H15.2zM16.8,17.6H17.6V18.4H16.8zM19.2,17.6H20V18.4H19.2zM20,17.6H20.8V18.4H20zM20.8,17.6H21.6V18.4H20.8zM24,17.6H24.8V18.4H24zM24.8,17.6H25.6V18.4H24.8zM25.6,17.6H26.4V18.4H25.6zM27.2,17.6H28V18.4H27.2zM3.2,18.4H4V19.2H3.2zM6.4,18.4H7.2V19.2H6.4zM7.2,18.4H8V19.2H7.2zM8.8,18.4H9.6V19.2H8.8zM9.6,18.4H10.4V19.2H9.6zM11.2,18.4H12V19.2H11.2zM15.2,18.4H16V19.2H15.2zM18.4,18.4H19.2V19.2H18.4zM19.2,18.4H20V19.2H19.2zM20,18.4H20.8V19.2H20zM20.8,18.4H21.6V19.2H20.8zM22.4,18.4H23.2V19.2H22.4zM24.8,18.4H25.6V19.2H24.8zM25.6,18.4H26.4V19.2H25.6zM26.4,18.4H27.2V19.2H26.4zM27.2,18.4H28V19.2H27.2zM28,18.4H28.8V19.2H28zM28.8,18.4H29.6V19.2H28.8zM3.2,19.2H4V20H3.2zM4.8,19.2H5.6V20H4.8zM6.4,19.2H7.2V20H6.4zM8,19.2H8.8V20H8zM12,19.2H12.8V20H12zM12.8,19.2H13.6V20H12.8zM13.6,19.2H14.4V20H13.6zM14.4,19.2H15.2V20H14.4zM17.6,19.2H18.4V20H17.6zM18.4,19.2H19.2V20H18.4zM20.8,19.2H21.6V20H20.8zM22.4,19.2H23.2V20H22.4zM25.6,19.2H26.4V20H25.6zM26.4,19.2H27.2V20H26.4zM28,19.2H28.8V20H28zM28.8,19.2H29.6V20H28.8zM3.2,20H4V20.8H3.2zM5.6,20H6.4V20.8H5.6zM6.4,20H7.2V20.8H6.4zM8.8,20H9.6V20.8H8.8zM9.6,20H10.4V20.8H9.6zM13.6,20H14.4V20.8H13.6zM14.4,20H15.2V20.8H14.4zM15.2,20H16V20.8H15.2zM16,20H16.8V20.8H16zM17.6,20H18.4V20.8H17.6zM18.4,20H19.2V20.8H18.4zM20,20H20.8V20.8H20zM21.6,20H22.4V20.8H21.6zM23.2,20H24V20.8H23.2zM24,20H24.8V20.8H24zM24.8,20H25.6V20.8H24.8zM26.4,20H27.2V20.8H26.4zM28.8,20H29.6V20.8H28.8zM3.2,20.8H4V21.6H3.2zM4.8,20.8H5.6V21.6H4.8zM5.6,20.8H6.4V21.6H5.6zM6.4,20.8H7.2V21.6H6.4zM7.2,20.8H8V21.6H7.2zM8,20.8H8.8V21.6H8zM8.8,20.8H9.6V21.6H8.8zM9.6,20.8H10.4V21.6H9.6zM12,20.8H12.8V21.6H12zM12.8,20.8H13.6V21.6H12.8zM13.6,20.8H14.4V21.6H13.6zM14.4,20.8H15.2V21.6H14.4zM16.8,20.8H17.6V21.6H16.8zM19.2,20.8H20V21.6H19.2zM20,20.8H20.8V21.6H20zM24,20.8H24.8V21.6H24zM25.6,20.8H26.4V21.6H25.6zM28,20.8H28.8V21.6H28zM3.2,21.6H4V22.4H3.2zM6.4,21.6H7.2V22.4H6.4zM9.6,21.6H10.4V22.4H9.6zM10.4,21.6H11.2V22.4H10.4zM16,21.6H16.8V22.4H16zM18.4,21.6H19.2V22.4H18.4zM20,21.6H20.8V22.4H20zM20.8,21.6H21.6V22.4H20.8zM23.2,21.6H24V22.4H23.2zM24,21.6H24.8V22.4H24zM24.8,21.6H25.6V22.4H24.8zM26.4,21.6H27.2V22.4H26.4zM27.2,21.6H28V22.4H27.2zM28,21.6H28.8V22.4H28zM28.8,21.6H29.6V22.4H28.8zM3.2,22.4H4V23.2H3.2zM4.8,22.4H5.6V23.2H4.8zM5.6,22.4H6.4V23.2H5.6zM6.4,22.4H7.2V23.2H6.4zM7.2,22.4H8V23.2H7.2zM8,22.4H8.8V23.2H8zM8.8,22.4H9.6V23.2H8.8zM9.6,22.4H10.4V23.2H9.6zM10.4,22.4H11.2V23.2H10.4zM12,22.4H12.8V23.2H12zM14.4,22.4H15.2V23.2H14.4zM16.8,22.4H17.6V23.2H16.8zM20.8,22.4H21.6V23.2H20.8zM21.6,22.4H22.4V23.2H21.6zM22.4,22.4H23.2V23.2H22.4zM23.2,22.4H24V23.2H23.2zM24,22.4H24.8V23.2H24zM24.8,22.4H25.6V23.2H24.8zM25.6,22.4H26.4V23.2H25.6zM28,22.4H28.8V23.2H28zM9.6,23.2H10.4V24H9.6zM11.2,23.2H12V24H11.2zM12,23.2H12.8V24H12zM12.8,23.2H13.6V24H12.8zM13.6,23.2H14.4V24H13.6zM14.4,23.2H15.2V24H14.4zM16,23.2H16.8V24H16zM16.8,23.2H17.6V24H16.8zM17.6,23.2H18.4V24H17.6zM18.4,23.2H19.2V24H18.4zM19.2,23.2H20V24H19.2zM22.4,23.2H23.2V24H22.4zM25.6,23.2H26.4V24H25.6zM27.2,23.2H28V24H27.2zM28.8,23.2H29.6V24H28.8zM3.2,24H4V24.8H3.2zM4,24H4.8V24.8H4zM4.8,24H5.6V24.8H4.8zM5.6,24H6.4V24.8H5.6zM6.4,24H7.2V24.8H6.4zM7.2,24H8V24.8H7.2zM8,24H8.8V24.8H8zM12.8,24H13.6V24.8H12.8zM13.6,24H14.4V24.8H13.6zM14.4,24H15.2V24.8H14.4zM15.2,24H16V24.8H15.2zM16.8,24H17.6V24.8H16.8zM19.2,24H20V24.8H19.2zM20,24H20.8V24.8H20zM21.6,24H22.4V24.8H21.6zM22.4,24H23.2V24.8H22.4zM24,24H24.8V24.8H24zM25.6,24H26.4V24.8H25.6zM27.2,24H28V24.8H27.2zM28,24H28.8V24.8H28zM3.2,24.8H4V25.6H3.2zM8,24.8H8.8V25.6H8zM9.6,24.8H10.4V25.6H9.6zM10.4,24.8H11.2V25.6H10.4zM12.8,24.8H13.6V25.6H12.8zM15.2,24.8H16V25.6H15.2zM16,24.8H16.8V25.6H16zM16.8,24.8H17.6V25.6H16.8zM17.6,24.8H18.4V25.6H17.6zM20,24.8H20.8V25.6H20zM20.8,24.8H21.6V25.6H20.8zM21.6,24.8H22.4V25.6H21.6zM22.4,24.8H23.2V25.6H22.4zM25.6,24.8H26.4V25.6H25.6zM26.4,24.8H27.2V25.6H26.4zM27.2,24.8H28V25.6H27.2zM28,24.8H28.8V25.6H28zM3.2,25.6H4V26.4H3.2zM4.8,25.6H5.6V26.4H4.8zM5.6,25.6H6.4V26.4H5.6zM6.4,25.6H7.2V26.4H6.4zM8,25.6H8.8V26.4H8zM9.6,25.6H10.4V26.4H9.6zM10.4,25.6H11.2V26.4H10.4zM12.8,25.6H13.6V26.4H12.8zM13.6,25.6H14.4V26.4H13.6zM14.4,25.6H15.2V26.4H14.4zM15.2,25.6H16V26.4H15.2zM16,25.6H16.8V26.4H16zM18.4,25.6H19.2V26.4H18.4zM19.2,25.6H20V26.4H19.2zM20.8,25.6H21.6V26.4H20.8zM22.4,25.6H23.2V26.4H22.4zM23.2,25.6H24V26.4H23.2zM24,25.6H24.8V26.4H24zM24.8,25.6H25.6V26.4H24.8zM25.6,25.6H26.4V26.4H25.6zM26.4,25.6H27.2V26.4H26.4zM28.8,25.6H29.6V26.4H28.8zM3.2,26.4H4V27.2H3.2zM4.8,26.4H5.6V27.2H4.8zM5.6,26.4H6.4V27.2H5.6zM6.4,26.4H7.2V27.2H6.4zM8,26.4H8.8V27.2H8zM9.6,26.4H10.4V27.2H9.6zM10.4,26.4H11.2V27.2H10.4zM11.2,26.4H12V27.2H11.2zM15.2,26.4H16V27.2H15.2zM16.8,26.4H17.6V27.2H16.8zM17.6,26.4H18.4V27.2H17.6zM18.4,26.4H19.2V27.2H18.4zM19.2,26.4H20V27.2H19.2zM22.4,26.4H23.2V27.2H22.4zM23.2,26.4H24V27.2H23.2zM25.6,26.4H26.4V27.2H25.6zM27.2,26.4H28V27.2H27.2zM28,26.4H28.8V27.2H28zM28.8,26.4H29.6V27.2H28.8zM3.2,27.2H4V28H3.2zM4.8,27.2H5.6V28H4.8zM5.6,27.2H6.4V28H5.6zM6.4,27.2H7.2V28H6.4zM8,27.2H8.8V28H8zM9.6,27.2H10.4V28H9.6zM11.2,27.2H12V28H11.2zM12.8,27.2H13.6V28H12.8zM14.4,27.2H15.2V28H14.4zM15.2,27.2H16V28H15.2zM16,27.2H16.8V28H16zM17.6,27.2H18.4V28H17.6zM19.2,27.2H20V28H19.2zM20.8,27.2H21.6V28H20.8zM24,27.2H24.8V28H24zM24.8,27.2H25.6V28H24.8zM26.4,27.2H27.2V28H26.4zM3.2,28H4V28.8H3.2zM8,28H8.8V28.8H8zM11.2,28H12V28.8H11.2zM15.2,28H16V28.8H15.2zM18.4,28H19.2V28.8H18.4zM20,28H20.8V28.8H20zM25.6,28H26.4V28.8H25.6zM26.4,28H27.2V28.8H26.4zM27.2,28H28V28.8H27.2zM3.2,28.8H4V29.6H3.2zM4,28.8H4.8V29.6H4zM4.8,28.8H5.6V29.6H4.8zM5.6,28.8H6.4V29.6H5.6zM6.4,28.8H7.2V29.6H6.4zM7.2,28.8H8V29.6H7.2zM8,28.8H8.8V29.6H8zM9.6,28.8H10.4V29.6H9.6zM10.4,28.8H11.2V29.6H10.4zM11.2,28.8H12V29.6H11.2zM12,28.8H12.8V29.6H12zM15.2,28.8H16V29.6H15.2zM16,28.8H16.8V29.6H16zM16.8,28.8H17.6V29.6H16.8zM20.8,28.8H21.6V29.6H20.8zM22.4,28.8H23.2V29.6H22.4zM24.8,28.8H25.6V29.6H24.8zM26.4,28.8H27.2V29.6H26.4zM28,28.8H28.8V29.6H28z" id="home-qr-path" fill="#000000" fill-opacity="1" fill-rule="nonzero" stroke="none"/></svg></div>
  <a class="home-phone-url" href="https://khaledbaniodeh.github.io/encs4380-dynamics-t19/">khaledbaniodeh.github.io/encs4380-dynamics-t19/</a>
  <button class="cta dark" id="home-phone-copy" type="button">Copy website link<span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></button>
@@ -933,6 +1708,532 @@ setMode();
       feedback.textContent = "Copy the visible link above, or scan the QR code.";
     }
   });
+})();
+</script>
+<script>
+(function () {
+  "use strict";
+  /* ── HOMEWORK 2 MODULE REGISTRY (single configuration point) ──
+     ready: true only for a page that is published on GitHub Pages and
+     tested. P1 (pid-playground.html) and P2 (slow-sensor.html) were checked
+     live on 20 November 2026, so they are also linked directly in the
+     markup. P3, P4 and My system have no published page yet: set the real
+     path and ready: true when each page goes live. Every element marked
+     data-mod="<key>" then becomes a link, its data-mod-status label replaces
+     "In development", and the Part 2 workbench updates its selector, tag and
+     Open button. While a module is not ready, nothing links to it. */
+  var HW2 = {
+    p1:  { ready: true,  href: "pid-playground.html" },
+    p2:  { ready: true,  href: "slow-sensor.html" },
+    p3:  { ready: false, href: "" },
+    p4:  { ready: false, href: "" },
+    sys: { ready: false, href: "" }
+  };
+  window.DynamicsLabModules = HW2;              // read by the Part 2 workbench
+  function all(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+
+  all("[data-mod]").forEach(function (el) {
+    var m = HW2[el.getAttribute("data-mod")];
+    if (!m || !m.ready || !m.href || el.tagName === "A") return;
+    var a = document.createElement("a");
+    Array.prototype.forEach.call(el.attributes, function (at) { if (at.name !== "data-mod") a.setAttribute(at.name, at.value); });
+    a.classList.remove("is-soon"); a.classList.remove("is-dev"); a.href = m.href; a.innerHTML = el.innerHTML;
+    el.parentNode.replaceChild(a, el);
+    all("[data-mod-status]", a).forEach(function (s) { s.textContent = s.getAttribute("data-mod-status"); s.classList.remove("soon"); });
+  });
+
+  /* Gentle reveal for the new sections. Content is visible without script;
+     the hidden starting state only applies while motion is on. */
+  var rv = all(".rv");
+  if ("IntersectionObserver" in window) {
+    document.documentElement.classList.add("rv-on");
+    var io = new IntersectionObserver(function (en) {
+      en.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { rootMargin: "0px 0px -8% 0px" });
+    rv.forEach(function (el) { io.observe(el); });
+  } else rv.forEach(function (el) { el.classList.add("in"); });
+
+  /* Header: a subtle backdrop once the page is scrolled, so the links stay
+     readable over any section (its tone still follows the existing logic). */
+  var hdr = document.getElementById("hdr"), solid = false, ticking = false;
+  function hdrSync() { ticking = false; var s = window.pageYOffset > 40; if (s !== solid) { solid = s; hdr.classList.toggle("hdr-solid", s); } }
+  if (hdr) {
+    window.addEventListener("scroll", function () { if (!ticking) { ticking = true; requestAnimationFrame(hdrSync); } }, { passive: true });
+    hdrSync();
+  }
+})();
+</script>
+<script>
+(function () {
+  "use strict";
+  /* ── Part 2 experiment viewer (Homework 2) ─────────────────────
+     One viewer: P1–P4 selectors (an ARIA tablist: click, or ← → Home End),
+     Previous / Next with a "P2 of 4" indicator, the feedback loop, an
+     animated preview, and the selected experiment's text, availability and
+     Open button. The same interaction is used on desktop and phones, and
+     the page scrolls normally around it.
+     Previews are illustrations built from small models:
+       P1  P1's own first-order model (pid_control.py: Euler, derivative on
+           the filtered measurement, limits ±100, anti-windup) with the gains
+           of its validation checks (Kp 9; Kp 1 + Ki 1) and its demo
+           (Kp 2, Ki 1, Kd 0.5). No claim is made about what D does here.
+       P2  a first-order plant and a first-order sensor at P2's default gains
+           (Kp 2, Ki 4) for three sensor time constants.
+       P3  stair-step control signal and output as the sampling time grows
+           (textbook illustration; P3 is not published).
+       P4  a spec corridor: a first attempt fails and a retune passes
+           (textbook illustration; P4 is not published).
+     The animation runs only while the viewer is on screen, the tab is
+     visible and motion is allowed; otherwise one still frame is drawn. */
+  var wb = document.getElementById("control-modules");
+  if (!wb) return;
+  var root = document.documentElement;
+  function q(s, r) { return (r || document).querySelector(s); }
+  function qa(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+  function sm(x) { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); }
+  var KEYS = ["p1", "p2", "p3", "p4"];
+  var COL = { p1: [127, 233, 189], p2: [111, 227, 212], p3: [195, 240, 124], p4: [214, 239, 228] };
+  var TITLE = { p1: "First-order plant · P, PI, PID", p2: "Sensor τs: small → large", p3: "Sampling time Ts: small → large", p4: "Spec: fail, retune, pass" };
+  var NAME = { p1: "P1, PID playground", p2: "P2, a slow sensor in the loop", p3: "P3, digital PID", p4: "P4, tuning challenge" };
+  var LOOP = { p1: 10.8, p2: 10.6, p3: 10.8, p4: 10.4 }, STILL = { p1: 10.4, p2: 10, p3: 10.2, p4: 9.8 };
+  var tabs = qa(".wb-tab", wb), panels = qa(".wb-panel", wb), cv = q(".wb-cv", wb), live = q("#wb-live");
+  var prevB = q(".wb-prev", wb), nextB = q(".wb-next", wb), countB = q(".wb-count b", wb);
+  var title = q(".wb-scope-t", wb), pauseB = q(".wb-pause", wb), heroPause = document.getElementById("scn-pause");
+  var ctx = cv && cv.getContext ? cv.getContext("2d") : null;
+  var reduce = window.matchMedia ? matchMedia("(prefers-reduced-motion: reduce)") : { matches: true };
+  var sel = "p1", prev = null, tPrev = 0, fade = 1, t = 0, raf = 0, last = 0, onScreen = false, W = 0, H = 0, dpr = 1;
+
+  /* availability: the registry in the script above is the single source */
+  var REG = window.DynamicsLabModules || {}, READY = {};
+  KEYS.forEach(function (k, i) {
+    var m = REG[k], panel = panels[i];
+    READY[k] = !!(m && m.ready && m.href);
+    if (!m) return;
+    qa("i.live, i.dev", tabs[i]).forEach(function (el) { el.className = READY[k] ? "live" : "dev"; });
+    q("em.sr", tabs[i]).textContent = READY[k] ? " (published)" : " (in development)";
+    var tag = q(".wb-tag", panel); q("i", tag).className = READY[k] ? "live" : "dev"; q("span", tag).textContent = READY[k] ? "Published" : "In development";
+    var act = q(".wb-act", panel), go = q(".wb-go", panel);
+    if (READY[k] && !go) act.innerHTML = '<a class="cta wb-go" href="' + m.href + '">Open ' + k.toUpperCase() + '<span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></a>';
+    else if (!READY[k] && go) act.innerHTML = '<p class="wb-soon"><span class="status">In development</span> Opens here once it is published.</p>';
+  });
+
+  /* ── illustrative models ─────────────────────────────────────── */
+  function rk4(f, x, h) {
+    var n = x.length, k1 = f(x), a = [], k2, k3, k4, i;
+    for (i = 0; i < n; i++) a[i] = x[i] + h / 2 * k1[i]; k2 = f(a);
+    for (i = 0; i < n; i++) a[i] = x[i] + h / 2 * k2[i]; k3 = f(a);
+    for (i = 0; i < n; i++) a[i] = x[i] + h * k3[i]; k4 = f(a);
+    for (i = 0; i < n; i++) x[i] += h / 6 * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]);
+  }
+  function p1run(g) {                             // mirrors simulate_pid_control() in python/pid_control.py
+    var dt = 0.001, y = 0, I = 0, prevY = 0, fd = 0, ys = [], us = [], n, e, p, d, ci, cu, u;
+    for (n = 0; n <= 8000; n++) {
+      e = 1 - y; p = g.Kp * e; fd = 0.15 * ((y - prevY) / dt) + 0.85 * fd; d = -g.Kd * fd;
+      ci = I + e * dt; cu = p + g.Ki * ci + d;
+      if (!((cu > 100 && e > 0) || (cu < -100 && e < 0))) I = ci;
+      u = clamp(p + g.Ki * I + d, -100, 100); prevY = y; y = y + (u - y) * dt;   // K = 1, τ = 1
+      if (n % 10 === 0) { ys.push(y); us.push(u); }
+    }
+    var t10 = null, t90 = null, st = null, i, j, ok;  // the same metric definitions as calculate_metrics()
+    for (i = 0; i < ys.length; i++) { if (t10 === null && ys[i] >= 0.1) t10 = i; if (t90 === null && ys[i] >= 0.9) { t90 = i; break; } }
+    for (i = 0; i < ys.length && st === null; i++) { ok = true; for (j = i; j < ys.length; j++) if (ys[j] < 0.98 || ys[j] > 1.02) { ok = false; break; } if (ok) st = i; }
+    return { y: ys, u: us, t10: t10, t90: t90, st: st, label: g.label };
+  }
+  var P1 = [p1run({ Kp: 9, Ki: 0, Kd: 0, label: "P only · Kp 9" }), p1run({ Kp: 1, Ki: 1, Kd: 0, label: "PI · Kp 1, Ki 1" }), p1run({ Kp: 2, Ki: 1, Kd: 0.5, label: "PID · Kp 2, Ki 1, Kd 0.5" })];
+  function p2run(ts) {                            // plant y' = u − y, sensor ym' = (y − ym)/τs, PI on ym at P2's defaults
+    var x = [0, 0, 0], y = [], m = [], n, s;
+    for (n = 0; n <= 500; n++) {
+      y.push(x[0]); m.push(x[1]);
+      for (s = 0; s < 8; s++) rk4(function (v) { var e = 1 - v[1], u = clamp(2 * e + 4 * v[2], -100, 100); return [u - v[0], (v[0] - v[1]) / ts, e]; }, x, 0.0025);
+    }
+    return { y: y, m: m };
+  }
+  var P2 = [p2run(0.05), p2run(0.3), p2run(0.8)];
+  function p3run(Ts) {                            // first-order plant (τ = 1) under a discrete PI, zero-order hold
+    var a = Math.exp(-Ts), y = 0, S = 0, k, e, u, us = [], ys = [];
+    for (k = 0; k * Ts < 9; k++) { e = 1 - y; S += e; u = 1.0 * e + 2.5 * Ts * S; us.push(u); ys.push(y); y = a * y + (1 - a) * u; }
+    return { Ts: Ts, u: us, y: ys };
+  }
+  function p3y(r, tt) { var k = Math.min(r.u.length - 1, Math.floor(tt / r.Ts)), u = r.u[k]; return u + (r.y[k] - u) * Math.exp(-(tt - k * r.Ts)); }
+  var P3 = [p3run(0.1), p3run(0.55), p3run(0.8)];
+  function so(z, wn, tt) { var wd = wn * Math.sqrt(1 - z * z); return 1 - Math.exp(-z * wn * tt) / Math.sqrt(1 - z * z) * Math.sin(wd * tt + Math.acos(z)); }
+  var P4 = [[0.3, 1.6], [0.7, 1.4]];
+
+  /* ── drawing ───────────────────────────────────────────────── */
+  var WHITE = [255, 255, 255], PAPER = [235, 248, 243], WARN = [224, 162, 79];
+  function rgb(c, a) { return "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + Math.max(0, a).toFixed(3) + ")"; }
+  function tint(c, k) { return [Math.round(c[0] + (255 - c[0]) * k), Math.round(c[1] + (255 - c[1]) * k), Math.round(c[2] + (255 - c[2]) * k)]; }
+  function glow(c, p, col, a, lw) {
+    c.strokeStyle = rgb(col, 0.09 * a); c.lineWidth = lw * 6; c.stroke(p);
+    c.strokeStyle = rgb(col, 0.22 * a); c.lineWidth = lw * 2.6; c.stroke(p);
+    c.strokeStyle = rgb(tint(col, 0.7), 0.96 * a); c.lineWidth = lw; c.stroke(p);
+  }
+  function seg(c, pts, col, a, lw, dash) {
+    c.strokeStyle = rgb(col, a); c.lineWidth = lw || 1; c.setLineDash(dash || []); c.beginPath();
+    for (var i = 0; i < pts.length; i += 2) { if (i) c.lineTo(pts[i], pts[i + 1]); else c.moveTo(pts[i], pts[i + 1]); }
+    c.stroke(); c.setLineDash([]);
+  }
+  function txt(c, s, x, y, col, a, align) {      // labels get a dark halo so they stay legible over curves
+    c.font = "600 " + (W >= 560 ? 13 : 12) + "px 'Inter Tight', system-ui, sans-serif"; c.textAlign = align || "left";
+    c.lineJoin = "round"; c.lineWidth = 3.5; c.strokeStyle = "rgba(6,12,11," + (0.85 * Math.min(1, a)).toFixed(3) + ")"; c.strokeText(s, x, y);
+    c.fillStyle = rgb(col, Math.min(1, a * 1.15)); c.fillText(s, x, y);
+  }
+  function curve(N, xf, yf, upto) {
+    var p = new Path2D(), i, n = Math.min(N - 1, upto);
+    for (i = 0; i <= n; i++) { if (i) p.lineTo(xf(i), yf(i)); else p.moveTo(xf(i), yf(i)); }
+    return p;
+  }
+  function frameBox(split) {                      // plot area, and an optional lower strip for the control signal
+    var L = 34, R = W - 14, T = 16, B = split ? H * 0.66 : H - 20;
+    return { L: L, R: R, T: T, B: B, uT: H * 0.74, uB: H - 14 };
+  }
+  function setpoint(c, f, Y, a) {
+    seg(c, [f.L, Y(0), f.L + 8, Y(0), f.L + 8, Y(1), f.R, Y(1)], PAPER, 0.4 * a, 1.1, [3, 6]);
+    if (W >= 420) txt(c, "setpoint", f.L + 16, Y(1) - 7, PAPER, 0.45 * a, "left");
+  }
+  function gauge(c, f, n, label, col, a) {        // three rising bars: which value of τs or Ts is shown now
+    var x = f.R - 58, y = f.T + 6, i;
+    txt(c, label, x - 8, y + 14, col, 0.7 * a, "right");
+    for (i = 0; i < 3; i++) { c.fillStyle = rgb(i === n ? tint(col, 0.3) : WHITE, (i === n ? 0.95 : 0.18) * a); c.fillRect(x + i * 18, y + 14 - (6 + i * 5), 10, 6 + i * 5); }
+  }
+  function phases(tt, still, starts) { var cur = 0; for (var k = 0; k < starts.length; k++) if (still || tt >= starts[k]) cur = k; return cur; }
+
+  function drawP1(c, tt, a, still) {
+    var col = COL.p1, f = frameBox(true), N = 801, k;
+    var Y = function (v) { return f.B - (v / 1.2) * (f.B - f.T); }, X = function (i) { return f.L + 8 + (i / (N - 1)) * (f.R - f.L - 8); };
+    var U = function (u) { return f.uB - (clamp(u, 0, 10) / 10) * (f.uB - f.uT); };
+    setpoint(c, f, Y, a); seg(c, [f.L, f.uB, f.R, f.uB], WHITE, 0.1 * a, 1); txt(c, "u(t)", f.L - 30, U(4), WHITE, 0.5 * a);
+    var starts = [0.3, 3.5, 6.7], cur = phases(tt, still, starts);
+    for (k = 0; k <= cur; k++) {
+      var qq = still ? 1 : sm((tt - starts[k]) / 2.2), n = Math.round(qq * (N - 1)), r = P1[k];
+      var yp = curve(N, X, function (i) { return Y(r.y[i]); }, n);
+      if (k < cur) { c.strokeStyle = rgb(col, 0.28 * a); c.lineWidth = 1.1; c.stroke(yp); continue; }
+      glow(c, yp, col, a, 1.7);
+      glow(c, curve(N, X, function (i) { return U(r.u[i]); }, n), col, a * 0.75, 1.2);
+      if (qq > 0.92) {
+        var e = (qq - 0.92) / 0.08 * a, xe = X(700);
+        if (k === 0) {                            // P only settles short of the setpoint
+          seg(c, [xe - 5, Y(r.y[700]), xe + 5, Y(r.y[700]), xe, Y(r.y[700]), xe, Y(1), xe - 5, Y(1), xe + 5, Y(1)], WHITE, 0.75 * e, 1.2);
+          txt(c, "steady-state error", xe - 10, (Y(r.y[700]) + Y(1)) / 2 + 4, WHITE, 0.85 * e, "right");
+        }
+        if (k === 1) txt(c, "reaches the setpoint", X(780), Y(1) + 18, WHITE, 0.85 * e, "right");
+        if (k === 2) {                            // where the page reads its metrics
+          if (r.t10 !== null && r.t90 !== null) {
+            var ya = Y(0) - 10;
+            seg(c, [X(r.t10), Y(r.y[r.t10]), X(r.t10), ya, X(r.t90), ya, X(r.t90), Y(r.y[r.t90])], WHITE, 0.55 * e, 1, [2, 4]);
+            txt(c, "rise time", (X(r.t10) + X(r.t90)) / 2, ya - 6, WHITE, 0.85 * e, "center");
+          }
+          if (r.st !== null) { c.fillStyle = rgb(col, 0.13 * e); c.fillRect(X(r.st), Y(1.02), X(N - 1) - X(r.st), Y(0.98) - Y(1.02)); txt(c, "settling band", X(N - 1), Y(1.02) - 8, WHITE, 0.85 * e, "right"); }
+        }
+      }
+    }
+    txt(c, P1[cur].label, f.L + 16, f.T + 14, tint(col, 0.2), 0.95 * a);
+    return cur;
+  }
+  function drawP2(c, tt, a, still) {
+    var col = COL.p2, f = frameBox(false), N = 501, k, Y = function (v) { return f.B - (v / 2.2) * (f.B - f.T); };
+    var X = function (i) { return f.L + 8 + (i / (N - 1)) * (f.R - f.L - 8); };
+    setpoint(c, f, Y, a); seg(c, [f.L, f.B, f.R, f.B], WHITE, 0.1 * a, 1);
+    var starts = [0.3, 3.7, 7.1], cur = phases(tt, still, starts);
+    for (k = 0; k <= cur; k++) {
+      var qq = still ? 1 : sm((tt - starts[k]) / 2.4), n = Math.round(qq * (N - 1)), r = P2[k];
+      var yp = curve(N, X, function (i) { return Y(r.y[i]); }, n);
+      if (k < cur) { c.strokeStyle = rgb(col, 0.26 * a); c.lineWidth = 1.1; c.stroke(yp); continue; }
+      glow(c, yp, col, a, 1.8);
+      c.setLineDash([5, 5]); c.strokeStyle = rgb(tint(col, 0.55), 0.8 * a); c.lineWidth = 1.5; c.stroke(curve(N, X, function (i) { return Y(r.m[i]); }, n)); c.setLineDash([]);
+    }
+    gauge(c, f, cur, "sensor τs", col, a);
+    return cur;
+  }
+  function drawP3(c, tt, a, still) {
+    var col = COL.p3, f = frameBox(true), TT = 9, k, Y = function (v) { return f.B - (v / 1.75) * (f.B - f.T); };
+    var X = function (s) { return f.L + 8 + (s / TT) * (f.R - f.L - 8); }, U = function (u) { return f.uB - (u / 3.2) * (f.uB - f.uT); };
+    setpoint(c, f, Y, a); seg(c, [f.L, f.uB, f.R, f.uB], WHITE, 0.1 * a, 1); txt(c, "u[k]", f.L - 30, U(1.1), WHITE, 0.5 * a);
+    var starts = [0.3, 3.7, 7.1], cur = phases(tt, still, starts);
+    for (k = 0; k <= cur; k++) {
+      var qq = still ? 1 : sm((tt - starts[k]) / 2.6), tEnd = qq * TT, r = P3[k], yp = new Path2D(), s;
+      for (s = 0; s <= tEnd + 1e-6; s += 0.03) { if (s) yp.lineTo(X(s), Y(p3y(r, s))); else yp.moveTo(X(0), Y(0)); }
+      if (k < cur) { c.strokeStyle = rgb(col, 0.26 * a); c.lineWidth = 1.1; c.stroke(yp); continue; }
+      glow(c, yp, col, a * 0.85, 1.5);
+      var st = new Path2D(), j, kk = Math.min(r.u.length, Math.floor(tEnd / r.Ts) + 1);
+      for (j = 0; j < kk; j++) { var xa = X(j * r.Ts), xb = X(Math.min(tEnd, (j + 1) * r.Ts)); if (j) st.lineTo(xa, U(r.u[j])); else st.moveTo(xa, U(r.u[0])); st.lineTo(xb, U(r.u[j])); }
+      glow(c, st, col, a, 1.5);
+      c.fillStyle = rgb(tint(col, 0.6), 0.95 * a);
+      if (r.Ts > 0.2) for (j = 0; j < kk; j++) { c.beginPath(); c.arc(X(j * r.Ts), Y(r.y[j]), 2.6, 0, 6.2832); c.fill(); }
+    }
+    gauge(c, f, cur, "sampling time Ts", col, a);
+    return cur;
+  }
+  function drawP4(c, tt, a, still) {
+    var col = COL.p4, f = frameBox(false), TT = 10, Y = function (v) { return f.B - (v / 1.5) * (f.B - f.T); };
+    var X = function (s) { return f.L + 8 + (s / TT) * (f.R - f.L - 8); }, k;
+    setpoint(c, f, Y, a); seg(c, [f.L, f.B, f.R, f.B], WHITE, 0.1 * a, 1);
+    c.fillStyle = rgb(col, 0.06 * a); c.fillRect(f.L, Y(1.1), f.R - f.L, Y(1) - Y(1.1));
+    seg(c, [f.L, Y(1.1), f.R, Y(1.1)], col, 0.6 * a, 1, [3, 5]); txt(c, "overshoot ≤ 10%", f.R, Y(1.1) - 6, col, 0.8 * a, "right");
+    seg(c, [X(6), f.T + 8, X(6), f.B], WHITE, 0.35 * a, 1, [3, 5]); txt(c, "settling limit", X(6) + 6, f.B - 8, WHITE, 0.6 * a);
+    c.fillStyle = rgb(col, 0.16 * a); c.fillRect(X(6), Y(1.02), f.R - X(6), Y(0.98) - Y(1.02));
+    var starts = [0.3, 5.0], cur = phases(tt, still, starts), state = "";
+    for (k = 0; k <= cur; k++) {
+      var qq = still ? 1 : sm((tt - starts[k]) / 3), tEnd = qq * TT, p = new Path2D(), s, z = P4[k][0], wn = P4[k][1];
+      for (s = 0; s <= tEnd + 1e-6; s += 0.04) { if (s) p.lineTo(X(s), Y(so(z, wn, s))); else p.moveTo(X(0), Y(0)); }
+      if (k < cur) { c.strokeStyle = rgb(WARN, 0.4 * a); c.lineWidth = 1.2; c.stroke(p); continue; }
+      glow(c, p, k === 0 ? WARN : col, a, 1.8);
+      if (qq >= 1) {
+        state = k === 0 ? "fail" : "pass";
+        if (k === 0) { var tp = Math.PI / (wn * Math.sqrt(1 - z * z)); txt(c, "✕", X(tp), Y(so(z, wn, tp)) - 10, WARN, a, "center"); }
+      }
+    }
+    txt(c, cur === 0 ? "First attempt" : "Retuned", f.L + 16, f.T + 14, cur === 0 ? WARN : tint(col, 0.2), 0.95 * a);
+    return cur + ":" + state;
+  }
+  var DRAW = { p1: drawP1, p2: drawP2, p3: drawP3, p4: drawP4 };
+
+  var readState = { p1: -1, p4: "" }, P1HOT = [["rt", "sse"], ["sse"], ["rt", "os", "st", "sse"]];
+  function updateRead(key, st) {
+    if (key === "p1" && st !== readState.p1) {
+      readState.p1 = st;
+      qa('[data-for="p1"] [data-m]', wb).forEach(function (el) { el.classList.toggle("hot", P1HOT[st].indexOf(el.getAttribute("data-m")) >= 0); });
+    }
+    if (key === "p4" && st !== readState.p4) {
+      readState.p4 = st;
+      var res = String(st).split(":")[1];
+      qa('[data-for="p4"] [data-c]', wb).forEach(function (el) {
+        el.classList.remove("pass", "fail");
+        if (res) el.classList.add(res === "pass" || el.getAttribute("data-c") === "ss" ? "pass" : "fail");
+      });
+    }
+  }
+  function size() {
+    if (!ctx) return;
+    var r = cv.getBoundingClientRect(); W = Math.max(200, r.width); H = Math.max(140, r.height);
+    dpr = Math.min(window.devicePixelRatio || 1, W < 500 ? 2 : 1.5);
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  }
+  function render(still) {
+    if (!ctx || !W) return;
+    var c = ctx; c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, W, H);
+    c.strokeStyle = "rgba(255,255,255,.04)"; c.lineWidth = 1;
+    for (var gx = 34; gx < W; gx += Math.max(40, (W - 48) / 10)) { c.beginPath(); c.moveTo(gx, 12); c.lineTo(gx, H - 12); c.stroke(); }
+    c.lineCap = "round"; c.lineJoin = "round";
+    if (prev && fade < 1) DRAW[prev](c, tPrev, 1 - sm(fade), still);
+    updateRead(sel, DRAW[sel](c, still ? STILL[sel] : t, prev && fade < 1 ? sm(fade) : 1, still));
+  }
+
+  /* ── running and pausing ───────────────────────────────────── */
+  function canMove() { return root.classList.contains("motion") && !root.classList.contains("paused") && !reduce.matches; }
+  function frame(now) {
+    raf = 0;
+    var dt = last ? Math.min(0.1, (now - last) / 1000) : 1 / 60; last = now;
+    t += dt; if (t > LOOP[sel]) t = 0;
+    if (fade < 1) fade = Math.min(1, fade + dt / 0.6);
+    render(false); sync();
+  }
+  function sync() {
+    var go = onScreen && !document.hidden && canMove() && !!ctx;
+    wb.classList.toggle("wb-idle", !go);          // also stops the loop diagram's signal pulses
+    if (go && !raf) raf = requestAnimationFrame(frame);
+    if (!go) { if (raf) { cancelAnimationFrame(raf); raf = 0; } last = 0; fade = 1; prev = null; render(true); }
+  }
+
+  /* ── selection ─────────────────────────────────────────────── */
+  function select(k, announce) {
+    var changed = k !== sel, i = KEYS.indexOf(k);
+    if (changed) { prev = sel; tPrev = t; fade = canMove() ? 0 : 1; t = 0; sel = k; }
+    wb.setAttribute("data-sel", k);
+    tabs.forEach(function (b) { var on = b.getAttribute("data-exp") === k; b.setAttribute("aria-selected", String(on)); b.tabIndex = on ? 0 : -1; });
+    panels.forEach(function (p) {
+      var on = p.getAttribute("data-exp") === k; p.hidden = !on;
+      if (on && changed) { p.classList.remove("enter"); void p.offsetWidth; p.classList.add("enter"); }
+    });
+    countB.textContent = k.toUpperCase();
+    prevB.setAttribute("aria-disabled", String(i === 0)); nextB.setAttribute("aria-disabled", String(i === KEYS.length - 1));
+    prevB.setAttribute("aria-label", i === 0 ? "Previous experiment (this is the first)" : "Previous experiment: " + NAME[KEYS[i - 1]]);
+    nextB.setAttribute("aria-label", i === KEYS.length - 1 ? "Next experiment (this is the last)" : "Next experiment: " + NAME[KEYS[i + 1]]);
+    if (title) title.textContent = TITLE[k];
+    if (announce && live) live.textContent = k.toUpperCase() + " of 4: " + NAME[k].replace(/^P\d, /, "") + (READY[k] ? ", published." : ", in development.");
+    if (!raf) render(!canMove());
+  }
+  tabs.forEach(function (b, i) {
+    b.addEventListener("click", function () { select(b.getAttribute("data-exp"), false); });
+    b.addEventListener("keydown", function (e) {
+      var j = e.key === "ArrowRight" ? (i + 1) % 4 : e.key === "ArrowLeft" ? (i + 3) % 4 : e.key === "Home" ? 0 : e.key === "End" ? 3 : -1;
+      if (j < 0) return;
+      e.preventDefault(); tabs[j].focus(); select(KEYS[j], false);
+    });
+  });
+  prevB.addEventListener("click", function () { var i = KEYS.indexOf(sel); if (i > 0) select(KEYS[i - 1], true); });
+  nextB.addEventListener("click", function () { var i = KEYS.indexOf(sel); if (i < KEYS.length - 1) select(KEYS[i + 1], true); });
+
+  if ("IntersectionObserver" in window) new IntersectionObserver(function (en) { onScreen = en[en.length - 1].isIntersecting; sync(); }).observe(wb);
+  else onScreen = true;
+
+  /* the viewer's pause button drives the same site-wide pause as the hero */
+  if (pauseB) pauseB.addEventListener("click", function () { if (heroPause) heroPause.click(); else root.classList.toggle("paused"); });
+  function syncPauseLabel() { if (pauseB) q("span", pauseB).textContent = root.classList.contains("paused") ? "Play motion" : "Pause motion"; }
+  if (window.MutationObserver) new MutationObserver(function () { syncPauseLabel(); sync(); }).observe(root, { attributes: true, attributeFilter: ["class"] });
+  document.addEventListener("visibilitychange", sync);
+  if (reduce.addEventListener) reduce.addEventListener("change", function () { setTimeout(sync, 0); });
+  window.addEventListener("resize", function () { size(); if (!raf) render(true); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (!raf) render(!canMove()); });
+
+  wb.classList.add("wb-js");
+  syncPauseLabel(); select("p1", false); size(); sync();
+})();
+</script>
+<script>
+(function () {
+  "use strict";
+  /* ── My system illustration: short introduction, readable hold, automatic replay ──
+     When the illustration first comes into view (motion allowed, not paused)
+     it plays for about four and a half seconds: the PWM command starts
+     at its 100% limit, the wheel's markings turn at the model's speed, each
+     encoder slot passing the fixed read head sends one faint pulse towards the
+     speed plot, and the speed response and PWM trace are revealed together.
+     The markings then ease to rest and the complete picture is held. Holding
+     is a presentation pause, not a claim that the motor stops once its speed
+     settles. After a three-second hold it repeats automatically. Replay can
+     restart it manually. With reduced motion, or
+     without script, only the complete picture is shown.
+     Model (illustrative, not measured): a first-order motor (τ = 1, unit gain)
+     under a sampled PI speed loop (Ts = 0.12, Kp 3, Ki 8.16), the command
+     clamped to 0–100% PWM with conditional integration. The plotted curves in
+     the markup were generated from the same model. */
+  var svg = document.getElementById("ms-svg");
+  if (!svg) return;
+  var root = document.documentElement, fig = svg.closest ? svg.closest("figure") : null;
+  function $(id) { return document.getElementById(id); }
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+  function sm(x) { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); }
+  var wheel = $("ms-wheel"), flash = $("ms-flash"), clipR = $("ms-clip-r"), cur = $("ms-cur"), linkE = $("ms-link-enc"), linkP = $("ms-link-pwm");
+  var pulses = Array.prototype.slice.call(svg.querySelectorAll("#ms-pulses circle"));
+  var replay = fig ? fig.querySelector(".ms-replay") : null;
+  var reduce = window.matchMedia ? matchMedia("(prefers-reduced-motion: reduce)") : { matches: true };
+  if (!fig || !wheel || !flash || !clipR || !cur || !linkP || !linkE || !linkE.getTotalLength || !window.requestAnimationFrame) return;
+
+  /* ── the model: start-up from rest to the target speed ─────── */
+  var Ts = 0.12, UM = 1.6, KP = 3, KI = 8.16, N = 33, SIM = N * Ts, A = Math.exp(-Ts), V = [], C = [];
+  (function () {
+    var v = 0, I = 0, k, e, c;
+    for (k = 0; k < N; k++) {
+      e = 1 - v; c = KP * e + KI * (I + e * Ts);
+      if (c > UM) c = UM; else if (c < 0) c = 0; else I += e * Ts;   // conditional integration at the limit
+      V.push(v); C.push(c / UM);
+      v = A * v + (1 - A) * c;
+    }
+  })();
+  function speed(s) { var j = Math.min(N - 1, Math.floor(s / Ts)), net = C[j] * UM; return net + (V[j] - net) * Math.exp(-(s - j * Ts)); }
+  function X(s) { return 300 + 236 * s / 4; }
+  function Ys(v) { return 220 - 150 * v; }
+
+  /* ── the introduction, in seconds ──────────────────────────────
+     0 … T0     opening frame: plots empty, wheel at rest
+     T0 … TEND  speed and PWM revealed together (model time runs 1.2× real)
+     TEND … STOP the wheel's markings ease to rest with a slot under the read
+                head, so the last frame matches the held picture exactly
+     … TOTAL    the last pulse arrives; then the complete picture is held
+     … TOTAL + HOLD  a three-second reading pause before automatic replay */
+  var T0 = 0.35, RATE = 1.2, TEND = T0 + SIM / RATE, DEG = 160, SLOT = 15, TRAVEL = 0.65;
+  var NG = Math.ceil(TEND * 240), H = TEND / NG, angT = [0], acc = 0, g;
+  for (g = 1; g <= NG; g++) { acc += DEG * speed(clamp(((g - 0.5) * H - T0) * RATE, 0, SIM)) * H; angT.push(acc); }
+  var A1 = angT[NG], W0 = DEG * speed(SIM), STOPA = SLOT * Math.ceil((A1 + W0 * 0.25) / SLOT), D = 3 * (STOPA - A1) / W0, STOP = TEND + D, TOTAL = STOP + TRAVEL;
+  function angle(t) {
+    if (t <= 0) return 0;
+    if (t < TEND) { var x = t / H, i = Math.floor(x); return angT[i] + (angT[i + 1] - angT[i]) * (x - i); }
+    var u = clamp((t - TEND) / D, 0, 1);
+    return A1 + W0 * D * (1 - Math.pow(1 - u, 3)) / 3;          // speed falls smoothly to zero
+  }
+  /* one encoder pulse each time a slot reaches the read head */
+  var births = [], kk = 1, pa = 0, pt = 0, tq, aq;
+  for (g = 1; pt < STOP; g++) {
+    tq = Math.min(g / 240, STOP); aq = angle(tq);
+    while (kk * SLOT <= aq + 1e-6) { births.push(pt + (tq - pt) * (kk * SLOT - pa) / Math.max(aq - pa, 1e-9)); kk++; }
+    pa = aq; pt = tq;
+  }
+  var lenE = linkE.getTotalLength();
+
+  function render(t) {
+    var simT = clamp((t - T0) * RATE, 0, SIM), k = Math.min(N - 1, Math.floor(simT / Ts)), i, j, b, age, p;
+    clipR.setAttribute("width", t < T0 ? "0" : t >= TEND ? "262" : (X(simT) - 289).toFixed(1));
+    wheel.setAttribute("transform", "rotate(" + (angle(t) % 360).toFixed(2) + " 150 214)");
+    for (j = births.length - 1; j >= 0 && births[j] > t; j--) { /* newest pulse already born */ }
+    for (i = 0; i < pulses.length; i++) {
+      b = j - i >= 0 ? births[j - i] : -99; age = (t - b) / TRAVEL;
+      if (age > 1) { pulses[i].setAttribute("opacity", "0"); continue; }
+      p = linkE.getPointAtLength(lenE * age);
+      pulses[i].setAttribute("cx", p.x.toFixed(1)); pulses[i].setAttribute("cy", p.y.toFixed(1));
+      pulses[i].setAttribute("opacity", (0.7 * Math.min(1, (1 - age) * 4, 0.3 + age * 10)).toFixed(3));
+    }
+    flash.setAttribute("fill-opacity", (j >= 0 ? 0.28 * Math.max(0, 1 - (t - births[j]) / 0.16) : 0).toFixed(3));
+    /* the signal links brighten gently with the command and the speed, then return */
+    var env = sm((t - T0 + 0.2) / 0.5) * (1 - sm((t - TEND) / D));
+    linkP.setAttribute("stroke-opacity", (0.22 + 0.4 * (t < T0 ? 0 : C[k]) * env).toFixed(3));
+    linkE.setAttribute("stroke-opacity", (0.22 + 0.28 * Math.min(1, speed(simT)) * env).toFixed(3));
+    linkP.setAttribute("stroke-dashoffset", (-56 * sm((t - T0) / (STOP - T0))).toFixed(2));   // 8 dash periods: ends where it began
+    var cOp = t < T0 ? 0 : 0.9 * (1 - sm((t - TEND) / 0.35));
+    cur.setAttribute("opacity", cOp.toFixed(3));
+    if (cOp > 0) { cur.setAttribute("cx", X(k * Ts).toFixed(1)); cur.setAttribute("cy", Ys(V[k]).toFixed(1)); }
+  }
+  function final() {                                // the complete, held picture
+    clipR.setAttribute("width", "262");
+    wheel.removeAttribute("transform");
+    flash.setAttribute("fill-opacity", "0");
+    cur.setAttribute("opacity", "0");
+    pulses.forEach(function (c) { c.setAttribute("opacity", "0"); });
+    linkP.setAttribute("stroke-opacity", ".22"); linkE.setAttribute("stroke-opacity", ".22");
+    linkP.removeAttribute("stroke-dashoffset");
+  }
+
+  /* ── repeating with a reading pause, replaying, and stopping ── */
+  var HOLD = 3;
+  var raf = 0, start = 0, playing = false, played = false, ratio = 0;
+  function canMove() { return root.classList.contains("motion") && !reduce.matches; }
+  function autoOK() { return canMove() && !root.classList.contains("paused"); }
+  function frame(now) {
+    raf = 0;
+    if (!start) start = now;
+    var t = (now - start) / 1000;
+    if (t >= TOTAL + HOLD) { start = now; t = 0; }
+    if (t >= TOTAL) final(); else render(t);
+    raf = requestAnimationFrame(frame);
+  }
+  function play() {
+    if (!autoOK() || document.hidden) { stop(); return; }
+    if (raf) cancelAnimationFrame(raf);
+    played = playing = true; start = 0;
+    render(0);
+    raf = requestAnimationFrame(frame);
+  }
+  function stop() { if (raf) cancelAnimationFrame(raf); raf = 0; playing = false; final(); }
+  function idle() {                                 // before its first appearance: opening frame, or the held picture
+    if (playing) { if (!canMove()) stop(); return; }
+    if (!played) { if (autoOK()) render(0); else final(); }
+  }
+  function maybeAuto() {                            // repeats only while visible and motion is allowed
+    if (playing || ratio < 0.35 || document.hidden) return;
+    if (autoOK()) play(); else { played = true; final(); }
+  }
+  fig.classList.add("ms-js");
+  if (replay) replay.addEventListener("click", play);
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(function (en) {
+      var e = en[en.length - 1];
+      ratio = e.isIntersecting ? e.intersectionRatio : 0;
+      if (!ratio) { if (playing) stop(); }        // scrolled away mid-introduction: show the complete picture
+      else maybeAuto();
+    }, { threshold: [0, 0.35] }).observe(svg);
+  } else played = true;
+  document.addEventListener("visibilitychange", function () { if (document.hidden) { if (playing) stop(); } else maybeAuto(); });
+  var wasPaused = root.classList.contains("paused");
+  function modeChange() {
+    var p = root.classList.contains("paused");
+    if (playing && p && !wasPaused) stop();         // pausing motion ends the introduction
+    wasPaused = p;
+    idle(); maybeAuto();
+  }
+  if (window.MutationObserver) new MutationObserver(modeChange).observe(root, { attributes: true, attributeFilter: ["class"] });
+  if (reduce.addEventListener) reduce.addEventListener("change", function () { setTimeout(modeChange, 0); });
+  idle();
 })();
 </script>
 </body>
