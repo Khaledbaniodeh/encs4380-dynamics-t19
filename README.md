@@ -2,8 +2,6 @@
 
 ENCS4380 Interfacing Techniques, Birzeit University. Instructor: Dr. Wasel Ghanem.
 
-**[Open the live toolkit](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/)**
-
 A static browser toolkit for understanding sensor dynamics through live controls, response plots, and parameter-estimation challenges.
 
 ## Modules and team
@@ -552,3 +550,6 @@ We also used ChatGPT to better understand the purpose of the optional bonus feat
 
 Throughout the project, our team made the main decisions about the features and design, reviewed the generated code, tested the implementation, and worked on understanding the mathematical concepts and programming logic so we could explain our work during the project demonstration.
 
+## Live website
+
+**[Open the live toolkit](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/)**
