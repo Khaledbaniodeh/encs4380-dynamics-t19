@@ -26,6 +26,7 @@ The same GitHub Pages site now includes a separate **Control** area for controll
 | [P1](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/pid-playground.html) | PID Playground: first-order plant, live PID tuning, actuator limits and response metrics | Waad Melhem ([@WaadMelhem05](https://github.com/WaadMelhem05)) | [#5](../../issues/5) |
 | [P2](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/slow-sensor.html) | A slow sensor in the loop: true output versus measured feedback | Khaled Bani Oudeh ([@Khaledbaniodeh](https://github.com/Khaledbaniodeh)) | [#6](../../issues/6) |
 | [P3](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/digital-pid.html) | Digital PID: sampled feedback, zero-order hold, anti-windup and Arduino code generation | Jibreel Haddar ([@Jibreel-H](https://github.com/Jibreel-H)) | [#7](../../issues/7) |
+| [Bonus](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/state-space-control.html) | State-Space Pole Placement: full-state feedback for a mass-spring-damper plant, pole design, RK4 simulation and validation | Waad Melhem ([@WaadMelhem05](https://github.com/WaadMelhem05)) | Optional bonus |
 
 Each Control part should be added to this table when its implementation, tracking issue and live page are ready.
 
@@ -188,6 +189,57 @@ The generated Arduino sketch includes timing with `millis()`, discrete PID updat
 - [`python/digital_pid.py`](python/digital_pid.py) — our own Euler simulation, sampled PID, anti-windup, metrics, matched-step comparison, Arduino generator and homework validation.
 - [`tests/test_digital_pid.py`](tests/test_digital_pid.py) — model and integration regression tests.
 - [`.github/workflows/p3-regression.yml`](.github/workflows/p3-regression.yml) — dedicated Python test workflow.
+
+## Optional Bonus: State-Space Pole Placement
+
+**[Open the State-Space Bonus](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/state-space-control.html)**, or choose **Bonus · State-Space Pole Placement** from the home-page Control area. This is an optional extension to Homework 2, separate from the required P1–P4 experiments.
+
+The interactive experiment introduces full-state feedback for a mass-spring-damper plant. Instead of tuning PID gains directly, the user specifies a desired natural frequency and damping ratio, calculates state-feedback gains, and compares the resulting closed-loop response with the open-loop plant.
+
+### Model and pole-placement design
+
+The plant is modeled as:
+
+```text
+m*x'' + b*x' + k*x = u
+state = [x, v], with v = x'
+A = [[0, 1], [-k/m, -b/m]]
+B = [[0], [1/m]]
+u = -K1*x - K2*v
+```
+
+For a desired second-order characteristic polynomial `s^2 + 2*zeta*omega_n*s + omega_n^2`, the feedback gains are:
+
+```text
+K1 = m*omega_n^2 - k
+K2 = 2*m*zeta*omega_n - b
+```
+
+The page displays the designed poles and the response obtained from the corresponding closed-loop model. The Python implementation uses a fourth-order Runge–Kutta (RK4) integrator.
+
+### Explore the bonus
+
+1. Open the bonus page and wait for the Python runtime to become ready.
+2. Change the mass `m`, damping `b`, stiffness `k`, target damping ratio `zeta`, and natural frequency `omega_n`.
+3. Inspect the calculated feedback gains, state-space matrices and eigenvalues.
+4. Compare open-loop and closed-loop behavior, pole locations, and the required control force.
+5. Use the page's prediction and validation checks to connect the expected pole locations with the simulated response.
+
+This is a numerical educational model, not a hardware-validated controller for WALL-E. The optional state-space experiment is separate from the **My System** workstream.
+
+### Bonus implementation and tests
+
+- [`state-space-control.html`](state-space-control.html) — interactive page, controls, plots, pole-placement results and prediction/validation interface.
+- [`python/state_space_control.py`](python/state_space_control.py) — plant model, state-feedback gains, matrices, eigenvalues, RK4 simulation and dashboard data.
+- [`tests/test_state_space_control.py`](tests/test_state_space_control.py) — focused numerical and model-validation tests.
+
+Run the bonus tests locally:
+
+```sh
+python -m unittest discover -s tests -p test_state_space_control.py -v
+```
+
+The bonus was developed and checked independently of instructor acceptance. Its presence in the repository does not imply that the optional work is required for Homework 2.
 
 ## Module 1: using the time-response experiment
 
