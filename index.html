@@ -552,8 +552,8 @@ html:not(.motion) .ms-replay{display:none}
     <ul class="mgroup">
      <li><a class="mrow" href="pid-playground.html"><b>P1</b>PID playground</a></li>
      <li><a class="mrow" href="slow-sensor.html"><b>P2</b>A slow sensor in the loop</a></li>
-     <li><span class="mrow is-soon" data-mod="p3"><b>P3</b>Digital PID<em class="soon" data-mod-status="">In development</em></span></li>
-     <li><span class="mrow is-soon" data-mod="p4"><b>P4</b>Tuning challenge<em class="soon" data-mod-status="">In development</em></span></li>
+     <li><span class="mrow is-soon" data-mod="p3"><b>P3</b>Digital PID<em class="soon" data-mod-status="Published">In development</em></span></li>
+     <li><span class="mrow is-soon" data-mod="p4"><b>P4</b>Tuning challenge<em class="soon" data-mod-status="Published">In development</em></span></li>
     </ul>
     <a class="mhead" href="#my-system">Applied · My system<svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></a>
     <ul class="mgroup">
@@ -841,7 +841,7 @@ html:not(.motion) .ms-replay{display:none}
       <div><dt>You change</dt><dd>The sampling time Ts, the gains, and anti-windup on or off.</dd></div>
       <div><dt>You see</dt><dd>The stair-step control signal, how performance falls as Ts grows, and the Arduino loop code for the current gains, with a copy button.</dd></div>
      </dl>
-     <p class="wb-note">The preview is a textbook illustration from the brief; this experiment is not published yet.</p>
+     <p class="wb-note">This is an illustrative preview. Open P3 for the live Python simulation, stair-step control, anti-windup and Arduino code.</p>
      <div class="wb-act"><p class="wb-soon"><span class="status">In development</span> Opens here once it is published.</p></div>
     </div>
     <div class="wb-panel" role="tabpanel" id="wb-p4" data-exp="p4" aria-labelledby="wb-tab-p4" tabindex="0">
@@ -1717,7 +1717,7 @@ if (hctx && !hraf) heroStill();
      ready: true only for a page that is published on GitHub Pages and
      tested. P1 (pid-playground.html) and P2 (slow-sensor.html) were checked
      live on 20 November 2026, so they are also linked directly in the
-     markup. P3, P4 and My system have no published page yet: set the real
+     markup. P4 and My system have no published page yet: set the real
      path and ready: true when each page goes live. Every element marked
      data-mod="<key>" then becomes a link, its data-mod-status label replaces
      "In development", and the Part 2 workbench updates its selector, tag and
@@ -1725,7 +1725,7 @@ if (hctx && !hraf) heroStill();
   var HW2 = {
     p1:  { ready: true,  href: "pid-playground.html" },
     p2:  { ready: true,  href: "slow-sensor.html" },
-    p3:  { ready: false, href: "" },
+    p3:  { ready: true,  href: "digital-pid.html" },
     p4:  { ready: false, href: "" },
     sys: { ready: false, href: "" }
   };
@@ -1780,7 +1780,7 @@ if (hctx && !hraf) heroStill();
        P2  a first-order plant and a first-order sensor at P2's default gains
            (Kp 2, Ki 4) for three sensor time constants.
        P3  stair-step control signal and output as the sampling time grows
-           (textbook illustration; P3 is not published).
+           (illustrative preview; interactive P3 is published).
        P4  a spec corridor: a first attempt fails and a retune passes
            (textbook illustration; P4 is not published).
      The animation runs only while the viewer is on screen, the tab is
