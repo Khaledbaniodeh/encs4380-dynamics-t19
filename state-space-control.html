@@ -1,0 +1,489 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#13243a">
+<meta name="description" content="Interactive state-space pole placement experiment for a mass-spring-damper system, with RK4 simulation, pole maps and validation.">
+<title>State-Space Control · Dynamics Lab</title>
+
+<script src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.28.3/full/pyodide.js"></script>
+
+<style>
+:root{--navy:#13243a;--teal:#087f72;--blue:#315dda;--muted:#617184;--line:#dce6ec;--bg:#f3f6f8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--navy);font:15px/1.55 system-ui,Arial,sans-serif}
+header{background:var(--navy);color:white}
+.top-inner{max-width:1220px;margin:auto;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{font-weight:750}
+.brand a{color:white;text-decoration:none}
+.brand span{color:#93ddc8}
+.top-right{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:12px;color:#cdd8e1}
+.top-right a{color:#d5ece7;text-decoration:none}
+.top-right a:hover{text-decoration:underline}
+main{max-width:1160px;margin:auto;padding:22px}
+.intro{margin:4px 0 22px}
+.intro h1{margin:0 0 9px;font-size:clamp(27px,4vw,39px);line-height:1.15}
+.intro p{max-width:800px;margin:0;color:var(--muted)}
+.tag{display:inline-block;border-radius:6px;padding:4px 9px;background:#e9f7f2;color:#056e62;font-weight:700;font-size:11px;margin-bottom:12px}
+.top-tip{background:#f6faf9;border:1px solid #d9ebe5;border-radius:12px;padding:15px 18px;margin-bottom:18px}
+.top-tip h2{font-size:15px;margin:0 0 6px}
+.top-tip p{font-size:13px;margin:0;color:#415c67}
+.card{background:white;border:1px solid var(--line);border-radius:15px;padding:20px;margin-bottom:18px}
+h2{margin:0 0 14px;font-size:20px}
+h3{margin:10px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px}
+label{display:block;font-weight:600}
+input{display:block;width:100%;margin-top:6px;padding:10px;border:1px solid #b9c8d4;border-radius:8px;font:inherit}
+button{background:var(--teal);color:white;border:0;border-radius:9px;padding:12px 18px;font:inherit;font-weight:700;cursor:pointer}
+button:disabled{opacity:.5;cursor:wait}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #86c9f4;outline-offset:2px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{background:#eef7f5;border-radius:10px;padding:15px}
+.stat strong{display:block;font-size:23px}
+.stat span{font-size:13px;color:var(--muted)}
+.chart{width:100%;height:370px}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#edf2f7;padding:15px;border-radius:9px}
+.small{color:var(--muted);font-size:13px}
+#status{margin:12px 0;font-weight:600}
+#status.error{color:#a72e32}
+#status.success{color:#087f72}
+.pass{color:#087f72;font-weight:700}
+.fail{color:#b42328;font-weight:700}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.feedback{padding:12px 14px;border-radius:9px;background:#eff5f8;font-size:13px;color:#38596a}
+.feedback.correct{background:#e9f7f2;color:#076a60}
+.feedback.incorrect{background:#fff5ec;color:#98551a}
+#savePrediction{background:var(--teal)}
+#checkPrediction{background:var(--blue)}
+@media(max-width:600px){
+  main{padding:12px}
+  .card{padding:14px}
+  .chart{height:310px}
+  .top-inner{padding:14px 16px}
+  .top-right{gap:9px;font-size:11px}
+  .actions button{flex:1}
+  .intro h1{font-size:28px}
+}
+</style>
+</head>
+
+<body>
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <a href="index.html">Dynamics Lab</a>
+      <span>· State-Space Control</span>
+    </div>
+    <nav class="top-right" aria-label="Other control modules">
+      <a href="index.html#control">All modules</a>
+      <a href="pid-playground.html">P1</a>
+      <a href="slow-sensor.html">P2</a>
+      <a href="digital-pid.html">P3</a>
+      <span>ENCS4380 · Team T19</span>
+    </nav>
+  </div>
+</header>
+
+<main>
+<div class="intro">
+  <span class="tag">HOMEWORK 2 · BONUS</span>
+  <h1>State-Space Control</h1>
+  <p>Design full-state feedback for the mass-spring-damper model. Place the closed-loop poles, compare motion and control force, and verify the design with Python RK4 simulation.</p>
+</div>
+
+<section class="top-tip">
+  <h2>Suggested experiments</h2>
+  <p><strong>Underdamped:</strong> try ζ = 0.7 and watch oscillations. <strong>Critically damped:</strong> set ζ = 1. <strong>Overdamped:</strong> set ζ = 1.5. Keep m, b, k and ωₙ unchanged to compare pole locations and displacement curves.</p>
+</section>
+
+<section class="card">
+  <h2>1. The physical system</h2>
+  <p>We reuse the mass-spring-damper model from Homework 1, Module 3:</p>
+  <pre>m x'' + b x' + k x = u
+
+State vector: X = [x, v]ᵀ
+Feedback:     u = -K₁x - K₂v
+Closed loop:  X' = (A - BK)X</pre>
+  <p class="small">This is a regulation experiment: the controller drives displacement and velocity toward zero. It is not nonzero-setpoint tracking.</p>
+</section>
+
+<section class="card">
+  <h2>2. Interactive design</h2>
+  <p>Choose the plant and desired closed-loop dynamics.</p>
+  <div class="grid">
+    <label>Mass m (kg)<input id="m" type="number" min="0.01" max="100" step="any" value="1"></label>
+    <label>Damping b (N·s/m)<input id="b" type="number" min="0" max="100" step="any" value="2"></label>
+    <label>Spring constant k (N/m)<input id="k" type="number" min="0.01" max="200" step="any" value="4"></label>
+    <label>Desired damping ratio ζ<input id="zeta" type="number" min="0.05" max="3" step="any" value="0.7"></label>
+    <label>Desired natural frequency ωₙ (rad/s)<input id="wn" type="number" min="0.1" max="15" step="any" value="3"></label>
+    <label>Initial displacement x₀ (m)<input id="x0" type="number" min="-5" max="5" step="any" value="1"></label>
+    <label>Initial velocity v₀ (m/s)<input id="v0" type="number" min="-10" max="10" step="any" value="0"></label>
+    <label>Simulation duration (s)<input id="duration" type="number" min="1" max="60" step="any" value="12"></label>
+  </div>
+  <p>
+    <button id="run" disabled>Loading Python...</button>
+    <button id="reset" type="button" disabled>Reset defaults</button>
+  </p>
+  <div id="status" role="status" aria-live="polite">Loading numerical simulation engine...</div>
+</section>
+
+<section class="card">
+  <h2>3. State-feedback gains</h2>
+  <div class="stats">
+    <div class="stat"><span>Position gain K₁</span><strong id="gain1">—</strong></div>
+    <div class="stat"><span>Velocity gain K₂</span><strong id="gain2">—</strong></div>
+    <div class="stat"><span>Pole placement</span><strong id="polecheck">—</strong></div>
+  </div>
+  <pre id="matrices">Waiting for simulation...</pre>
+  <p class="small">K₁ = mωₙ² − k and K₂ = 2mζωₙ − b. Negative feedback gains are mathematically permitted. This ideal model does not include actuator saturation.</p>
+</section>
+
+<section class="card">
+  <h2>4. Pole map</h2>
+  <p>Compare the original open-loop poles with the calculated closed-loop poles and the desired poles.</p>
+  <div id="polePlot" class="chart"></div>
+</section>
+
+<section class="card">
+  <h2>5. Response comparison</h2>
+  <p>Both systems start from the same initial displacement and velocity. Their responses are integrated using RK4.</p>
+  <div id="responsePlot" class="chart"></div>
+  <h3>Control input u(t)</h3>
+  <div id="controlPlot" class="chart"></div>
+</section>
+
+<section class="card">
+  <h2>6. Predict, then check</h2>
+  <p>Before changing the desired natural frequency, predict: will a larger ωₙ generally make the closed-loop response faster when ζ stays constant?</p>
+  <label for="prediction">Your prediction</label>
+  <select id="prediction" style="padding:10px;width:100%;max-width:420px">
+    <option value="">Choose an answer</option>
+    <option value="faster">Faster response</option>
+    <option value="slower">Slower response</option>
+    <option value="same">No change</option>
+  </select>
+  <p class="small">Choose your answer, save a baseline, then increase ωₙ while keeping ζ unchanged. Run the simulation and check the pole-based speed comparison.</p>
+  <div class="actions">
+    <button id="savePrediction" type="button" disabled>Save prediction &amp; baseline</button>
+    <button id="checkPrediction" type="button" disabled>Check prediction</button>
+  </div>
+  <p id="predictionResult" class="feedback" aria-live="polite">Run the default simulation to begin.</p>
+</section>
+
+<section class="card">
+  <h2>7. Numerical validation</h2>
+  <div id="validation">Waiting for simulation...</div>
+  <p class="small">Validation checks the characteristic polynomial and the computed pole locations. Passing these checks does not replace browser and numerical accuracy testing.</p>
+</section>
+</main>
+
+<script>
+"use strict";
+
+let pyodide = null;
+let dashboard = null;
+let running = false;
+let predictionBaseline = null;
+let currentParameters = null;
+
+const ids = ["m","b","k","zeta","wn","x0","v0","duration"];
+const defaults = {m:1,b:2,k:4,zeta:0.7,wn:3,x0:1,v0:0,duration:12};
+const $ = id => document.getElementById(id);
+const fmt = x => Number(x).toFixed(4);
+const complexText = p => `${fmt(p.re)} ${p.im < 0 ? "-" : "+"} j${fmt(Math.abs(p.im))}`;
+
+function status(message,type="") {
+  $("status").textContent = message;
+  $("status").className = type;
+}
+
+function getParameters() {
+  const p = {};
+  for (const id of ids) {
+    const field = $(id);
+    if (!field.checkValidity() || field.value.trim() === "") {
+      throw new Error(`Invalid value for ${id}.`);
+    }
+    p[id] = Number(field.value);
+    if (!Number.isFinite(p[id])) throw new Error(`Non-finite value for ${id}.`);
+  }
+  return p;
+}
+
+function desiredPoles(zeta,wn) {
+  const real = -zeta*wn;
+  if (zeta < 1) {
+    const imag = wn*Math.sqrt(1-zeta*zeta);
+    return [{re:real,im:imag},{re:real,im:-imag}];
+  }
+  if (zeta === 1) return [{re:-wn,im:0},{re:-wn,im:0}];
+  const root = wn*Math.sqrt(zeta*zeta-1);
+  return [{re:real+root,im:0},{re:real-root,im:0}];
+}
+
+function poleError(actual,desired) {
+  const distance = (a,b) => Math.hypot(a.re-b.re,a.im-b.im);
+  return Math.min(
+    Math.max(distance(actual[0],desired[0]),distance(actual[1],desired[1])),
+    Math.max(distance(actual[0],desired[1]),distance(actual[1],desired[0]))
+  );
+}
+
+function plotLayout(xTitle,yTitle) {
+  return {
+    margin:{l:60,r:20,t:20,b:55},
+    paper_bgcolor:"#ffffff",plot_bgcolor:"#ffffff",
+    xaxis:{title:xTitle,zeroline:true,gridcolor:"#e8eef3"},
+    yaxis:{title:yTitle,zeroline:true,gridcolor:"#e8eef3"},
+    legend:{orientation:"h",y:-0.3},
+    font:{family:"Arial,sans-serif",size:12}
+  };
+}
+
+function drawPlots(data,p) {
+  const open = data.open_response;
+  const closed = data.closed_response;
+  const desired = desiredPoles(p.zeta,p.wn);
+  const config = {responsive:true,displaylogo:false};
+
+  const poleTrace = (points,name,color,symbol) => ({
+    x:points.map(q=>q.re),
+    y:points.map(q=>q.im),
+    type:"scatter",mode:"markers",name,
+    marker:{size:13,color,symbol},
+    hovertemplate:"Real: %{x:.4f}<br>Imag: %{y:.4f}<extra></extra>"
+  });
+
+  Plotly.react("polePlot",[
+    poleTrace(data.open_poles,"Open-loop","#e38a35","circle"),
+    poleTrace(desired,"Desired","#087f72","x"),
+    poleTrace(data.closed_poles,"Actual closed-loop","#315dda","diamond")
+  ],{
+    ...plotLayout("Real axis (1/s)","Imaginary axis (1/s)"),
+    yaxis:{...plotLayout("","").yaxis,scaleanchor:"x",scaleratio:1}
+  },config);
+
+  Plotly.react("responsePlot",[
+    {x:open.time,y:open.position,name:"Open-loop displacement",mode:"lines",line:{color:"#e38a35"}},
+    {x:closed.time,y:closed.position,name:"Closed-loop displacement",mode:"lines",line:{color:"#315dda"}},
+    {x:closed.time,y:closed.velocity,name:"Closed-loop velocity",mode:"lines",line:{color:"#087f72",dash:"dot"}}
+  ],plotLayout("Time (s)","State value (m or m/s)"),config);
+
+  Plotly.react("controlPlot",[
+    {x:closed.time,y:closed.control,name:"State-feedback force",mode:"lines",line:{color:"#087f72"}}
+  ],plotLayout("Time (s)","Control force (N)"),config);
+}
+
+function formatMatrix(matrix) {
+  return "[" + matrix.map(row =>
+    "[" + row.map(value=>Number(value).toFixed(4)).join(", ") + "]"
+  ).join(", ") + "]";
+}
+
+function displayResults(data,p) {
+  $("gain1").textContent = fmt(data.K1);
+  $("gain2").textContent = fmt(data.K2);
+
+  const desired = desiredPoles(p.zeta,p.wn);
+  const passed = poleError(data.closed_poles,desired) < 1e-7;
+  $("polecheck").textContent = passed ? "PASS" : "FAIL";
+  $("polecheck").className = passed ? "pass" : "fail";
+
+  $("matrices").textContent = `A = ${formatMatrix(data.A)}
+B = ${formatMatrix(data.B)}
+A - BK = ${formatMatrix(data.A_closed)}
+
+K = [${fmt(data.K1)}, ${fmt(data.K2)}]
+
+Original poles:
+${data.open_poles.map(complexText).join("\n")}
+
+Desired poles:
+${desired.map(complexText).join("\n")}
+
+Actual closed-loop poles:
+${data.closed_poles.map(complexText).join("\n")}`;
+
+  const a = data.A_closed;
+  const trace = a[0][0]+a[1][1];
+  const det = a[0][0]*a[1][1]-a[0][1]*a[1][0];
+  const traceError = Math.abs(trace+2*p.zeta*p.wn);
+  const detError = Math.abs(det-p.wn*p.wn);
+  const tolerance = 1e-8*Math.max(1,Math.abs(trace),Math.abs(det),p.wn*p.wn);
+
+  const tests = [
+    ["Desired pole locations",passed],
+    ["Characteristic polynomial trace",traceError<tolerance],
+    ["Characteristic polynomial determinant",detError<tolerance]
+  ];
+
+  $("validation").replaceChildren();
+  for (const [name,ok] of tests) {
+    const line = document.createElement("p");
+    line.textContent = `${ok ? "PASS" : "FAIL"} — ${name}`;
+    line.className = ok ? "pass" : "fail";
+    $("validation").appendChild(line);
+  }
+  drawPlots(data,p);
+}
+
+function clearPlots() {
+  for (const id of ["polePlot","responsePlot","controlPlot"]) {
+    const plot = $(id);
+    if (!plot) continue;
+    if (typeof Plotly !== "undefined") Plotly.purge(plot);
+    plot.replaceChildren();
+
+    const message = document.createElement("p");
+    message.textContent = "No valid simulation results. Please correct the inputs.";
+    message.className = "small";
+    plot.appendChild(message);
+  }
+}
+
+async function runSimulation() {
+  if (!pyodide || running) return;
+  running = true;
+  $("run").disabled = true;
+
+  try {
+    const p = getParameters();
+    status("Running RK4 simulation...");
+
+    const module = pyodide.pyimport("state_space_control");
+    let raw;
+    try {
+      raw = module.dashboard_json(p.m,p.b,p.k,p.zeta,p.wn,p.x0,p.v0,p.duration);
+    } finally {
+      module.destroy();
+    }
+
+    const data = JSON.parse(raw);
+    dashboard = data;
+    currentParameters = {...p};
+
+    displayResults(data,p);
+    $("savePrediction").disabled = false;
+    $("checkPrediction").disabled = !predictionBaseline;
+    status("Simulation completed successfully.","success");
+
+  } catch(err) {
+    console.error(err);
+    dashboard = null;
+    currentParameters = null;
+    $("savePrediction").disabled = true;
+    $("checkPrediction").disabled = true;
+
+    $("gain1").textContent = "—";
+    $("gain2").textContent = "—";
+    $("polecheck").textContent = "Not evaluated";
+    $("polecheck").className = "";
+    $("matrices").textContent = "No valid simulation results. Please correct the inputs.";
+    $("validation").textContent = "Validation unavailable until a successful simulation.";
+
+    clearPlots();
+    status(`Simulation error: ${err.message}`,"error");
+
+  } finally {
+    running = false;
+    $("run").disabled = false;
+  }
+}
+
+async function initialize() {
+  try {
+    pyodide = await loadPyodide({
+      indexURL:"https://cdn.jsdelivr.net/pyodide/v0.28.3/full/"
+    });
+
+    const response = await fetch("python/state_space_control.py");
+    if (!response.ok) {
+      throw new Error(`Cannot load Python model (HTTP ${response.status}).`);
+    }
+
+    const source = await response.text();
+    pyodide.FS.writeFile("/home/pyodide/state_space_control.py",source);
+
+    await pyodide.runPythonAsync(`
+import sys
+sys.path.insert(0, "/home/pyodide")
+from state_space_control import dashboard_json
+`);
+
+    $("run").textContent = "Run simulation";
+    $("reset").disabled = false;
+    await runSimulation();
+
+  } catch(err) {
+    console.error(err);
+    status(`Initialization failed: ${err.message}`,"error");
+  }
+}
+
+$("run").addEventListener("click",runSimulation);
+
+$("reset").addEventListener("click",()=>{
+  for (const id of ids) $(id).value = defaults[id];
+  $("prediction").value = "";
+  $("predictionResult").textContent = "Run the default simulation to begin.";
+  $("predictionResult").className = "feedback";
+  predictionBaseline = null;
+  $("checkPrediction").disabled = true;
+  runSimulation();
+});
+
+$("savePrediction").addEventListener("click",()=>{
+  if (!dashboard || !currentParameters) return;
+
+  const answer = $("prediction").value;
+  if (!answer) {
+    $("predictionResult").textContent = "Choose a prediction first.";
+    return;
+  }
+
+  predictionBaseline = {
+    answer,
+    wn:currentParameters.wn,
+    zeta:currentParameters.zeta,
+    decay:-Math.max(...dashboard.closed_poles.map(p=>p.re))
+  };
+
+  $("checkPrediction").disabled = false;
+  $("predictionResult").className = "feedback";
+  $("predictionResult").textContent =
+    `Baseline saved: ωₙ = ${fmt(predictionBaseline.wn)}, ζ = ${fmt(predictionBaseline.zeta)}. Increase ωₙ, run the simulation, then check.`;
+});
+
+$("checkPrediction").addEventListener("click",()=>{
+  if (!predictionBaseline || !dashboard || !currentParameters) return;
+
+  const base = predictionBaseline;
+  const p = currentParameters;
+
+  if (Math.abs(p.zeta-base.zeta)>1e-10) {
+    $("predictionResult").textContent = "Keep ζ unchanged for a fair comparison, then run again.";
+    return;
+  }
+
+  if (p.wn<=base.wn) {
+    $("predictionResult").textContent = "Increase ωₙ above the saved baseline and run the simulation first.";
+    return;
+  }
+
+  const decay = -Math.max(...dashboard.closed_poles.map(q=>q.re));
+  const actual = decay>base.decay+1e-8 ? "faster"
+    : decay<base.decay-1e-8 ? "slower" : "same";
+  const correct = base.answer===actual;
+
+  $("predictionResult").textContent =
+    `${correct ? "Correct!" : "Not quite."} ωₙ: ${fmt(base.wn)} → ${fmt(p.wn)}; dominant pole decay rate: ${fmt(base.decay)} → ${fmt(decay)} 1/s. The ideal closed-loop dynamics are ${actual}.`;
+  $("predictionResult").className = `feedback ${correct ? "correct" : "incorrect"}`;
+});
+
+initialize();
+</script>
+</body>
+</html>
