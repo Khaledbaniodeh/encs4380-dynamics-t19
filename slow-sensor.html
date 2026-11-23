@@ -16,10 +16,17 @@ main{max-width:1380px;margin:auto;padding:30px}.intro{display:flex;justify-conte
 @media(max-width:760px){.workspace{grid-template-columns:1fr}.settings{position:static}.top-inner{padding:14px 18px}.top-links{gap:12px}.top-links a{font-size:12px}.brand small{font-size:9px}.intro{display:block}main{padding:23px 16px}.intro p:not(.eyebrow){font-size:14px}.panel{padding:18px}.settings .field:not(.sensor-field){padding:13px 0}.field input[type=number]{font-size:16px}.model-grid{grid-template-columns:1fr;gap:15px}.inspect{gap:10px}.inspect label{max-width:83px}.chart{min-height:300px}.predict select{font-size:16px}.predict-actions .btn{flex:1}.plot-heading{flex-direction:column;gap:8px}.foot{display:block;padding:15px 18px}.foot span{display:block;margin-bottom:7px}.draft{font-size:9px}.section-nav{gap:14px}.metrics{gap:8px}.metric{padding:11px}.metric strong{font-size:22px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
+<link rel="stylesheet" href="control-navigation.css">
 </head>
 <body>
 <a class="skip" href="#experiment">Skip to experiment</a>
-<header class="topbar"><div class="top-inner"><a class="brand" href="index.html">Dynamics Lab<small>ENCS4380 · CONTROL TOOLKIT</small></a><div class="top-links"><a href="index.html">Home</a><a href="pid-playground.html">P1 · PID Playground</a></div></div></header>
+<header class="topbar"><div class="top-inner"><a class="brand" href="index.html">Dynamics Lab<small>ENCS4380 · CONTROL TOOLKIT</small></a><nav class="control-nav" aria-label="Control parts navigation">
+  <a class="control-home" href="index.html#control">All parts</a>
+  <a href="pid-playground.html" title="PID Playground">P1</a>
+  <a href="slow-sensor.html" title="Slow Sensor" aria-current="page">P2</a>
+  <a href="digital-pid.html" title="Digital PID">P3</a>
+  <a href="pid-tuning.html" title="Tuning Challenge">P4</a>
+</nav></div></header>
 <main>
 <section class="intro"><div><p class="eyebrow">Homework 2 · P2 · Feedback</p><h1>A slow sensor in the loop.</h1><p>The system has a true output. The controller only sees a sensor reading. Explore what happens when that reading falls behind.</p></div></section>
 <nav class="section-nav" aria-label="On this page"><a href="#settings">Settings</a><a href="#experiment">Compare the outputs</a><a href="#prediction">Predict, then check</a><a href="#model">Model &amp; checks</a></nav>

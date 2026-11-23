@@ -1,0 +1,66 @@
+/* Shared Control navigation for Homework 2 P1–P4.
+   Keep every part reachable from every other part on desktop and mobile. */
+.control-nav{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:6px;
+  min-width:0;
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+.control-nav a{
+  display:inline-flex;
+  justify-content:center;
+  align-items:center;
+  flex:none;
+  min-height:36px;
+  padding:7px 11px;
+  border:1px solid transparent;
+  border-radius:9px;
+  color:#d7e8ef;
+  font-size:12px;
+  font-weight:700;
+  line-height:1.2;
+  text-decoration:none;
+  white-space:nowrap;
+}
+.control-nav a:hover{
+  background:#28475a;
+  color:#fff;
+  text-decoration:none;
+}
+.control-nav a:focus-visible{outline:2px solid #ffcf81;outline-offset:2px}
+.control-nav a[aria-current="page"]{
+  background:#087f72;
+  color:#fff;
+  border-color:#43aa96;
+}
+.control-nav .control-home{
+  margin-right:6px;
+  color:#c7dce5;
+  font-weight:600;
+}
+@media(max-width:720px){
+  header.topbar .topbar-inner,
+  header.topbar .top-inner,
+  header.top .top-inner{
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .control-nav{
+    width:100%;
+    justify-content:flex-start;
+    gap:5px;
+    flex-wrap:nowrap;
+    overflow-x:auto;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+    padding:2px 0 4px;
+  }
+  .control-nav::-webkit-scrollbar{display:none}
+  .control-nav a{min-height:38px;padding:8px 10px}
+}
+@media(max-width:360px){
+  .control-nav{gap:3px}
+  .control-nav a{padding:8px 9px}
+}

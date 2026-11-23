@@ -136,6 +136,7 @@ footer{margin-top:28px;padding-top:17px;border-top:1px solid var(--line);color:#
   .chart{height:320px;}
 }
 </style>
+<link rel="stylesheet" href="control-navigation.css">
 </head>
 <body>
 <header class="topbar">
@@ -144,7 +145,13 @@ footer{margin-top:28px;padding-top:17px;border-top:1px solid var(--line);color:#
       <div class="brand-mark">C</div>
       <div><a href="index.html">Dynamics Lab</a><small>ENCS4380 · Team T19</small></div>
     </div>
-    <div class="topbar-meta">Control Toolkit <b>P1 · PID Playground</b></div>
+    <nav class="control-nav" aria-label="Control parts navigation">
+  <a class="control-home" href="index.html#control">All parts</a>
+  <a href="pid-playground.html" title="PID Playground" aria-current="page">P1</a>
+  <a href="slow-sensor.html" title="Slow Sensor">P2</a>
+  <a href="digital-pid.html" title="Digital PID">P3</a>
+  <a href="pid-tuning.html" title="Tuning Challenge">P4</a>
+</nav>
   </div>
 </header>
 <main>

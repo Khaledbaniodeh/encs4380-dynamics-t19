@@ -56,9 +56,16 @@
 .validation-card p strong{color:var(--ink)}
 @media(max-width:570px){.preset-buttons button{flex:0 0 auto;font-size:10px;padding:5px 5px}.run-row button{width:auto}.prediction-actions button{flex:0 1 auto;font-size:11.5px;min-height:33px;padding:6px 9px}.aw-compact small{font-size:10px}}
 </style>
+<link rel="stylesheet" href="control-navigation.css">
 </head>
 <body>
-<header class="top"><div class="top-inner"><div class="brand"><a href="index.html" style="color:inherit;text-decoration:none">Dynamics Lab</a> <span>· Digital PID</span></div><nav class="top-right" aria-label="Other control modules"><a href="index.html#control">All modules</a><a href="pid-playground.html">P1</a><a href="slow-sensor.html">P2</a><span>ENCS4380 · Team T19</span></nav></div></header>
+<header class="top"><div class="top-inner"><div class="brand"><a href="index.html" style="color:inherit;text-decoration:none">Dynamics Lab</a> <span>· Digital PID</span></div><nav class="control-nav" aria-label="Control parts navigation">
+  <a class="control-home" href="index.html#control">All parts</a>
+  <a href="pid-playground.html" title="PID Playground">P1</a>
+  <a href="slow-sensor.html" title="Slow Sensor">P2</a>
+  <a href="digital-pid.html" title="Digital PID" aria-current="page">P3</a>
+  <a href="pid-tuning.html" title="Tuning Challenge">P4</a>
+</nav></div></header>
 <main class="shell">
 <div class="intro"><span class="tag">HOMEWORK 2 · P3</span><h1>Digital PID Controller</h1><p>Explore <strong>P, PI and PID</strong> with a sampled controller. Watch the integral accumulate, the derivative react to changes, and the command remain fixed between samples.</p><div class="note"><strong>Simulation and hardware:</strong> This interactive experiment uses a first-order model and uncalibrated control units. Its generated Arduino sketch contains example sensor and motor-driver adapters, not verified WALL-E wiring or encoder calibration.</div></div>
 <section class="top-tip"><h3>Suggested comparisons</h3><p><strong>P only → PI:</strong> keep Kp and Ts fixed and watch the end-window error shrink when Ki is added. <strong>PI → PID:</strong> watch the D term react to changes in error. <strong>Windup demo:</strong> start with Anti-windup ON, read the overshoot, then switch OFF without changing anything else.</p></section><div class="layout">
