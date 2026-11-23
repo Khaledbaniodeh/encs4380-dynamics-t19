@@ -1,0 +1,19 @@
+name: P3 digital-PID regression
+on:
+  push:
+    paths: ['digital-pid.html', 'python/digital_pid.py', 'tests/test_digital_pid.py', '.github/workflows/p3-regression.yml']
+  pull_request:
+    paths: ['digital-pid.html', 'python/digital_pid.py', 'tests/test_digital_pid.py', '.github/workflows/p3-regression.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  digital-pid:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s tests -p test_digital_pid.py -v
