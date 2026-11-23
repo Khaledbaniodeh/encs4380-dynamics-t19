@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#14243a">
+  <meta name="description" content="ENCS4380 Team T19 — PID Tuning Challenge, Homework 2 Part P4">
+  <title>P4 · PID Tuning Challenge | Dynamics Lab</title>
+  <script defer src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.js"></script>
+  <style>
+    :root{--navy:#14243a;--ink:#17263b;--muted:#66758a;--line:#e0e6ed;--white:#fff;--bg:#f4f6f8;--teal:#087f72;--teal-dark:#066c61;--teal-soft:#e7f5f1;--blue:#315dda;--orange:#b56425;--red:#b34036;--green:#167554;--radius:16px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:18px}body{margin:0;color:var(--ink);background:var(--bg);font:15px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input{font:inherit}button{cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}h1,h2,h3,p{margin:0}h1{font-size:clamp(30px,4.5vw,47px);letter-spacing:-.055em;line-height:1.12}h2{font-size:19px;letter-spacing:-.02em}h3{font-size:15px}.muted{color:var(--muted)}[hidden]{display:none!important}:focus-visible{outline:3px solid #dfac50;outline-offset:3px}
+    .topbar{background:var(--navy);color:#fff}.top-inner{max-width:1340px;margin:auto;padding:17px 30px;display:flex;justify-content:space-between;align-items:center;gap:18px}.brand{display:flex;align-items:center;gap:12px;color:#fff!important;text-decoration:none}.mark{height:33px;width:33px;background:var(--teal);border-radius:10px;display:grid;place-items:center;font-size:18px;font-weight:850}.brand strong{display:block;font-size:16px;line-height:1.15}.brand small{display:block;letter-spacing:.1em;text-transform:uppercase;font-size:9px;color:#cad4dd;margin-top:4px}.top-right{display:flex;gap:20px;align-items:center;flex-wrap:wrap}.top-right a{color:#d2e1e8;font-size:13px}.top-tag{border:1px solid #3c655e;color:#b6f0d3;border-radius:100px;padding:6px 12px;font-size:11px;letter-spacing:.075em;font-weight:750}
+    main{max-width:1580px;margin:0 auto;padding:25px 30px 75px}.breadcrumb{display:flex;gap:9px;align-items:center;color:var(--muted);font-size:12px;margin-bottom:29px}.eyebrow{color:var(--teal);font-size:11px;letter-spacing:.13em;font-weight:800;text-transform:uppercase}.hero{margin-bottom:25px}.hero h1{margin:7px 0 11px}.intro{color:var(--muted);max-width:850px;font-size:15px;line-height:1.65}.hero-note{display:flex;align-items:center;gap:8px;margin-top:15px;flex-wrap:wrap}.pill{display:inline-flex;align-items:center;gap:7px;border:1px solid #cbd7e1;border-radius:100px;padding:6px 12px;font-weight:700;font-size:11px;background:#fff;color:#3e5367}.pill.ready{background:#e8f7f0;color:#147557;border-color:#b7ddc9}.pill.error{background:#fff0ed;color:#a3352b;border-color:#ebc6c2}.pill.waiting{background:#fff8ea;color:#875a19;border-color:#f0daa7}.dot{height:7px;width:7px;border-radius:50%;background:currentColor}
+    .panel{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:22px;min-width:0;box-shadow:0 3px 15px rgba(26,48,65,.025)}.section-heading{margin-bottom:16px}.section-heading p{margin-top:5px;color:var(--muted);font-size:13px}.controls-header{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap}.challenge-controls{margin-bottom:19px}.round-action{display:flex;align-items:center;flex-wrap:wrap;gap:8px}.btn{border:1px solid #c4d1dc;border-radius:9px;background:#fff;color:var(--ink);padding:10px 16px;min-height:42px;font-weight:700;transition:background .14s,transform .14s}.btn:hover:not(:disabled){background:#edf6f3}.btn:active:not(:disabled){transform:translateY(1px)}.btn.primary{background:var(--teal);color:#fff;border-color:var(--teal)}.btn.primary:hover:not(:disabled){background:var(--teal-dark)}.btn.ghost{border-color:#b5d7ce;background:#f7fcfa;color:var(--teal)}.btn.small{padding:7px 10px;font-size:12px;min-height:35px}.btn.wide{width:100%}.scorebar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:19px}.scorecard{border:1px solid #dceee6;border-radius:10px;background:#f6fbf8;padding:13px 15px}.scorecard span{display:block;color:var(--muted);font-size:11px}.scorecard strong{display:block;font-size:24px;color:var(--ink);line-height:1.2;margin-top:5px;font-variant-numeric:tabular-nums}.scorecard small{font-size:12px;color:var(--muted)}
+    .specs-panel{margin-bottom:20px}.specs-title{display:flex;gap:15px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}.spec-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}.spec-box{border:1px solid #d9e4e9;background:#f9fbfc;border-radius:11px;padding:15px;min-width:0}.spec-box .label{color:var(--muted);font-size:12px}.spec-box strong{font-size:27px;font-variant-numeric:tabular-nums;letter-spacing:-.045em;display:block;margin-top:4px}.spec-box small{display:block;color:var(--muted);font-size:11px;margin-top:3px}.challenge-blurb{margin-top:15px;border-left:3px solid var(--teal);padding:10px 14px;background:#f1f9f6;border-radius:0 8px 8px 0;color:#355c54;font-size:13px}.challenge-identity{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .workspace{display:grid;grid-template-columns:310px minmax(0,1fr);align-items:start;gap:20px}.sidebar{display:grid;gap:19px}.field{border-bottom:1px solid #eef1f5;padding:12px 0}.field:last-of-type{border-bottom:0}.field-title{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:13px;font-weight:750;margin-bottom:10px}.field small{font-size:11px;color:var(--muted);display:block;margin-top:5px}.pair{display:grid;grid-template-columns:minmax(0,1fr) 76px;gap:10px;align-items:center}.pair input[type=range]{width:100%;accent-color:var(--teal);cursor:pointer}.pair input[type=number]{width:100%;min-width:0;border:1px solid #cad6e0;border-radius:8px;padding:9px 7px;background:#fff;color:var(--ink);text-align:center}.pair input[type=number]:focus{border-color:var(--teal)}.mini-tip{margin-top:14px;background:#f4f8fa;border:1px solid #e3edf0;border-radius:9px;padding:10px 12px;color:#516778;font-size:12px}.predict-options{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:13px}.predict-choice{border:1px solid #cddbe2;background:#fff;border-radius:10px;min-height:61px;display:flex;gap:7px;align-items:center;padding:12px;cursor:pointer;font-weight:700;font-size:12px;line-height:1.35}.predict-choice:has(input:checked){border-color:var(--teal);background:#eef9f4;box-shadow:inset 0 0 0 1px var(--teal)}.predict-choice input{accent-color:var(--teal);flex:none}.help-text{margin-top:9px;color:var(--muted);font-size:12px}.hint-content{margin-top:12px;padding:13px;border-radius:10px;background:#f1f8f6;color:#405e56;font-size:13px}.hint-content p+p{margin-top:7px}.callout{border-left:3px solid var(--orange);background:#fff9ee;padding:10px 13px;margin-top:14px;font-size:12px;color:#6d583d;border-radius:0 8px 8px 0}.error-message{background:#fff0ed;color:#92392e;border:1px solid #efc9c3;padding:11px 12px;border-radius:9px;margin-top:13px;font-size:13px}.info-message{border:1px solid #d3e3e5;border-radius:9px;background:#f6fafc;color:#486275;padding:12px 13px;font-size:13px;margin-top:14px}.actions{display:flex;gap:9px;margin-top:18px;flex-wrap:wrap}.actions .primary{flex:1;min-width:175px}
+    .right{display:grid;gap:19px}.chart-card h2,.results-card h2{margin-bottom:5px}.chart-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}.chart{width:100%;height:520px;min-width:0}.chart.small{height:315px}.chart-placeholder{background:#fafcfd;border:1px dashed #cadadf;border-radius:11px;min-height:240px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:7px;text-align:center;padding:15px;color:#6a8190}.chart-placeholder svg{color:var(--teal)}.chart-note{font-size:12px;color:var(--muted);margin-top:8px}.plot-legend{font-size:11px;color:var(--muted)}
+    /* Transient zoom, score-by-spec beside the response, and a clear plot key. */
+    .chart-tools{display:flex;align-items:center;gap:9px;flex-wrap:wrap;justify-content:flex-end}
+    /* Larger readable charts by default; the optional focus view fills the display. */
+    .chart-card.response-feature{scroll-margin-top:16px}
+    .chart-card.response-feature.is-expanded{position:fixed;inset:18px;z-index:101;overflow-y:auto;overscroll-behavior:contain;background:#fff;padding:24px 30px;box-shadow:0 20px 90px rgba(9,31,48,.32);border:2px solid #c6d9db;border-radius:16px}
+    .chart-card.response-feature.is-expanded .chart{height:min(72vh,760px);min-height:420px}
+    body.chart-expanded{overflow:hidden}
+    .chart-card.response-feature.is-expanded .chart-heading{gap:20px}
+    @media(max-width:630px){.chart-card.response-feature.is-expanded{inset:6px;padding:14px;border-radius:12px}.chart-card.response-feature.is-expanded .chart{height:62vh;min-height:320px}.chart-card.response-feature.is-expanded .chart-tools{justify-content:flex-start}}
+
+    .view-window{color:var(--muted);font-size:11px;white-space:nowrap}
+    .chart-checks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:12px 0 4px}
+    .chart-check{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0;border:1px solid #dbe6eb;border-radius:10px;background:#f9fbfc;padding:10px 12px;font-variant-numeric:tabular-nums}
+    .chart-check>span:first-child{font-size:11px;color:var(--muted)}
+    .chart-check strong{font-size:17px;line-height:1.2}
+    .chart-check .pass,.chart-check .fail{font-size:10px;padding:3px 8px}
+    .chart-check.is-pass{border-color:#cde7d8;background:#f5fbf7}.chart-check.is-fail{border-color:#ead5c3;background:#fffbf6}
+    .response-guide{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:13px}
+    .response-guide-item{border:1px solid var(--line);border-radius:10px;padding:12px 13px;background:#fafcfd;font-size:12px;line-height:1.55;color:#516778}
+    .response-guide-item strong{display:flex;align-items:center;gap:8px;color:var(--ink);margin-bottom:4px;font-size:12px}
+    .response-guide-swatch{width:23px;display:inline-block;flex-shrink:0;border-top:3px solid #8799aa}
+    .response-guide-swatch.original{border-top-style:dotted}.response-guide-swatch.tuned{border-top-color:var(--teal)}
+    .response-guide-note{font-size:12px;color:var(--muted);margin-top:9px}
+    .plant-explainer{font-size:12px;color:#526a7a;margin-top:9px}
+    .plant-explainer summary{font-weight:700;cursor:pointer}
+    @media(max-width:640px){.chart-checks{grid-template-columns:1fr 1fr}.chart-checks .chart-check:last-child{grid-column:1/-1}.response-guide{grid-template-columns:1fr}.chart-tools{justify-content:flex-start}.chart-check{padding:9px 10px}}
+    .result-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.result-badge{border:1px solid #bfd9cb;background:#e9f8ef;color:#167554;border-radius:100px;padding:7px 13px;font-size:12px;font-weight:800}.result-badge.fail{background:#fff3eb;color:#9b581c;border-color:#ead3b7}.result-score{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums}.checks{display:grid;gap:10px;margin-top:16px}.check{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:11px 13px}.check strong{display:block;font-size:13px}.check small{color:var(--muted);font-size:11px;display:block;margin-top:2px}.pass{background:#e7f6ed;color:#13754e;border:1px solid #b7dec9;border-radius:100px;font-size:11px;font-weight:850;padding:5px 10px}.fail{background:#fff0e9;color:#98511d;border:1px solid #e9cab0;border-radius:100px;font-size:11px;font-weight:850;padding:5px 10px}.prediction-feedback{margin-top:13px;font-size:13px;font-weight:650}.result-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:16px}.result-footer span{color:var(--muted);font-size:12px}.reveal-box{margin-top:14px;background:#eef7f4;border:1px solid #d3e8df;border-radius:10px;padding:13px 15px;color:#35554e;font-size:13px}.reveal-box code{color:var(--ink);font-size:13px}.details{margin-top:20px}.details summary{font-weight:750;font-size:13px;cursor:pointer}.details p{margin-top:10px;font-size:13px;color:var(--muted)}.info-bottom{margin-top:20px}.formula{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;background:#f4f6f8;padding:13px 14px;border-radius:10px;line-height:1.7;overflow-wrap:anywhere;margin:11px 0}.foot{font-size:11px;color:#7b8792;margin-top:28px;border-top:1px solid var(--line);padding-top:19px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    @media(max-width:1040px){.workspace{grid-template-columns:285px minmax(0,1fr)}.panel{padding:18px}.chart{height:455px}}
+    @media(max-width:800px){.workspace{display:flex;flex-direction:column;gap:18px}.sidebar,.right{display:contents}.chart{height:440px}.spec-grid{gap:9px}.top-inner{padding:14px 18px}main{padding:24px 18px 50px}#response-card{order:1}#tune-panel{order:2}#predict-panel{order:3}#control-panel{order:4}#result-panel{order:5}}
+    @media(max-width:630px){.top-right{gap:9px}.top-right a{font-size:11px}.top-tag{font-size:10px}.brand small{font-size:8px}.brand strong{font-size:14px}main{padding:19px 13px 50px}.breadcrumb{margin-bottom:23px}.spec-grid{grid-template-columns:1fr 1fr}.spec-box:last-child{grid-column:1/-1}.scorebar{gap:7px}.scorecard{padding:10px}.scorecard strong{font-size:19px}.spec-box strong{font-size:23px}.panel{padding:15px}.chart{height:370px}.chart.small{height:250px}.challenge-controls{margin-bottom:13px}.predict-options{grid-template-columns:1fr 1fr}.predict-choice{padding:10px;min-height:68px}.chart-tools{justify-content:flex-start}.chart-heading{gap:12px}.response-guide-note{font-size:12px}.response-guide-item{padding:11px}.chart-card .section-heading p{font-size:12px}}
+    @media(max-width:375px){.top-right a{display:none}.spec-grid{grid-template-columns:1fr}.spec-box:last-child{grid-column:auto}.scorecard span{font-size:9px}.scorecard strong{font-size:16px}.predict-options{grid-template-columns:1fr}.chart{height:330px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.btn{transition:none}}
+  
+    /* Final mobile pass: keep navigation readable and show the baseline plot promptly. */
+    .response-quick-key{margin-top:7px;padding:9px 11px;background:#f5f9fa;border:1px solid #e1e9ed;border-radius:9px;color:#4c6472;font-size:12px;line-height:1.6}
+    .response-quick-key strong{color:var(--ink)}
+    .response-quick-key .key-blue{color:var(--blue);font-weight:750}.response-quick-key .key-gray{color:#627e98;font-weight:750}.response-quick-key .key-teal{color:var(--teal);font-weight:750}
+    .response-details{margin-top:10px;border:1px solid #dce6eb;border-radius:10px;padding:10px 12px;background:#fff}
+    .response-details>summary{cursor:pointer;color:var(--teal);font-size:12px;font-weight:750;line-height:1.5}
+    .response-details[open]>summary{margin-bottom:12px}
+    .response-details .response-guide{margin-top:0}
+    @media(max-width:800px){
+      .workspace{gap:14px}
+      #response-card{order:1}#tune-panel{order:2}#predict-panel{order:3}#result-panel{order:4}#control-panel{order:5}
+      .chart-card.response-feature{scroll-margin-top:10px}
+    }
+    @media(max-width:630px){
+      .top-inner{display:flex;flex-direction:column;align-items:stretch;gap:10px;padding:12px 15px}
+      .brand{gap:10px;align-self:flex-start;min-width:0}.brand strong{font-size:16px;white-space:nowrap}.brand small{font-size:9px;letter-spacing:.065em}.mark{width:31px;height:31px;flex:none}
+      .top-right{width:100%;gap:14px;flex-wrap:nowrap;overflow-x:auto;padding:0 0 2px;scrollbar-width:thin}
+      .top-right a,.top-tag{white-space:nowrap;flex:none}.top-right a{font-size:12px}.top-tag{padding:5px 8px;font-size:9px;letter-spacing:.05em}
+      main{padding:14px 12px 38px}.breadcrumb{margin-bottom:13px;font-size:11px}
+      .hero{margin-bottom:15px}.hero h1{margin:5px 0 8px;font-size:clamp(28px,8vw,34px)}.hero .intro{font-size:13px;line-height:1.5}
+      .hero .eyebrow{font-size:9px;letter-spacing:.09em}.hero-note{margin-top:9px;gap:6px}.hero-note .pill:not(#python-status){display:none}
+      .challenge-controls{margin-bottom:12px}.controls-header{gap:9px}.controls-header .section-heading{margin-bottom:0}
+      .controls-header .section-heading p{font-size:12px}.round-action{gap:8px}.round-action .btn{min-height:37px;padding:7px 11px;font-size:12px}
+      .scorebar{margin-top:12px;gap:6px}.scorecard{padding:8px 7px;min-height:62px}.scorecard strong{margin-top:4px;font-size:18px}.scorecard small{font-size:10px;line-height:1.25;display:block}.scorecard span{font-size:10px}
+      .specs-panel{margin-bottom:12px}.specs-title{gap:10px}.specs-title .section-heading p:not(.eyebrow){font-size:12px}
+      .challenge-identity{gap:6px}.challenge-identity .pill{padding:5px 9px;font-size:10px}
+      .spec-grid{margin-top:11px;gap:7px}.spec-box{padding:10px 11px}.spec-box .label{font-size:11px}.spec-box strong{font-size:21px}.spec-box small{font-size:10px}
+      .challenge-blurb{margin-top:10px;padding:8px 10px;font-size:12px;line-height:1.5}
+      .panel{padding:14px}.workspace{gap:13px}.section-heading{margin-bottom:10px}
+      .chart-card.response-feature .section-heading{margin-bottom:2px}.chart-card.response-feature .chart-tools{gap:6px}.chart-card.response-feature .chart-tools .btn{min-height:32px;padding:5px 8px;font-size:11px}
+      .chart-card.response-feature .view-window{font-size:10px}.response-quick-key{font-size:11px}
+      .response-details{padding:9px 11px}.response-details>summary{font-size:12px}
+      .chart{height:345px}.chart.small{height:240px}
+      .field{padding:10px 0}.pair input[type=number]{font-size:16px}
+    }
+    @media(max-width:375px){
+      .top-right a{display:inline-block} /* Keep P1/P2 navigation available at 320px. */
+      .scorecard small{font-size:9px}
+      .chart{height:325px}
+    }
+  
+    /* Bonus stays independent from the random-plant challenge and score. */
+    .zn-section{margin-top:20px;border-color:#c7e5da}
+    .zn-section>.zn-summary{display:flex;align-items:center;gap:12px;flex-wrap:wrap;cursor:pointer;list-style:none}
+    .zn-section>.zn-summary::-webkit-details-marker{display:none}
+    .zn-summary:focus-visible{outline:3px solid #dfac50;border-radius:7px}
+    .zn-tag{color:#076e61;background:#e6f7ef;font-weight:850;font-size:10px;border-radius:6px;padding:6px 9px;letter-spacing:.08em}
+    .zn-summary-text{flex:1;min-width:160px}
+    .zn-summary-text strong{display:block;font-size:19px;color:var(--ink)}
+    .zn-summary-text small{color:var(--muted);font-size:12px;display:block;margin-top:2px}
+    .zn-open{border:1px solid #c3dbd6;border-radius:9px;padding:7px 11px;color:var(--teal);font-size:12px;font-weight:750}
+    .zn-section[open] .zn-open{background:#e6f7ef}
+    .zn-body{margin-top:20px;padding-top:18px;border-top:1px solid #dceae6}
+    .zn-note{background:#f1f9f6;border-left:3px solid var(--teal);padding:12px 14px;border-radius:0 10px 10px 0;font-size:13px;color:#345b53;line-height:1.6}
+    .zn-steps{display:flex;gap:8px;flex-wrap:wrap;margin:17px 0}
+    .zn-steps span{background:#f4f8fa;border:1px solid #dae6eb;border-radius:8px;padding:8px 11px;font-size:12px;font-weight:700}
+    .zn-grid{display:grid;grid-template-columns:minmax(245px,.85fr) minmax(0,1.6fr);gap:18px;align-items:start}
+    .zn-controls{border:1px solid var(--line);border-radius:12px;padding:16px;background:#fafcfd}
+    .zn-controls h3{font-size:15px;margin-bottom:7px}
+    .zn-gain-row{display:grid;grid-template-columns:minmax(0,1fr) 75px;gap:10px;align-items:center;margin:10px 0}
+    .zn-gain-row input[type=range]{width:100%;accent-color:var(--teal)}
+    .zn-gain-row input[type=number]{min-width:0;width:100%;padding:9px;border:1px solid #cad6e0;border-radius:8px;text-align:center;background:#fff}
+    .zn-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .zn-actions button{flex:1;min-width:135px}
+    .zn-status{font-size:12px;color:#466474;margin-top:12px;line-height:1.6;min-height:22px}
+    .zn-plot-panel{min-width:0}
+    .zn-plot{height:385px;width:100%;min-width:0}
+    .zn-results{margin-top:18px;border-top:1px solid var(--line);padding-top:16px}
+    .zn-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:12px 0}
+    .zn-metric{background:#f6faf8;border:1px solid #dceee6;border-radius:9px;padding:10px 12px}
+    .zn-metric small{font-size:11px;color:var(--muted);display:block}
+    .zn-metric strong{font-size:18px;color:var(--ink);display:block;margin-top:4px;font-variant-numeric:tabular-nums}
+    .zn-formulas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+    .zn-formulas code{display:block;background:#f3f6f8;padding:12px;border-radius:9px;white-space:normal;font-size:12px}
+    .zn-footnote{font-size:12px;color:var(--muted);margin-top:11px;line-height:1.65}
+    @media(max-width:800px){.zn-grid{grid-template-columns:1fr}.zn-plot{height:355px}.zn-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media(max-width:630px){.zn-section>.zn-summary{gap:8px}.zn-summary-text strong{font-size:16px}.zn-open{font-size:11px}.zn-body{margin-top:14px;padding-top:14px}.zn-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.zn-formulas{grid-template-columns:1fr}.zn-plot{height:325px}.zn-steps span{font-size:11px}.zn-controls{padding:12px}.zn-actions .btn{min-height:41px;font-size:12px}}
+
+  </style>
+</head>
+<body>
+<header class="topbar">
+ <div class="top-inner">
+  <a class="brand" href="index.html" aria-label="Dynamics Lab — Homepage"><span class="mark">C</span><span><strong>Dynamics Lab</strong><small>ENCS4380 · Team T19</small></span></a>
+  <nav class="top-right" aria-label="Quick navigation"><span class="top-tag">CONTROL TOOLKIT</span><a href="index.html#control">All controls</a><a href="pid-playground.html">P1</a><a href="slow-sensor.html">P2</a></nav>
+ </div>
+</header>
+<main>
+  <div class="breadcrumb"><a href="index.html#control">← All controls</a><span>/</span><span>P4 · Tuning Challenge</span></div>
+  <header class="hero">
+    <p class="eyebrow">HOMEWORK 2 · CONTROL P4 · INTERACTIVE CHALLENGE</p>
+    <h1>PID Tuning Challenge</h1>
+    <p class="intro">A hidden plant. A performance target. Your controller. Tune <strong>Kp, Ki and Kd</strong> to make the output follow the setpoint while meeting all three specifications.</p>
+    <div class="hero-note"><span id="python-status" class="pill waiting" role="status" aria-live="polite"><span class="dot"></span>Loading Python...</span><span class="pill">RK4 simulation</span><span class="pill">Predict, then check</span></div>
+    <div id="loading-error" class="error-message" role="alert" hidden>Python could not load. Check your internet connection and local server. <button id="retry-python" class="btn small">Retry</button></div>
+  </header>
+
+  <section class="panel challenge-controls" aria-labelledby="controls-title">
+    <div class="controls-header">
+      <div class="section-heading"><h2 id="controls-title">Challenge Controls</h2><p>Generate a random hidden plant. Your best score counts for the current round.</p></div>
+      <div class="round-action"><button id="new-challenge" class="btn primary" disabled>↻ New Challenge</button><button id="reset-session" class="btn small" disabled>Reset session</button></div>
+    </div>
+    <div class="scorebar" aria-label="Session score">
+      <div class="scorecard"><span>Total Points</span><strong id="total-points">0.00</strong><small>across rounds</small></div>
+      <div class="scorecard"><span>Average Score</span><strong id="average-score">—</strong><small>out of 100</small></div>
+      <div class="scorecard"><span>Rounds Played</span><strong id="rounds-count">0</strong><small>one count per plant</small></div>
+    </div>
+  </section>
+
+  <section class="panel specs-panel" aria-labelledby="specs-title">
+    <div class="specs-title">
+      <div class="section-heading" style="margin:0"><p class="eyebrow" style="margin-bottom:5px">CHALLENGE <span id="challenge-number">—</span></p><h2 id="specs-title">Your mission</h2><p>Match the specifications for this random plant. The true plant parameters stay hidden during tuning.</p></div>
+      <div class="challenge-identity"><span id="plant-type" class="pill">Waiting for plant</span><span class="pill">Setpoint = 1</span><span class="pill">|u| ≤ 10</span></div>
+    </div>
+    <div class="spec-grid">
+      <div class="spec-box"><span class="label">Maximum overshoot</span><strong id="spec-os">—</strong><small>Percent above setpoint</small></div>
+      <div class="spec-box"><span class="label">Maximum settling time</span><strong id="spec-ts">—</strong><small>±2% setpoint band</small></div>
+      <div class="spec-box"><span class="label">Steady-state error</span><strong id="spec-ess">—</strong><small>Near zero (numerical tolerance)</small></div>
+    </div>
+    <p class="challenge-blurb">Study the gray baseline response (actuator step <strong>u = 1</strong>, no PID), then tune your controller to meet <strong>all three</strong> targets. Every challenge has a feasible solution.</p>
+  </section>
+
+  <div class="workspace">
+    <div class="sidebar">
+      <section id="tune-panel" class="panel" aria-labelledby="gains-title">
+        <div class="section-heading"><h2 id="gains-title">Tune PID Gains</h2><p>Adjust the gains. The plant parameters are intentionally hidden.</p></div>
+        <fieldset id="gain-fields" disabled style="border:0;padding:0;margin:0;min-width:0">
+          <div class="field"><label class="field-title" for="kp-number"><span>Proportional gain (Kp)</span><span class="muted">0–12</span></label><div class="pair"><input id="kp-range" type="range" min="0" max="12" step="0.05" value="1.5" aria-label="Kp slider"><input id="kp-number" type="number" min="0" max="12" step="0.05" value="1.5" inputmode="decimal"></div><small>Faster correction; too much can increase overshoot.</small></div>
+          <div class="field"><label class="field-title" for="ki-number"><span>Integral gain (Ki)</span><span class="muted">0–12</span></label><div class="pair"><input id="ki-range" type="range" min="0" max="12" step="0.05" value="1" aria-label="Ki slider"><input id="ki-number" type="number" min="0" max="12" step="0.05" value="1" inputmode="decimal"></div><small>Removes persistent error, but aggressive I can overshoot.</small></div>
+          <div class="field"><label class="field-title" for="kd-number"><span>Derivative gain (Kd)</span><span class="muted">0–3</span></label><div class="pair"><input id="kd-range" type="range" min="0" max="3" step="0.05" value="0.2" aria-label="Kd slider"><input id="kd-number" type="number" min="0" max="3" step="0.05" value="0.2" inputmode="decimal"></div><small>Anticipates rapid changes and can reduce ringing.</small></div>
+        </fieldset>
+        <div class="mini-tip">The controller uses a unit setpoint, output-derivative filtering, actuator limits ±10, and anti-windup. The plant is solved numerically with RK4.</div>
+        <div class="actions"><button id="reset-gains" class="btn" disabled>Reset gains</button><button id="show-hint" class="btn ghost" disabled aria-expanded="false" aria-controls="hint-content">Get Hint</button></div>
+        <div id="hint-content" class="hint-content" hidden><p><strong>Start simple:</strong> Try P and I first. Integral action helps remove steady-state error. If the response overshoots or oscillates, reduce aggressive gains or try some derivative action.</p><p>Improve one requirement at a time. Look at the plot and the Pass/Fail results after each trial.</p></div>
+      </section>
+      <section id="predict-panel" class="panel" aria-labelledby="predict-title">
+        <div class="section-heading"><h2 id="predict-title">Predict, then check</h2><p>Study the initial plant response, choose PID gains, then predict whether your controller will meet all targets. The tuned result remains hidden until Check Tuning.</p></div>
+        <fieldset id="prediction-fields" disabled style="border:0;margin:0;padding:0;min-width:0"><legend style="font-weight:750;font-size:13px">Will this tuning pass every spec?</legend>
+          <div class="predict-options">
+            <label class="predict-choice"><input type="radio" name="prediction" value="pass">All will PASS</label>
+            <label class="predict-choice"><input type="radio" name="prediction" value="fail">At least one FAIL</label>
+          </div>
+        </fieldset>
+        <div id="input-error" role="alert" class="error-message" hidden></div>
+        <div class="actions"><button id="check-tuning" class="btn primary wide" disabled>Check Tuning →</button></div>
+        <p class="help-text">The gray original-plant curve is available before your prediction; your PID result, score and control signal appear only after Check Tuning. You may retry the same plant; only its best score counts.</p>
+      </section>
+    </div>
+
+    <div class="right">
+      <section class="panel chart-card response-feature" aria-labelledby="response-title" id="response-card">
+        <div class="chart-heading"><div class="section-heading"><h2 id="response-title">Plant Response &amp; PID Comparison</h2><p>First see the original plant's response to an actuator step (u = 1). Predict how your PID will perform, then check the new curve.</p></div><div class="chart-tools"><span id="attempt-badge" class="pill">Loading plant</span><button id="response-zoom" class="btn small" type="button" aria-pressed="false" aria-controls="response-chart" disabled>Zoom to transient</button><button id="response-full" class="btn small" type="button" aria-pressed="false" aria-controls="response-chart" disabled>Show all 16 s</button><button id="response-expand" class="btn small" type="button" aria-pressed="false" aria-controls="response-chart" disabled>Expand chart</button><span id="response-view-window" class="view-window">Default view · 0–8 s</span></div></div>
+        <div id="chart-checks" class="chart-checks" aria-label="Performance checks for this PID attempt" aria-live="polite" hidden></div>
+        <div id="response-placeholder" class="chart-placeholder"><svg width="52" height="52" viewBox="0 0 52 52" fill="none" aria-hidden="true"><path d="M5 40h41M9 44V7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M10 36c6 0 7-20 15-20 8 0 10 10 17 9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg><strong>Try a controller</strong><span>Choose a prediction, then click Check Tuning to see your PID response.</span></div>
+        <div id="response-chart" class="chart" aria-label="PID closed-loop response plot" hidden></div>
+        <p class="response-quick-key"><strong>Plot key:</strong> <span class="key-blue">Blue dashed</span> = target · <span class="key-gray">Gray dotted</span> = original plant · <span class="key-teal">Teal</span> = tuned PID (after Check).</p>
+        <details id="response-details" class="response-details">
+          <summary>How to read the curves and use the chart controls</summary>
+          <div class="response-guide" aria-label="How to interpret the two responses">
+          <div class="response-guide-item"><strong><span class="response-guide-swatch original"></span>Original plant — before PID</strong>Gray dotted curve. This is how the hidden plant responds to a fixed actuator step <b>u = 1</b> without feedback. It may settle above or below the blue target depending on the plant gain.</div>
+          <div class="response-guide-item"><strong><span class="response-guide-swatch tuned"></span>Closed-loop PID — after Check</strong>Teal curve. This is the output when your selected <b>Kp, Ki and Kd</b> control the plant toward the blue dashed setpoint <b>r = 1</b>. Amber dashed, if shown, is the previous PID attempt.</div>
+        </div>
+        <p class="response-guide-note">The original plant curve is for learning, not a scored attempt. The chart starts at <b>0–8 s</b> for easier reading. Use <b>Zoom to transient</b> for early oscillations, <b>Show all 16 s</b> to inspect the complete run, or <b>Expand chart</b> for a bigger view. All performance checks and scores still use the entire 16-second simulation.</p>
+          <details class="plant-explainer"><summary>Why can the second-order plant overshoot and settle below 1?</summary><p>Its damping ratio determines whether the step response overshoots or rings. With the fixed input u = 1, the unregulated final output approaches the hidden plant gain K, which can differ from the target r = 1. The tuned PID adds feedback to correct that error.</p></details>
+        </details>
+      </section>
+      <section id="control-panel" class="panel chart-card" aria-labelledby="control-title">
+        <div class="section-heading"><h2 id="control-title">Control Signal u(t)</h2><p>See the action sent to the plant, including the actuator limit at ±10.</p></div>
+        <div id="control-placeholder" class="chart-placeholder" style="min-height:130px"><span>The PID control signal appears after you choose a prediction and click Check Tuning.</span></div>
+        <div id="control-chart" class="chart small" aria-label="PID control command plot" hidden></div>
+      </section>
+      <section id="result-panel" class="panel results-card" aria-labelledby="results-title" hidden>
+        <div class="result-top"><div><h2 id="results-title">Challenge Result</h2><p class="muted" style="font-size:12px">Your tuning versus the target specifications.</p></div><div style="text-align:right"><span id="result-overall" class="result-badge">—</span><div id="result-score" class="result-score">— / 100</div></div></div>
+        <div id="result-checks" class="checks" aria-live="polite"></div>
+        <p id="prediction-feedback" class="prediction-feedback"></p>
+        <div class="result-footer"><span id="best-score-note">Best score for this round: —</span><button id="reveal-plant" class="btn small">Reveal Plant &amp; End Round</button></div>
+        <div id="revealed-plant" class="reveal-box" hidden></div>
+        <div class="callout">Scoring: 33.33 points per passed requirement (rounded total out of 100). A failed requirement earns 0 for that requirement. The zero-error requirement uses ≤1% residual error with a stable final time window, not literal mathematical zero.</div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Homework 2 Section 7: independent Ziegler-Nichols extra-credit demonstration. -->
+  <details id="zn-bonus" class="panel zn-section">
+    <summary class="zn-summary">
+      <span class="zn-tag">OPTIONAL BONUS</span>
+      <span class="zn-summary-text"><strong>Ziegler–Nichols PID Tuning</strong><small>Find the gain that creates sustained oscillation, then calculate PID gains.</small></span>
+      <span class="zn-open">Open / Close</span>
+    </summary>
+    <div class="zn-body">
+      <p class="zn-note"><strong>Separate learning experiment.</strong> This bonus uses an intentionally suitable three-lag plant <b>G(s) = 1/(s+1)³</b>. The random first- and second-order plants in the main P4 challenge might never oscillate continuously with P-only control. <strong>Bonus experiments do not change your hidden plant, attempts, or score.</strong></p>
+      <div class="zn-steps" aria-label="Ziegler-Nichols steps"><span>1 · Try P-only gains</span><span>2 · Find ultimate gain Ku &amp; period Pu</span><span>3 · Apply ZN rules &amp; compare</span></div>
+      <div class="zn-grid">
+        <div class="zn-controls">
+          <h3>Experiment 1 — P-only feedback</h3>
+          <p class="muted" style="font-size:12px">Set Ki = 0 and Kd = 0. Increase Kp until the oscillations neither grow nor decay.</p>
+          <label class="field-title" for="zn-gain-number" style="margin-top:16px">Proportional gain (Kp)<span>0.5–12</span></label>
+          <div class="zn-gain-row"><input id="zn-gain-slider" type="range" min="0.5" max="12" step="0.1" value="4" aria-label="P-only gain"><input id="zn-gain-number" type="number" min="0.5" max="12" step="0.1" value="4" inputmode="decimal"></div>
+          <div class="zn-actions"><button id="zn-test-p" class="btn" type="button">Test P-only gain</button><button id="zn-discover" class="btn primary" type="button">Find Ku &amp; Calculate PID</button></div>
+          <p id="zn-status" class="zn-status" role="status" aria-live="polite">Open the bonus when Python is ready, then test a gain.</p>
+          <div class="mini-tip"><strong>Try Kp = 4, 8, then 10:</strong> first decaying peaks, then roughly sustained, then growing oscillations. The exact critical value is found numerically.</div>
+        </div>
+        <div class="zn-plot-panel">
+          <h3>Response comparison</h3>
+          <p class="muted" style="font-size:12px;margin:5px 0 9px">P-only response versus Ziegler–Nichols tuned PID, on the same three-lag plant.</p>
+          <div id="zn-plot" class="zn-plot" aria-label="Ziegler Nichols oscillation and tuned PID response plot"></div>
+          <p class="zn-footnote">Blue dashed: desired output 1 · Orange: P-only loop · Teal: computed ZN PID response. Initial P-only oscillations center around their own steady level, not necessarily 1.</p>
+        </div>
+      </div>
+      <div id="zn-results" class="zn-results" hidden>
+        <h3>Experiment 2 — Discovered values and PID controller</h3>
+        <div class="zn-metrics">
+          <div class="zn-metric"><small>Ultimate Gain Ku</small><strong id="zn-ku">—</strong></div>
+          <div class="zn-metric"><small>Period Pu</small><strong id="zn-pu">—</strong></div>
+          <div class="zn-metric"><small>ZN Kp</small><strong id="zn-kp">—</strong></div>
+          <div class="zn-metric"><small>ZN Ki</small><strong id="zn-ki">—</strong></div>
+          <div class="zn-metric"><small>ZN Kd</small><strong id="zn-kd">—</strong></div>
+        </div>
+        <div class="zn-formulas">
+          <code>Kp = 0.6 × Ku</code><code>Ki = 1.2 × Ku / Pu</code><code>Kd = 0.075 × Ku × Pu</code>
+        </div>
+        <p id="zn-performance" class="zn-footnote"></p>
+        <p class="zn-footnote"><strong>What the code does:</strong> RK4 advances three plant states, detects successive maxima, and uses bisection between decaying and growing oscillations to estimate Ku. Pu is measured from the distance between peaks. This is the classic <em>closed-loop ultimate-gain</em> form of Ziegler–Nichols; it provides a starting controller, <strong>not a guarantee</strong> that the original P4 performance specifications will pass. This experiment uses an ideal (unlimited) actuator, independently of the main challenge's ±10 actuator limit.</p>
+      </div>
+    </div>
+  </details>
+
+  <section class="panel info-bottom" aria-labelledby="theory-title">
+    <h2 id="theory-title">What's happening behind the scenes?</h2>
+    <p class="muted" style="margin-top:5px">The same control concepts used in P1 and the random-plant challenge style from Homework 1 Module 4.</p>
+    <div class="formula">e(t) = r(t) − y(t)<br>u(t) = clip[Kp·e(t) + Ki·∫e(t)dt − Kd·filtered(dy/dt)]<br>First order: τ·dy/dt + y = K·u<br>Second order: d²y/dt² + 2ζωn·dy/dt + ωn²·y = Kωn²·u</div>
+    <p style="font-size:13px">The plant's continuous dynamics are advanced with a handwritten <strong>4th-order Runge–Kutta (RK4)</strong> solver, using held control commands. The derivative acts on output rather than the setpoint, and conditional integration prevents integral windup against actuator limits. The hidden plant and a private reference PID generate feasible challenges.</p>
+    <details class="details"><summary>How do we judge the result?</summary><p><strong>Overshoot:</strong> maximum output above the setpoint. <strong>Settling:</strong> first entry to the ±2% band after which the full remaining response stays in-band, with at least 0.5 s of evidence. <strong>Steady error:</strong> final absolute tracking error under 1% AND no significant final-window movement. These numerical conventions are stated here because the assignment does not prescribe exact tolerances or scoring.</p></details>
+  </section>
+  <footer class="foot"><span>Dynamics Lab · ENCS4380 · Team T19 · P4 — Mohammad Khaleel</span><span>Interactive PID tuning · Ziegler–Nichols bonus</span></footer>
+</main>
+<script defer src="js/pid_tuning.js"></script>
+<script defer src="js/ziegler_nichols.js"></script>
+</body>
+</html>

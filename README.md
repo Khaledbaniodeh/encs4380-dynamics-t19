@@ -26,9 +26,35 @@ The same GitHub Pages site now includes a separate **Control** area for controll
 | [P1](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/pid-playground.html) | PID Playground: first-order plant, live PID tuning, actuator limits and response metrics | Waad Melhem ([@WaadMelhem05](https://github.com/WaadMelhem05)) | [#5](../../issues/5) |
 | [P2](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/slow-sensor.html) | A slow sensor in the loop: true output versus measured feedback | Khaled Bani Oudeh ([@Khaledbaniodeh](https://github.com/Khaledbaniodeh)) | [#6](../../issues/6) |
 | [P3](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/digital-pid.html) | Digital PID: sampled feedback, zero-order hold, anti-windup and Arduino code generation | Jibreel Haddar ([@Jibreel-H](https://github.com/Jibreel-H)) | [#7](../../issues/7) |
+| [P4](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/pid-tuning.html) | PID Tuning Challenge: hidden random plants, PID gains, three pass/fail specs, scoring, predictions, and optional Ziegler–Nichols tuning | Mohammad Khaleel ([@mohak430](https://github.com/mohak430)) | [#9](../../issues/9) |
 | [Bonus](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/state-space-control.html) | State-Space Pole Placement: full-state feedback for a mass-spring-damper plant, pole design, RK4 simulation and validation | Waad Melhem ([@WaadMelhem05](https://github.com/WaadMelhem05)) | [#8](../../issues/8) |
 
 Each Control part should be added to this table when its implementation, tracking issue and live page are ready.
+
+## P4: PID Tuning Challenge — Mohammad Khaleel
+
+**[Open P4 · PID Tuning Challenge](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/pid-tuning.html)** · Owner: Mohammad Khaleel ([@mohak430](https://github.com/mohak430)) · Tracking: [#9](../../issues/9).
+
+The browser experiment presents a **hidden random first- or second-order plant**. Learners tune proportional, integral, and derivative gains (`Kp`, `Ki`, `Kd`) to satisfy **overshoot ≤ 10%**, a generated settling-time limit, and near-zero steady-state error. P4 checks each specification separately, displays Pass/Fail, plots the original plant and closed-loop response, shows the control signal, and calculates an attempt score. The learner can predict the outcome before checking and repeat or reveal a round.
+
+- `pid-tuning.html` — responsive interactive interface and chart.
+- `js/pid_tuning.js` — browser UI, Pyodide bridge, plot rendering, and round interactions.
+- `python/pid_tuning.py` — random plant generation, RK4 open-/closed-loop simulation, response metrics, and scoring.
+- Numerical steady-state-error acceptance uses a documented **1% simulation tolerance**, rather than mathematical exact zero.
+- The random plant is hidden during the challenge; values are shown only on Reveal.
+- The challenge uses the first-/second-order model *concepts* from the earlier Module 4 but its control simulator is implemented independently.
+
+### Optional bonus: Ziegler–Nichols ultimate-gain tuning
+
+P4 also includes a separate, collapsible educational **Ziegler–Nichols** experiment. It uses the third-order example plant `G(s) = 1/(s+1)^3`, because the first-/second-order challenge plants do not always admit sustained P-only oscillations at finite gain. Students adjust a P-only controller, identify the ultimate gain `Ku` and oscillation period `Pu` numerically, then compare the classical PID tuning result:
+
+`Kp = 0.6 Ku`, `Ki = 1.2 Ku / Pu`, `Kd = 0.075 Ku Pu`.
+
+- `js/ziegler_nichols.js` — bonus controls and comparison chart.
+- `python/ziegler_nichols.py` — P-only experiments, oscillation detection, ultimate-gain search, PID gains, and RK4 simulation.
+- This bonus is **separate from the random-plant challenge and does not alter attempts or scores**. It is a different bonus choice from the existing [State-Space Pole Placement](state-space-control.html) experiment; the course's overall bonus-point cap still applies.
+
+The local Python checks completed before publication: **18 P4 numerical tests and 8 bonus tests passed**. These test scripts and local screenshots are deliberately **not committed** to the team repository. Pyodide and Plotly load in the browser from pinned CDNs; a backend is not required. Real-device and deployed Pages verification should be performed after publication. Implementation used AI assistance reviewed by the student; passing automated checks is not instructor sign-off.
 
 ## P1: PID Playground
 
