@@ -510,8 +510,6 @@ The deployed project runs directly on **GitHub Pages** with HTML/CSS/JavaScript,
 - Bonus mathematics: `node tests/test_pole_explorer.js`
 - Browser checks: first-order Step/Sine, second-order Step, hints, invalid inputs, reveal overlay, score isolation, duplicate-submit protection, reset and responsive widths. Physical-phone touch dragging should also be checked.
 
-**Contribution:** Mohammad Khaleel ([@mohak430](https://github.com/mohak430)) implemented Module 4 and added the Pole Explorer bonus (see commit `7c5c297`). A guided presentation is in [the demo walkthrough](docs/module4_demo.md).
-
 ## Files and technology
 
 | File | Responsibility |
