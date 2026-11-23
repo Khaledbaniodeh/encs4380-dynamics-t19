@@ -26,7 +26,7 @@ The same GitHub Pages site now includes a separate **Control** area for controll
 | [P1](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/pid-playground.html) | PID Playground: first-order plant, live PID tuning, actuator limits and response metrics | Waad Melhem ([@WaadMelhem05](https://github.com/WaadMelhem05)) | [#5](../../issues/5) |
 | [P2](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/slow-sensor.html) | A slow sensor in the loop: true output versus measured feedback | Khaled Bani Oudeh ([@Khaledbaniodeh](https://github.com/Khaledbaniodeh)) | [#6](../../issues/6) |
 | [P3](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/digital-pid.html) | Digital PID: sampled feedback, zero-order hold, anti-windup and Arduino code generation | Jibreel Haddar ([@Jibreel-H](https://github.com/Jibreel-H)) | [#7](../../issues/7) |
-| [Bonus](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/state-space-control.html) | State-Space Pole Placement: full-state feedback for a mass-spring-damper plant, pole design, RK4 simulation and validation | Waad Melhem ([@WaadMelhem05](https://github.com/WaadMelhem05)) | Optional bonus |
+| [Bonus](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/state-space-control.html) | State-Space Pole Placement: full-state feedback for a mass-spring-damper plant, pole design, RK4 simulation and validation | Waad Melhem ([@WaadMelhem05](https://github.com/WaadMelhem05)) | [#8](../../issues/8) |
 
 Each Control part should be added to this table when its implementation, tracking issue and live page are ready.
 
