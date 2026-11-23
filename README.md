@@ -25,6 +25,7 @@ The same GitHub Pages site now includes a separate **Control** area for controll
 | --- | --- | --- | --- |
 | [P1](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/pid-playground.html) | PID Playground: first-order plant, live PID tuning, actuator limits and response metrics | Waad Melhem ([@WaadMelhem05](https://github.com/WaadMelhem05)) | [#5](../../issues/5) |
 | [P2](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/slow-sensor.html) | A slow sensor in the loop: true output versus measured feedback | Khaled Bani Oudeh ([@Khaledbaniodeh](https://github.com/Khaledbaniodeh)) | [#6](../../issues/6) |
+| [P3](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/digital-pid.html) | Digital PID: sampled feedback, zero-order hold, anti-windup and Arduino code generation | Jibreel Haddar ([@Jibreel-H](https://github.com/Jibreel-H)) | [#7](../../issues/7) |
 
 Each Control part should be added to this table when its implementation, tracking issue and live page are ready.
 
@@ -147,6 +148,46 @@ The dedicated [P2 workflow](.github/workflows/p2-regression.yml) runs these test
 ![P2: true output and measured feedback with a slow sensor](docs/screenshots/p2-desktop.jpg)
 
 P2 files: `slow-sensor.html`, `js/slow_sensor.js`, `python/slow_sensor.py`, and `tests/test_slow_sensor.py`. ChatGPT assisted with implementation, explanations and automated/browser verification; the owner should review and understand each part before the discussion. These checks do not establish instructor acceptance or final submission.
+
+## P3: Digital PID — Homework 2
+
+**Owner:** Jibreel Haddar ([@Jibreel-H](https://github.com/Jibreel-H)); **Issue:** [#7](../../issues/7); **live page:** [P3 · Digital PID](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/digital-pid.html).
+
+P3 builds on the P1 first-order plant and shows how sampling time changes a digital controller. It deliberately separates **controller sample time Ts** from the much smaller **Euler integration step h**. The controller updates at each `t = k·Ts` and holds the resulting actuator command constant until the next update (zero-order hold). The plant continues evolving between updates.
+
+### Mathematical model
+
+First-order plant: `tau * dy/dt + y = K * u`. Forward Euler advances the plant using `y_next = y + h*(K*u-y)/tau`.
+
+The homework's sampled PID equation is `u_raw[k] = Kp*e[k] + Ki*Ts*sum(e[j], j=0..k) + Kd*(e[k]-e[k-1])/Ts`. In the implementation, `e[k] = setpoint - measured_output`; the integral is kept as a running state, and the first derivative is set to `D[0]=0` to avoid a startup kick. This matches the taught formula for subsequent samples. The command is clamped between `u_min` and `u_max`.
+
+The **Anti-windup ON/OFF** button enables or disables conditional integration: when the candidate integral would push the command farther beyond an actuator limit, its update is frozen. If the error would relieve saturation, integration is allowed. The example uses model command units, **not** a calibrated WALL-E motor or its 0–100% PWM command.
+
+### Try P3 on the live page
+
+1. Choose **P only**, **PI**, or **PID** and compare the output/setpoint plot, final-window error, rise time, overshoot and settling time.
+2. Use **Fast Ts** and **Slow Ts** to see the stair-step control signal change as the sample interval increases. The output changes *between* samples while `u[k]` is held.
+3. Run **Windup demo**, then toggle anti-windup OFF without changing the other parameters; compare the accumulated integral and overshoot. The first-six-controller-updates table can be expanded to inspect `e, P, I, D, u_raw, u` and any frozen integral update.
+4. In **Predict, then check**, select an overshoot prediction, save the initial settings, increase **only Ts** and check. Python compares both cases using the same plant, PID gains, control limits, duration and common small Euler step. Changes within ±0.5 percentage points are called similar. The result includes output and control comparisons.
+5. Expand **Arduino code for these settings** to view the generated `.ino` sketch and use **Copy Arduino code** or **Save .ino sketch**. Generated constants update when the sliders or presets change.
+6. At the bottom, read the **three automatically evaluated Homework 2 section 2.1 validation checks**. These checks are fixed and do not depend on the current sliders.
+
+### Validation and testing
+
+- **P only:** for `K=1, tau=1, Kp=9`, the continuous-time closed-loop time constant is `0.1 s` and the steady-state step error is `10%`. The digital simulation with `Ts=0.02 s` is also compared with explicit numerical tolerances.
+- **PI parameters:** for `K=1, tau=1, Kp=1, Ki=1`, the continuous-time closed-loop natural frequency is `1 rad/s` and damping ratio is `1`.
+- **PI step:** steady-state error approaches zero for the stable PI example; the finite simulation checks a small end-window error within `0.1%`, not exact zero in finite time.
+
+The local staged P3 prototype passed **41 Python checks** across earlier stages (P-only, PI/PID, sample-and-hold, anti-windup, prediction, Arduino generation and reference cases). The repository includes a focused [P3 regression workflow](.github/workflows/p3-regression.yml) that runs `python -m unittest discover -s tests -p test_digital_pid.py -v`; it does not claim that an unrelated older repository-wide integration-helper test is fixed. GitHub Pages deployment, real-browser use and physical hardware integration are separate checks.
+
+The generated Arduino sketch includes timing with `millis()`, discrete PID updates, command clipping and conditional anti-windup. **Hardware adapters are placeholders**: A0 input and H-bridge pin assignments are examples, **not verified WALL-E connections**; encoder speed measurement, motor driver wiring, PWM calibration and real `K, tau` values belong to the separate **My System** workstream.
+
+### P3 repository files
+
+- [`digital-pid.html`](digital-pid.html) — responsive P3 page, Plotly charts, controls, prediction, validation, Arduino copy/download.
+- [`python/digital_pid.py`](python/digital_pid.py) — our own Euler simulation, sampled PID, anti-windup, metrics, matched-step comparison, Arduino generator and homework validation.
+- [`tests/test_digital_pid.py`](tests/test_digital_pid.py) — model and integration regression tests.
+- [`.github/workflows/p3-regression.yml`](.github/workflows/p3-regression.yml) — dedicated Python test workflow.
 
 ## Module 1: using the time-response experiment
 
@@ -540,7 +581,7 @@ Module 3 checks are calculated by the page and shown with expected, calculated a
 
 See [`docs/versioning.md`](docs/versioning.md) for the historical checkpoint record. Its current-main comparison predates Module 4 integration; the current differences are recorded above.
 
-## ## AI Assistance
+## AI Assistance
 
 During this project, we used ChatGPT and Claude as supporting tools to help us understand and implement some parts of the project. ChatGPT helped us understand the mathematical equations behind the different sensor models and how to translate these equations into Python functions that could be used to calculate and plot the sensor responses. It also helped us understand how to connect the Python code with HTML and JavaScript using Pyodide, so the calculations could run directly in the browser and the plots could update when the user changes the input parameters.
 
@@ -549,6 +590,8 @@ For the website interface, our team decided on the overall design, layout, color
 We also used ChatGPT to better understand the purpose of the optional bonus features, such as Forward Euler, Superposition, and Pole Explorer, and how these features could be integrated into the existing modules without affecting their main functionality. In addition, AI assistance was useful for reviewing parts of the code, identifying possible issues, and suggesting ways to improve the explanations and documentation.
 
 Throughout the project, our team made the main decisions about the features and design, reviewed the generated code, tested the implementation, and worked on understanding the mathematical concepts and programming logic so we could explain our work during the project demonstration.
+
+For Homework 2 P3, ChatGPT also assisted us in understanding the digital PID equation, choosing and checking the sampling/Euler implementation, applying conditional anti-windup, generating an Arduino sketch template, reviewing interface behavior and preparing numerical tests. Team members chose the requirements and interface arrangement, tried the local prototypes, requested changes and verified functionality before integrating the final version.
 
 ## Live website
 
