@@ -667,8 +667,6 @@ We also used ChatGPT to better understand the purpose of the optional bonus feat
 
 Throughout the project, our team made the main decisions about the features and design, reviewed the generated code, tested the implementation, and worked on understanding the mathematical concepts and programming logic so we could explain our work during the project demonstration.
 
-For Homework 2 P3, ChatGPT also assisted us in understanding the digital PID equation, choosing and checking the sampling/Euler implementation, applying conditional anti-windup, generating an Arduino sketch template, reviewing interface behavior and preparing numerical tests. Team members chose the requirements and interface arrangement, tried the local prototypes, requested changes and verified functionality before integrating the final version.
-
 ## Live website
 
 **[Open the live toolkit](https://khaledbaniodeh.github.io/encs4380-dynamics-t19/)**
