@@ -554,6 +554,7 @@ html:not(.motion) .ms-replay{display:none}
      <li><a class="mrow" href="slow-sensor.html"><b>P2</b>A slow sensor in the loop</a></li>
      <li><span class="mrow is-soon" data-mod="p3"><b>P3</b>Digital PID<em class="soon" data-mod-status="Published">In development</em></span></li>
      <li><span class="mrow is-soon" data-mod="p4"><b>P4</b>Tuning challenge<em class="soon" data-mod-status="Published">In development</em></span></li>
+     <li><a class="mrow" href="state-space-control.html"><b>B</b>State-Space Pole Placement</a></li>
     </ul>
     <a class="mhead" href="#my-system">Applied · My system<svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></a>
     <ul class="mgroup">
@@ -863,6 +864,17 @@ html:not(.motion) .ms-replay{display:none}
  </div>
 </section>
 
+<!-- Homework 2 · Optional state-space bonus -->
+<section id="state-space-bonus" aria-labelledby="bonus-title" style="background:#edf5f2;padding:64px 0;color:#13243a">
+ <div class="wrap"><div style="max-width:850px;margin:0 auto">
+  <p style="font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#087f72;margin-bottom:16px">Homework 2 · Optional Bonus</p>
+  <h2 id="bonus-title" style="font-size:clamp(30px,5vw,52px);line-height:1.12;margin:0 0 20px">State-Space Pole Placement</h2>
+  <p style="font-size:17px;line-height:1.75;max-width:720px;margin-bottom:25px">Go beyond PID control with full-state feedback. Design closed-loop poles for a mass-spring-damper system, calculate feedback gains, and explore how the response changes.</p>
+  <p style="font-size:14px;line-height:1.7;max-width:720px;margin-bottom:30px">Explore interactive pole maps, open-loop versus closed-loop responses, control force, Python RK4 simulation, and numerical validation.</p>
+  <a href="state-space-control.html" style="display:inline-flex;align-items:center;justify-content:center;gap:14px;background:#13243a;color:#ffffff;text-decoration:none;padding:16px 24px;border-radius:8px;font-weight:700;font-size:14px">Open Bonus Experiment <span aria-hidden="true">→</span></a>
+ </div></div>
+</section>
+
 <!-- ── Applied · My system (Homework 2) ──────────────────────── -->
 <section class="sys" id="my-system" data-tone="dark" aria-labelledby="sys-title">
  <div class="wrap">
@@ -1001,6 +1013,10 @@ html:not(.motion) .ms-replay{display:none}
    <li style="--module-color:#1b6e51"><a href="slow-sensor.html"><span class="g-num">P2</span><span><span class="g-name">A slow sensor in the loop</span><span class="g-desc">Part 1’s lag comes back: a slow sensor in the feedback path pushes the loop towards oscillation.</span></span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></a></li>
    <li style="--module-color:#1b6e51"><span class="g-row is-dev" data-mod="p3"><span class="g-num">P3</span><span><span class="g-name">Digital PID</span><span class="g-desc">The controller as it runs on an Arduino: a stair-step command, anti-windup and the effect of the sampling time.</span><span class="status" data-mod-status="">In development</span></span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></li>
    <li style="--module-color:#1b6e51"><span class="g-row is-dev" data-mod="p4"><span class="g-num">P4</span><span><span class="g-name">Tuning challenge</span><span class="g-desc">A hidden plant and a specification. Pass or fail on each part, and a score.</span><span class="status" data-mod-status="">In development</span></span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></span></li>
+  </ol>
+  <p class="g-group">Homework 2 · Optional Bonus</p>
+  <ol class="g-path" aria-label="Bonus experiment">
+   <li style="--module-color:#087f72"><a href="state-space-control.html"><span class="g-num">B</span><span><span class="g-name">State-Space Pole Placement</span><span class="g-desc">Design state-feedback gains, place closed-loop poles, compare system responses, and validate the design with Python RK4 simulation.</span></span><svg class="arrow" aria-hidden="true"><use href="#arw"/></svg></a></li>
   </ol>
   <p class="g-group">Applied · My system</p>
   <ol class="g-path" aria-label="Applied design">
