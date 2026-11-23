@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#13243a">
+<title>P3 · Digital PID · Dynamics Lab</title>
+<style>
+:root{--navy:#13243a;--teal:#087f72;--ink:#18304a;--muted:#617184;--line:#dce6ec;--paper:#fff;--bg:#f3f6f8;--mint:#e9f7f2}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}h1,h2,h3,p{margin-top:0}h2{font-size:20px;margin-bottom:8px}h3{font-size:15px;margin-bottom:5px}p{color:var(--muted)}.top{background:var(--navy);color:white}.top-inner{max-width:1220px;margin:auto;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.brand{font-weight:750;letter-spacing:.2px}.brand span{color:#93ddc8}.top-right{color:#cdd8e1;font-size:12px}.top-right a{color:#d5ece7;text-decoration:none;margin-right:14px}.top-right a:hover{text-decoration:underline}.shell{max-width:1220px;margin:auto;padding:30px 24px 52px}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:2px;font-weight:750;color:var(--teal);margin-bottom:8px}.intro h1{font-size:clamp(27px,4vw,39px);line-height:1.15;margin-bottom:12px}.intro{margin-bottom:23px}.intro p{max-width:760px;margin:0}.tag{display:inline-block;border-radius:6px;padding:4px 9px;background:var(--mint);color:#056e62;font-weight:700;font-size:11px;margin-bottom:14px}.note{background:#fff9ec;border:1px solid #efddbd;border-radius:10px;padding:12px 15px;font-size:12px;color:#775721;margin-top:15px}.layout{display:grid;grid-template-columns:minmax(290px,.75fr) minmax(0,1.25fr);gap:16px;align-items:start}.panel{border:1px solid var(--line);border-radius:14px;background:var(--paper);padding:21px;min-width:0}.panel p{font-size:13px}.settings{grid-row:1/span 2}.fields{display:grid;gap:12px}.field label{display:block;font-weight:700;font-size:12px;margin-bottom:6px}.field label small{color:var(--muted);font-weight:500}.field-row{display:grid;grid-template-columns:minmax(0,1fr) 88px;gap:10px;align-items:center}.field input[type=range]{width:100%;accent-color:var(--teal);min-height:22px}.field input[type=number]{width:100%;border-radius:8px;border:1px solid #b9c9d3;min-height:40px;padding:7px;font:inherit;color:inherit}.field-help{font-size:11px!important;margin:3px 0 0!important}.field input:focus-visible,button:focus-visible{outline:2px solid #c68d35;outline-offset:2px}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}.settings details{border-top:1px solid var(--line);margin-top:17px;padding-top:15px}.settings summary{font-weight:700;cursor:pointer;font-size:13px}.settings .hidden-fields{padding-top:14px}.buttons{display:flex;flex-wrap:wrap;gap:9px;margin-top:18px}.preset-buttons{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 18px}.preset-buttons button{padding:8px 12px;min-height:36px;font-size:14px}.preset-buttons .primary{padding-inline:14px}.reset-row{display:flex;justify-content:flex-end;margin-top:12px}button{font:inherit;font-weight:650;border-radius:9px;border:1px solid #b5c9c8;padding:10px 13px;background:white;color:var(--ink);cursor:pointer;min-height:42px}button:hover{background:var(--mint)}button.primary{background:var(--teal);color:white;border-color:var(--teal)}button.primary:hover{background:#076a60}button.active{background:var(--teal);border-color:var(--teal);color:#fff}button:disabled{opacity:.5;cursor:wait}.status{font-size:12px!important;margin-top:14px!important;background:#ecf6fb;color:#1b5367;padding:10px 12px;border-radius:8px;overflow-wrap:anywhere}.status.error{background:#fff0ee;color:#a02f22}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:18px}.metric{background:#f6faf9;border:1px solid #d9ebe5;border-radius:10px;padding:13px;min-width:0}.metric span{font-size:10px;color:var(--muted);display:block}.metric strong{font-size:21px;color:var(--teal);display:block;overflow-wrap:anywhere}.metric small{font-size:10px;color:var(--muted);display:block;line-height:1.35}.plot{height:360px;max-width:100%}.plot-sm{height:310px;max-width:100%}.caption{font-size:12px!important;margin:4px 0 0!important}.foot{margin-top:18px;display:grid;grid-template-columns:1fr;gap:16px}.explain{border-radius:13px;border:1px solid var(--line);background:white;padding:18px}.explain p{font-size:13px;line-height:1.7}.equation{background:#eff6f8;border-radius:8px;padding:10px;font:13px/1.7 Consolas,monospace;overflow-x:auto;color:#254f69}.example-note{background:var(--mint);padding:10px;border-radius:8px;font-size:12px;color:#155c54}.result-box{font-size:12px;color:#415c67;line-height:1.65;margin-top:12px}.spinner{color:#526d7c}.loading{display:flex;align-items:center;justify-content:center;color:var(--muted);height:300px;font-size:13px}.divider{border-top:1px solid var(--line);margin:18px 0}
+.small-link{color:#136c83}
+.top-tip{background:#f6faf9;border:1px solid #d9ebe5;border-radius:12px;padding:12px 14px;margin:0 0 18px}.top-tip h3{margin:0 0 6px;font-size:15px}.top-tip p{font-size:12px;line-height:1.6;margin:0}.anti-group{background:var(--mint);border:1px solid #c6e6da;border-radius:11px;padding:12px;margin:14px 0 10px}.anti-group h3{margin:0 0 5px;font-size:14px}.anti-group p{margin:0 0 10px;font-size:12px}.segmented{display:flex;gap:8px;flex-wrap:wrap}.segmented button{min-height:36px;padding:8px 14px}
+.equation{white-space:pre-line}
+.table-panel{margin-top:17px}
+.table-scroll{overflow-x:auto;max-width:100%}
+.collapsible summary{cursor:pointer;font-weight:700}.optional-note{font-size:12px;color:var(--muted)}
+.validation-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}.validation-card{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fbfdfd}.validation-card.pass{border-color:#b9e4d7;background:#f4fbf8}.validation-card.fail{border-color:#f0c1b8;background:#fff5f4}.validation-card h3{margin:0 0 8px;font-size:15px}.validation-card .badge{display:inline-block;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:700;margin-bottom:8px}.validation-card.pass .badge{background:#dff4ed;color:#09685d}.validation-card.fail .badge{background:#fde4e0;color:#a0372a}.validation-card ul{margin:8px 0 0;padding-left:18px;color:var(--muted);font-size:12px;line-height:1.6}
+.sample-table{border-collapse:collapse;width:100%;white-space:nowrap;font-size:12px}
+.sample-table th,.sample-table td{padding:9px 11px;text-align:right;border-bottom:1px solid var(--line)}
+.sample-table th:first-child,.sample-table td:first-child{text-align:left}
+.sample-table th{background:#eff6f5;color:#23594f;font-weight:750}
+.sample-table tr:nth-child(even) td{background:#fbfdfd}
+.code-view{display:block;width:100%;min-height:400px;max-height:610px;resize:vertical;overflow:auto;border:1px solid #c9d6de;border-radius:9px;padding:13px 14px;background:#0e2132;color:#e5f4f0;font:12px/1.6 Consolas,"Courier New",monospace;tab-size:2;margin-top:9px}.code-label{display:block;font-weight:700;font-size:12px;margin-top:17px}.code-view:focus-visible{outline:2px solid #bb8e36}.note-compact{font-size:12px;color:var(--muted);margin:10px 0 0}
+.section-note{font-size:12px;color:#155c54;background:var(--mint);padding:10px 12px;border-radius:8px;margin:10px 0}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.settings{grid-row:auto}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.plot{height:325px}}
+@media(max-width:570px){.shell{padding:22px 13px 36px}.panel{padding:15px}.top-inner{padding:14px 16px}.foot{grid-template-columns:1fr}.two-col{grid-template-columns:1fr 1fr}.metric strong{font-size:19px}.plot{height:290px}.plot-sm{height:270px}.buttons button,.preset-buttons button,.segmented button{flex:1}.top-right a{margin-right:8px;font-size:11px}.validation-grid{grid-template-columns:1fr}}
+
+.prediction-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(240px,.9fr);gap:18px;margin-top:18px}
+.prediction-layout label{display:block;font-size:13px;margin-bottom:8px}
+.prediction-layout select{min-height:43px;width:100%;border:1px solid #bdcbd3;padding:8px 10px;background:#fff;border-radius:8px;font:inherit;color:var(--ink)}
+.prediction-steps{background:#f5faf8;border:1px solid #d9ebe5;border-radius:10px;padding:16px;font-size:13px}
+.prediction-steps ol{padding-left:22px;margin:9px 0 0}.prediction-steps li{margin-bottom:7px}
+.prediction-result{border-top:1px solid var(--line);padding-top:20px;margin-top:20px}
+.prediction-result[hidden]{display:none!important}.prediction-result.correct h3{color:#087f72}.prediction-result.incorrect h3{color:#a35b20}
+.compare-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:15px 0}
+.compare-cards .metric strong{font-size:17px}.compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.compare-grid>div{min-width:0}.compare-grid .plot-sm{height:320px}
+@media(max-width:900px){.prediction-layout{grid-template-columns:1fr}.compare-grid{grid-template-columns:1fr}.compare-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.validation-grid{grid-template-columns:1fr}}
+@media(max-width:570px){.prediction-steps{padding:12px}.compare-grid .plot-sm{height:280px}}
+
+/* Stage 6 layout refinements */
+.run-row{margin:12px 0 8px}
+.run-row button{font-size:13px;min-height:37px;padding:7px 13px}
+.preset-buttons{display:flex;flex-wrap:nowrap;gap:5px;overflow-x:auto;white-space:nowrap;scrollbar-width:thin;margin:0 0 13px;padding-bottom:5px}
+.preset-buttons button{flex:0 0 auto;font-size:11.5px;line-height:1.2;min-height:32px;padding:5px 7px;border-radius:7px}
+.aw-compact{display:flex;align-items:center;gap:10px;justify-content:space-between;border:1px solid #d9ebe5;background:#f5faf8;border-radius:9px;padding:8px 11px;margin-bottom:14px;min-width:0}
+.aw-compact strong{display:block;font-size:12px}
+.aw-compact small{display:block;color:var(--muted);font-size:10px;font-weight:400;line-height:1.4}
+.aw-compact button{flex:none;border-radius:7px;font-size:11px;padding:4px 14px;min-height:30px;min-width:62px}
+.aw-compact button:not(.active){background:#fff;color:#5c6674}
+.prediction-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:14px 0 4px}
+.prediction-actions button{font-size:12px;min-height:34px;padding:7px 10px;line-height:1.2;border-radius:7px;flex:0 0 auto}
+.validation-card p{overflow-wrap:anywhere;line-height:1.65}
+.validation-card p>div{margin-top:6px}
+.validation-card p>div:first-child{margin-top:0}
+.validation-card p strong{color:var(--ink)}
+@media(max-width:570px){.preset-buttons button{flex:0 0 auto;font-size:10px;padding:5px 5px}.run-row button{width:auto}.prediction-actions button{flex:0 1 auto;font-size:11.5px;min-height:33px;padding:6px 9px}.aw-compact small{font-size:10px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-inner"><div class="brand"><a href="index.html" style="color:inherit;text-decoration:none">Dynamics Lab</a> <span>· Digital PID</span></div><nav class="top-right" aria-label="Other control modules"><a href="index.html#control">All modules</a><a href="pid-playground.html">P1</a><a href="slow-sensor.html">P2</a><span>ENCS4380 · Team T19</span></nav></div></header>
+<main class="shell">
+<div class="intro"><span class="tag">HOMEWORK 2 · P3</span><h1>Digital PID Controller</h1><p>Explore <strong>P, PI and PID</strong> with a sampled controller. Watch the integral accumulate, the derivative react to changes, and the command remain fixed between samples.</p><div class="note"><strong>Local preview — Stage 6.</strong> Test the digital PID, sample timing, code generation, and the three automatic homework validation checks. No changes have been made to GitHub.</div></div>
+<section class="top-tip"><h3>Suggested comparisons</h3><p><strong>P only → PI:</strong> keep Kp and Ts fixed and watch the end-window error shrink when Ki is added. <strong>PI → PID:</strong> watch the D term react to changes in error. <strong>Windup demo:</strong> start with Anti-windup ON, read the overshoot, then switch OFF without changing anything else.</p></section><div class="layout">
+  <section class="panel settings" aria-labelledby="settings-title"><h2 id="settings-title">Choose the settings</h2><p>Start with P only, then try PI and PID. Keep all other settings fixed when you compare them. Every calculation runs in Python through Pyodide.</p><div class="run-row"><button class="primary" id="run" type="button" disabled>Run simulation</button></div>
+    <div class="preset-buttons" aria-label="Quick examples"><button id="preset-p" type="button">P only</button><button id="preset-pi" type="button">PI</button><button id="preset-pid" type="button">PID</button><button id="preset-windup" type="button">Windup demo</button><button id="fast" type="button">Fast Ts</button><button id="slow" type="button">Slow Ts</button></div>
+    <div class="aw-compact"><span><strong>Anti-windup</strong><small>Prevent integral buildup at control limits</small></span><button id="toggle-anti-windup" type="button" class="active" aria-pressed="true" aria-label="Anti-windup on. Click to turn off">ON</button></div>
+    <div class="fields">
+      <div class="field"><label for="Ts-number">Sampling time <strong>Ts</strong> <small>(seconds)</small></label><div class="field-row"><input id="Ts-range" type="range" min="0.02" max="1.2" step="0.01" value="0.2"><input id="Ts-number" type="number" min="0.02" max="2" step="0.01" value="0.2"></div><p class="field-help">How often the digital controller updates u[k].</p></div>
+      <div class="field"><label for="Kp-number">Proportional gain <strong>Kp</strong></label><div class="field-row"><input id="Kp-range" type="range" min="0" max="20" step="0.1" value="2"><input id="Kp-number" type="number" min="0" max="20" step="0.1" value="2"></div><p class="field-help">Responds to current error.</p></div>
+      <div class="field"><label for="Ki-number">Integral gain <strong>Ki</strong></label><div class="field-row"><input id="Ki-range" type="range" min="0" max="10" step="0.1" value="0"><input id="Ki-number" type="number" min="0" max="10" step="0.1" value="0"></div><p class="field-help">Accumulates error, helps remove steady-state error.</p></div>
+      <div class="field"><label for="Kd-number">Derivative gain <strong>Kd</strong></label><div class="field-row"><input id="Kd-range" type="range" min="0" max="5" step="0.05" value="0"><input id="Kd-number" type="number" min="0" max="5" step="0.05" value="0"></div><p class="field-help">Based on change in error between samples. D[0] starts at zero.</p></div>
+      <div class="field"><label for="setpoint-number">Setpoint <strong>r</strong></label><div class="field-row"><input id="setpoint-range" type="range" min="0.1" max="5" step="0.1" value="1"><input id="setpoint-number" type="number" min="0.1" max="5" step="0.1" value="1"></div></div>
+    </div>
+    <details><summary>Plant and actuator settings</summary><div class="fields hidden-fields">
+      <div class="field"><label for="K-number">Plant gain K</label><div class="field-row"><input id="K-range" type="range" min="0.1" max="5" step="0.1" value="1"><input id="K-number" type="number" min="0.1" max="5" step="0.1" value="1"></div></div>
+      <div class="field"><label for="tau-number">Plant time constant tau (s)</label><div class="field-row"><input id="tau-range" type="range" min="0.1" max="5" step="0.1" value="1"><input id="tau-number" type="number" min="0.1" max="5" step="0.1" value="1"></div></div>
+      <div class="field"><label for="duration-number">Simulation duration (s)</label><div class="field-row"><input id="duration-range" type="range" min="2" max="12" step="1" value="5"><input id="duration-number" type="number" min="2" max="12" step="1" value="5"></div></div>
+      <div class="two-col"><div class="field"><label for="u_min-number">Minimum u</label><input style="width:100%;height:40px;border:1px solid #b9c9d3;border-radius:8px;padding:8px;font:inherit" id="u_min-number" type="number" min="-100" max="0" step="0.5" value="-10"></div><div class="field"><label for="u_max-number">Maximum u</label><input style="width:100%;height:40px;border:1px solid #b9c9d3;border-radius:8px;padding:8px;font:inherit" id="u_max-number" type="number" min="0" max="100" step="0.5" value="10"></div></div>
+    </div></details>
+    <div class="reset-row"><button id="reset" type="button">Reset</button></div>
+    <input id="anti-windup" type="hidden" value="true">
+    <p class="status" id="status" role="status">Loading Python…</p>
+    <div class="result-box" id="run-details">Euler uses a smaller time step <strong>h</strong> to integrate the plant, independently of the controller sampling interval Ts.</div>
+  </section>
+  <section class="panel"><h2>Plant output vs setpoint</h2><p>The blue output changes between the sampling points. The dotted target is constant.</p><div id="output-chart" class="plot"><div class="loading">Waiting for Python...</div></div><div class="metrics"><div class="metric"><span>End-window error</span><strong id="error-metric">—</strong><small>Not necessarily steady-state</small></div><div class="metric"><span>Overshoot</span><strong id="overshoot-metric">—</strong><small>Above the setpoint</small></div><div class="metric"><span>Rise time</span><strong id="rise-metric">—</strong><small>10% to 90% of setpoint</small></div><div class="metric"><span>Settling time</span><strong id="settle-metric">—</strong><small>Within ±2% until plot end</small></div></div></section>
+  <section class="panel"><h2>Stair-step control u[k]</h2><p>The PID is sampled. The applied command is held until the next sample (Zero-Order Hold). Actuator limits are shown as dotted lines.</p><div id="control-chart" class="plot-sm"><div class="loading">Waiting for Python...</div></div><p class="caption" id="control-note">At k=0, e[0] = r − y(0), I includes the first error, and D[0] = 0. Below is a breakdown of each term.</p></section>
+</div>
+
+<section class="panel table-panel collapsible" id="samples"><h2>Controller update table <span class="optional-note">(optional for checking the math)</span></h2><p>This table is mainly for verification: it shows the first 6 sampled PID updates exactly as Python calculated them. It is useful when you want to check where P, I and D came from, but it is not the main result of the page.</p><details><summary>Show the first 6 controller updates</summary><div class="table-scroll"><table class="sample-table"><thead><tr><th>k</th><th>Time (s)</th><th>Error e[k]</th><th>P</th><th>I</th><th>D</th><th>Raw u</th><th>Applied u</th><th>Integral frozen?</th></tr></thead><tbody id="sample-rows"><tr><td colspan="9">Waiting for Python...</td></tr></tbody></table></div><p class="note-compact">Startup convention: D[0] = 0; integral includes e[0]·Ts. These choices avoid a derivative kick on the first sample and match the taught discrete PID for all later samples.</p></details></section>
+
+
+<section class="panel table-panel" id="prediction">
+<p class="eyebrow">Homework 2 · Predict, then check</p>
+<h2>What happens when sampling time Ts increases?</h2>
+<p>Choose your prediction <strong>before</strong> increasing Ts. Save the baseline, change <strong>only Ts</strong>, then check. Python compares both controllers using identical plant/gains/limits and a common small Euler step.</p>
+<div class="section-note"><strong>Note:</strong> A longer Ts does not always increase overshoot for every controller. "Similar" means a difference within ±0.5 percentage points. This is a simulation, not a general stability proof.</div>
+<div class="prediction-layout"><div>
+<label for="prediction-choice"><strong>My prediction about overshoot:</strong></label>
+<select id="prediction-choice"><option value="">Choose your prediction...</option><option value="increase">Overshoot will increase</option><option value="decrease">Overshoot will decrease</option><option value="similar">Overshoot will stay similar</option></select>
+<div class="buttons prediction-actions"><button id="prediction-example" type="button">Load teaching example</button><button id="save-prediction" type="button" class="primary" disabled>Save prediction</button><button id="check-prediction" type="button" disabled>Check prediction</button><button id="clear-prediction" type="button">Start new prediction</button></div>
+<p class="status" role="status" id="prediction-status">Wait for Python, then choose and save your prediction.</p>
+<p class="note-compact" id="prediction-lock">No baseline saved.</p></div>
+<aside class="prediction-steps"><h3>Try it with these values</h3><ol><li>Click <b>Load teaching example</b> (Kp = 9, Ki = Kd = 0, Ts = 0.05 s).</li><li>Choose a prediction, then click <b>Save prediction</b>.</li><li>Change only <b>Ts to 0.20 s</b> in the settings above.</li><li>Click <b>Check prediction</b> and read the comparison below.</li></ol></aside></div>
+<div class="prediction-result" id="prediction-result" hidden>
+<h3 id="prediction-verdict">Comparison</h3><p id="prediction-explanation"></p>
+<div class="compare-cards"><div class="metric"><span>Saved Ts / overshoot</span><strong id="baseline-summary">—</strong></div><div class="metric"><span>New Ts / overshoot</span><strong id="changed-summary">—</strong></div><div class="metric"><span>Overshoot change</span><strong id="delta-summary">—</strong><small>Percentage points</small></div><div class="metric"><span>Shared Euler target h</span><strong id="euler-summary">—</strong></div></div>
+<div class="compare-grid"><div><h3>Output comparison</h3><div class="plot-sm" id="comparison-output"></div></div><div><h3>Stair-step control comparison</h3><div class="plot-sm" id="comparison-control"></div></div></div>
+<p class="caption" id="comparison-extra"></p>
+</div>
+</section>
+
+<section class="panel table-panel" id="arduino-section">
+  <h2>Arduino code for these settings</h2>
+  <p>The <strong>Python model generates</strong> a complete .ino sketch using the current Kp, Ki, Kd, Ts, setpoint, control limits and anti-windup choice. Click any preset or change a slider and the generated code updates alongside the simulation.</p>
+  <div class="section-note"><strong>Hardware boundary:</strong> The controller equations match the simulation, but the A0 sensor and 9/7/8 H-bridge pins are <strong>example adapters only</strong>, not WALL-E measurements or verified wiring. Replace the readout with an encoder-based speed reading in the same units as the setpoint and calibrate the PWM mapping before uploading to a motor.</div>
+  <div class="buttons"><button class="primary" id="copy-code" type="button" disabled>Copy Arduino code</button><button id="save-ino" type="button" disabled>Save .ino sketch</button></div>
+  <p class="status" id="code-status" role="status">Waiting for Python model...</p>
+  <label for="arduino-code" class="code-label">Generated Arduino C++ (editable for your hardware)</label>
+  <textarea class="code-view" id="arduino-code" aria-label="Generated Arduino code" readonly spellcheck="false" placeholder="Waiting for Pyodide..."></textarea>
+  <p class="note-compact">Only the controller runs on Arduino. The Python webpage simulates the plant using Euler; real Arduino code reads a physical output instead. On-time updates use fixed Ts. If the board misses sampling deadlines, performance can differ from the ideal simulation.</p>
+</section>
+
+
+<section class="panel table-panel" id="validation">
+  <p class="eyebrow">Homework 2 · Section 2.1</p>
+  <h2>Validation checks</h2>
+  <p>These are the <strong>three reference checks in the homework</strong>, using fixed plant/controller values. Results appear automatically after Python loads and do not change when you move the sliders.</p>
+  <p class="status" id="validation-status" role="status">Calculating the homework checks when Python is ready...</p>
+  <div class="validation-grid">
+    <div class="validation-card" id="val-card-1"><span class="badge">Loading</span><h3>1 · P-only</h3><p id="val-1">Expected closed-loop time constant 0.1 s and steady-state error 10% (K=1, τ=1 s, Kp=9).</p></div>
+    <div class="validation-card" id="val-card-2"><span class="badge">Loading</span><h3>2 · PI parameters</h3><p id="val-2">Expected natural frequency ωn=1 rad/s and damping ratio ζ=1 (K=1, τ=1 s, Kp=1, Ki=1).</p></div>
+    <div class="validation-card" id="val-card-3"><span class="badge">Loading</span><h3>3 · PI step tracking</h3><p id="val-3">For a stable PI loop, the steady-state error to a step should approach zero.</p></div>
+  </div>
+  <p class="note-compact">The first two values are continuous-time lecture references. The page also checks sampled simulations with a small Ts; their transients need not match the continuous-time solution exactly.</p>
+</section>
+
+</main>
+<script src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.js"></script>
+<!-- Python model loaded from python/digital_pid.py using Pyodide -->
+<script>
+"use strict";
+const el=id=>document.getElementById(id);
+const keys=["Ts","Kp","Ki","Kd","setpoint","K","tau","duration"];
+const defaults={K:1,tau:1,Kp:2,Ki:0,Kd:0,Ts:0.2,setpoint:1,duration:5,u_min:-10,u_max:10,anti_windup:true};
+let engine=null,simulationFn=null,arduinoFn=null,comparisonFn=null,validationFn=null,updateTimer=null,runNumber=0;
+let currentSettings=null,currentSimulation=null,savedPrediction=null;
+const conf={responsive:true,displaylogo:false,modeBarButtonsToRemove:["lasso2d","select2d"]};
+function status(message,error=false){el("status").textContent=message;el("status").classList.toggle("error",error)}
+function updateAntiButtons(enabled){
+  const button=el("toggle-anti-windup");
+  el("anti-windup").value=enabled?"true":"false";
+  button.classList.toggle("active",enabled);
+  button.textContent=enabled?"ON":"OFF";
+  button.setAttribute("aria-pressed",String(enabled));
+  button.setAttribute("aria-label","Anti-windup "+(enabled?"on. Click to turn off":"off. Click to turn on"));
+}
+function setFields(config){for(const [key,value] of Object.entries(config)){
+  if(key==="anti_windup"){updateAntiButtons(Boolean(value));continue;}
+  const number=el(key+"-number");if(number)number.value=String(value);
+  const range=el(key+"-range");if(range)range.value=String(value);
+}}
+function values(){const o={};for(const k of [...keys,"u_min","u_max"]){const v=el(k+"-number").valueAsNumber;if(!Number.isFinite(v))throw Error(k+" needs a numeric value.");o[k]=v;}
+  o.anti_windup=el("anti-windup").value==="true";return o;}
+function axes(ytitle){return {paper_bgcolor:"#fff",plot_bgcolor:"#fff",font:{color:"#3a5369",size:11},margin:{t:22,r:18,b:46,l:56},xaxis:{title:"Time (s)",showgrid:true,gridcolor:"#edf1f5",zeroline:false},yaxis:{title:ytitle,showgrid:true,gridcolor:"#edf1f5",zeroline:false},legend:{orientation:"h",y:1.17,x:0},hovermode:"x unified"};}
+function number(value,digits=3){return Number(value).toFixed(digits)}
+function timeLabel(x){return x==null?"Not reached":number(x,3)+" s"}
+function td(v){const c=document.createElement("td");c.textContent=String(v);return c;}
+function displaySamples(data){const rows=el("sample-rows");rows.replaceChildren();
+  for(let k=0;k<Math.min(6,data.metrics.sampling_intervals);k++){
+    const tr=document.createElement("tr");const items=[k,number(data.control_time[k],3),number(data.sample_error[k],4),number(data.p_term[k],4),number(data.i_term[k],4),number(data.d_term[k],4),number(data.raw_command[k],4),number(data.control[k],4),data.integral_frozen[k]?"Yes":"No"];
+    for(const x of items)tr.appendChild(td(x));rows.appendChild(tr);
+  }
+}
+async function render(){if(!simulationFn)return;const mine=++runNumber;
+ try{
+  const cfg=values();status("Simulating in Python...");
+  const jsonSettings=JSON.stringify(cfg);
+  const d=JSON.parse(simulationFn(jsonSettings));
+  const source=arduinoFn(jsonSettings);
+  if(mine!==runNumber)return;
+  el("arduino-code").value=source;
+  el("copy-code").disabled=false;el("save-ino").disabled=false;
+  el("code-status").textContent="Arduino code synchronized: Ts="+number(cfg.Ts*1000,0)+" ms · Kp="+cfg.Kp+" · Ki="+cfg.Ki+" · Kd="+cfg.Kd+" · anti-windup="+(cfg.anti_windup?"ON":"OFF")+".";
+  const t=d.time,y=d.output,sp=cfg.setpoint;
+  const base={type:"scatter",mode:"lines",hovertemplate:"t=%{x:.3f} s<br>y=%{y:.4f}<extra>%{fullData.name}</extra>"};
+  const outputLayout=axes("Output y(t)"),ctlLayout=axes("Command u[k]");
+  const lims=[{name:"Upper limit",val:cfg.u_max},{name:"Lower limit",val:cfg.u_min}].map(l=>({type:"scatter",mode:"lines",x:[0,cfg.duration],y:[l.val,l.val],name:l.name,line:{color:"#c17845",width:1,dash:"dot"},hoverinfo:"skip"}));
+  // Plotly may append its plot alongside the original placeholder text.
+  // Remove the placeholders so "Waiting for Python" cannot remain under a drawn plot.
+  for(const id of ["output-chart","control-chart"]){
+    const node=el(id);
+    if(node.querySelector(".loading"))node.replaceChildren();
+  }
+  await Promise.all([
+   Plotly.react("output-chart",[{...base,x:t,y,name:"Plant output",line:{color:"#315dda",width:2.8}},{...base,x:[0,cfg.duration],y:[sp,sp],name:"Setpoint",line:{color:"#b56425",width:2,dash:"dash"}}],outputLayout,conf),
+   Plotly.react("control-chart",[{type:"scatter",mode:"lines",x:d.control_time,y:d.control,name:"Applied u",line:{color:"#087f72",width:2.8,shape:"hv"},hovertemplate:"t=%{x:.3f}<br>u=%{y:.4f}<extra></extra>"},...lims],ctlLayout,conf)
+  ]);
+  if(mine!==runNumber)return;
+  const m=d.metrics;
+  el("error-metric").textContent=number(m.end_of_window_error_percent,2)+"%";
+  el("overshoot-metric").textContent=number(m.overshoot_percent,2)+"%";
+  el("rise-metric").textContent=timeLabel(m.rise_time_seconds);
+  el("settle-metric").textContent=timeLabel(m.settling_time_seconds);
+  el("control-note").textContent="First sample: P="+number(d.p_term[0],3)+", I="+number(d.i_term[0],3)+", D="+number(d.d_term[0],3)+", applied u="+number(d.control[0],3)+". Anti-windup="+(cfg.anti_windup?"ON":"OFF")+".";
+  el("run-details").textContent="Sampling intervals: "+m.sampling_intervals+" · Euler steps: "+m.euler_steps+" · Euler h ≤ "+number(m.euler_target_step,5)+" s · Saturated intervals: "+m.saturated_intervals+" · Frozen integral updates: "+m.frozen_integral_intervals+". The end-window error is not a mathematical steady-state guarantee.";
+  displaySamples(d);
+  currentSimulation=d;currentSettings={...cfg};refreshPrediction();
+  status("Python ready · Simulation updated");
+ }catch(error){console.error(error);status("Cannot simulate: "+error.message,true);
+  currentSimulation=null;currentSettings=null;refreshPrediction();
+  el("code-status").textContent="Cannot generate code: "+error.message;
+  el("copy-code").disabled=true;el("save-ino").disabled=true;
+}
+}
+function schedule(){el("prediction-result").hidden=true;el("check-prediction").disabled=true;if(!engine)return;clearTimeout(updateTimer);updateTimer=setTimeout(render,110)}
+for(const k of keys){const numberInput=el(k+"-number"),range=el(k+"-range");
+ range.addEventListener("input",()=>{numberInput.value=range.value;schedule();});
+ numberInput.addEventListener("input",()=>{if(Number.isFinite(numberInput.valueAsNumber))range.value=numberInput.value;schedule();});
+}
+for(const k of ["u_min","u_max"])el(k+"-number").addEventListener("input",schedule);
+el("toggle-anti-windup").addEventListener("click",()=>{
+  updateAntiButtons(el("anti-windup").value!=="true");
+  schedule();
+});
+el("run").addEventListener("click",render);
+el("reset").addEventListener("click",()=>{setFields(defaults);schedule();});
+function preset(changes){setFields({...defaults,...changes});schedule();}
+el("preset-p").addEventListener("click",()=>preset({Kp:2,Ki:0,Kd:0,Ts:.05,duration:12}));
+el("preset-pi").addEventListener("click",()=>preset({Kp:2,Ki:1,Kd:0,Ts:.05,duration:12}));
+el("preset-pid").addEventListener("click",()=>preset({Kp:2,Ki:1,Kd:.2,Ts:.05,duration:12}));
+el("preset-windup").addEventListener("click",()=>preset({Kp:2,Ki:6,Kd:0,Ts:.2,duration:10,u_min:-10,u_max:2,anti_windup:true}));
+el("fast").addEventListener("click",()=>preset({Kp:9,Ki:0,Kd:0,Ts:.05,duration:5}));
+el("slow").addEventListener("click",()=>preset({Kp:9,Ki:0,Kd:0,Ts:.2,duration:5}));
+
+// P3 Stage 5: prediction is committed before the student changes Ts.
+const fixedKeys=["K","tau","Kp","Ki","Kd","setpoint","duration","u_min","u_max","anti_windup"];
+function fixedMatch(a,b){
+  return Boolean(a&&b&&fixedKeys.every(k=>typeof a[k]==="boolean"
+    ?a[k]===b[k]:Math.abs(a[k]-b[k])<1e-8));
+}
+function predictionStatus(message){el("prediction-status").textContent=message;}
+function refreshPrediction(){
+  const ready=Boolean(comparisonFn && currentSettings && currentSimulation);
+  el("save-prediction").disabled=!ready || !el("prediction-choice").value || Boolean(savedPrediction);
+  if(!savedPrediction){
+    el("check-prediction").disabled=true;
+    el("prediction-lock").textContent="No baseline saved. Choose an answer before changing Ts.";
+    return;
+  }
+  const b=savedPrediction.settings;
+  el("prediction-lock").textContent="Saved baseline: Ts="+fmt(b.Ts)+" s, Kp="+b.Kp+", Ki="+b.Ki+", Kd="+b.Kd+", prediction="+savedPrediction.choice+".";
+  const match=ready&&fixedMatch(b,currentSettings);
+  const increased=match&&currentSettings.Ts>b.Ts+1e-8;
+  el("check-prediction").disabled=!increased;
+  if(!ready) predictionStatus("Waiting for the simulation to complete.");
+  else if(!match) predictionStatus("The saved plant/gains/limits/target changed. Restore them or start a new prediction. Only Ts may change.");
+  else if(!increased) predictionStatus("Saved. Increase ONLY Ts above "+fmt(b.Ts)+" s, then press Check prediction.");
+  else predictionStatus("Ready to check: Ts "+fmt(b.Ts)+" → "+fmt(currentSettings.Ts)+" s; everything else matches.");
+}
+function startNewPrediction(){
+  savedPrediction=null;
+  el("prediction-choice").value="";
+  el("prediction-result").hidden=true;
+  predictionStatus("Choose an answer and save it BEFORE increasing Ts.");
+  refreshPrediction();
+}
+el("prediction-choice").addEventListener("change",()=>{
+  // A changed answer is a fresh attempt; a revealed answer cannot be reused.
+  if(savedPrediction) startNewPrediction();
+  refreshPrediction();
+});
+el("prediction-example").addEventListener("click",()=>{
+  startNewPrediction();
+  setFields({...defaults,Kp:9,Ki:0,Kd:0,Ts:.05,duration:5});
+  schedule();
+});
+el("save-prediction").addEventListener("click",()=>{
+  if(savedPrediction||!currentSettings||!currentSimulation)return;
+  try{
+    const latest=values();
+    if(!fixedMatch(latest,currentSettings)||Math.abs(latest.Ts-currentSettings.Ts)>1e-8)
+      throw Error("Wait for the current settings to finish simulating first.");
+    const choice=el("prediction-choice").value;
+    if(!["increase","decrease","similar"].includes(choice))throw Error("Choose your answer first.");
+    savedPrediction={settings:{...currentSettings},choice};
+    el("prediction-result").hidden=true;
+    refreshPrediction();
+  }catch(error){predictionStatus(error.message);}
+});
+el("clear-prediction").addEventListener("click",startNewPrediction);
+el("check-prediction").addEventListener("click",async()=>{
+  if(!savedPrediction || !currentSettings || !fixedMatch(savedPrediction.settings,currentSettings)
+      || currentSettings.Ts<=savedPrediction.settings.Ts+1e-8)return;
+  const snapshot={settings:{...savedPrediction.settings},choice:savedPrediction.choice,Ts:currentSettings.Ts};
+  el("check-prediction").disabled=true;
+  predictionStatus("Calculating both sampling-time responses in Python...");
+  try{
+    const data=JSON.parse(comparisonFn(JSON.stringify({baseline:snapshot.settings,new_Ts:snapshot.Ts})));
+    if(!savedPrediction||savedPrediction.choice!==snapshot.choice||!fixedMatch(snapshot.settings,currentSettings)
+       ||Math.abs(currentSettings.Ts-snapshot.Ts)>1e-8)return;
+    const old=data.baseline,next=data.changed,good=data.outcome===snapshot.choice;
+    el("prediction-result").className="prediction-result "+(good?"correct":"incorrect");
+    el("prediction-verdict").textContent=good?"Prediction correct ✓":"Your prediction didn't match this result";
+    const phrases={increase:"increase",decrease:"decrease",similar:"remain similar"};
+    el("prediction-explanation").textContent="You predicted overshoot would "+phrases[snapshot.choice]+". It actually: "+phrases[data.outcome]+". Similar means within ±"+data.tolerance_pp+" percentage points. The outcome depends on the selected gains.";
+    el("baseline-summary").textContent=fmt(snapshot.settings.Ts)+" s / "+fmt(old.metrics.overshoot_percent,2)+"%";
+    el("changed-summary").textContent=fmt(snapshot.Ts)+" s / "+fmt(next.metrics.overshoot_percent,2)+"%";
+    el("delta-summary").textContent=(data.delta_pp>=0?"+":"")+fmt(data.delta_pp,2)+" pp";
+    el("euler-summary").textContent=fmt(data.common_h,5)+" s";
+    el("comparison-extra").textContent="Settling time (±2%): saved "+timeLabel(old.metrics.settling_time_seconds)+", changed "+timeLabel(next.metrics.settling_time_seconds)+". End-window errors: saved "+fmt(old.metrics.end_of_window_error_percent,2)+"%, changed "+fmt(next.metrics.end_of_window_error_percent,2)+"%. These are numerical results, not real motor measurements.";
+    el("prediction-result").hidden=false;
+    const yy=[
+      {type:"scatter",mode:"lines",x:old.time,y:old.output,name:"Saved Ts",line:{color:"#315dda",width:2.5}},
+      {type:"scatter",mode:"lines",x:next.time,y:next.output,name:"New Ts",line:{color:"#087f72",width:2.5}},
+      {type:"scatter",mode:"lines",x:[0,snapshot.settings.duration],y:[snapshot.settings.setpoint,snapshot.settings.setpoint],name:"Setpoint",line:{color:"#b56425",dash:"dot",width:2}}
+    ];
+    const uu=[
+      {type:"scatter",mode:"lines",x:old.control_time,y:old.control,name:"Saved Ts",line:{color:"#315dda",width:2.5,shape:"hv"}},
+      {type:"scatter",mode:"lines",x:next.control_time,y:next.control,name:"New Ts",line:{color:"#087f72",width:2.5,shape:"hv"}}
+    ];
+    await Promise.all([
+      Plotly.react("comparison-output",yy,axes("Output y(t)"),conf),
+      Plotly.react("comparison-control",uu,axes("Held command u[k]"),conf)
+    ]);
+    if(savedPrediction && Math.abs(currentSettings.Ts-snapshot.Ts)<1e-8)
+      predictionStatus("Comparison completed. Try another Ts or start a new prediction to change the gains.");
+  }catch(error){console.error(error);el("prediction-result").hidden=true;predictionStatus("Comparison error: "+error.message);}
+  finally{refreshPrediction();if(!el("prediction-result").hidden)predictionStatus("Comparison completed. Change Ts again or start a new prediction to choose other gains.");}
+});
+function fmt(x,digits=3){return Number(x).toFixed(digits);}
+
+
+async function runValidation(){
+ if(!validationFn)return;
+ el("validation-status").textContent="Checking the three homework reference cases in Python...";
+ try{
+  const data=JSON.parse(validationFn());
+  data.checks.forEach((check,index)=>{
+    const card=el("val-card-"+(index+1));
+    const badge=card.querySelector(".badge");
+    card.classList.remove("pass","fail");
+    card.classList.add(check.pass?"pass":"fail");
+    badge.textContent=check.pass?"PASS":"FAIL";
+    // Use explicit DOM children instead of injecting markup from Python.
+    const result=el("val-"+(index+1));
+    result.replaceChildren();
+    for(const [label,value] of [["Expected",check.expected],["Calculated",check.measured],["Method / tolerance",check.detail]]){
+      const line=document.createElement("div");
+      const strong=document.createElement("strong");
+      strong.textContent=label+": ";
+      line.appendChild(strong);
+      line.appendChild(document.createTextNode(value));
+      result.appendChild(line);
+    }
+  });
+  el("validation-status").textContent=data.all_passed
+    ?"All 3 homework validation checks passed. These are fixed reference cases."
+    :"One or more reference checks failed. Review the calculated values below.";
+ }catch(error){
+  console.error(error);
+  el("validation-status").textContent="Validation could not complete: "+error.message;
+ }
+}
+async function copyGeneratedCode(){
+ const box=el("arduino-code");const source=box.value;
+ if(!source)return;
+ try{
+  if(navigator.clipboard && window.isSecureContext){await navigator.clipboard.writeText(source);}
+  else {box.focus();box.select();if(!document.execCommand("copy"))throw new Error("Copy not supported in this browser");}
+  el("code-status").textContent="Copied the current Arduino sketch to clipboard.";
+ }catch(error){
+  box.focus();box.select();el("code-status").textContent="Automatic copy is blocked. Code selected: press Ctrl+C (or Copy on your phone).";
+ }
+}
+function saveGeneratedSketch(){
+ const source=el("arduino-code").value;if(!source)return;
+ const blob=new Blob([source],{type:"text/plain;charset=utf-8"});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");a.href=url;a.download="p3_digital_pid.ino";
+ document.body.appendChild(a);a.click();a.remove();
+ // Release the blob URL after the click; delay revocation for browser compatibility.
+ setTimeout(()=>URL.revokeObjectURL(url),2000);
+ el("code-status").textContent="Downloaded p3_digital_pid.ino for the current settings.";
+}
+el("copy-code").addEventListener("click",copyGeneratedCode);
+el("save-ino").addEventListener("click",saveGeneratedSketch);
+
+async function start(){try{
+  if(typeof loadPyodide!=="function")throw Error("Pyodide could not load. Check your internet connection.");
+  if(typeof Plotly==="undefined")throw Error("Plotly could not load. Check your internet connection.");
+  status("Starting Pyodide...");
+  engine=await loadPyodide({indexURL:"https://cdn.jsdelivr.net/pyodide/v314.0.7/full/"});
+  const modelResponse = await fetch("python/digital_pid.py", {cache: "no-store"});
+  if (!modelResponse.ok) throw Error("Cannot load python/digital_pid.py (HTTP " + modelResponse.status + ")");
+  await engine.runPythonAsync(await modelResponse.text());
+  simulationFn=engine.globals.get("simulate_json");arduinoFn=engine.globals.get("generate_arduino_code");comparisonFn=engine.globals.get("compare_sampling_times_json");validationFn=engine.globals.get("run_validation_checks_json");el("run").disabled=false;
+  await render();
+  await runValidation();
+ }catch(error){console.error(error);status("Python startup failed: "+error.message,true);}
+}
+start();
+</script>
+</body>
+</html>
